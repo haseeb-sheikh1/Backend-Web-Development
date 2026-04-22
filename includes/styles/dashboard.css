@@ -1,0 +1,160 @@
+/* -----------------------------------
+    Shared Variables & Layout
+------------------------------------ */
+
+:root {
+    --primary-color: #6366f1; /* Adjust to your brand */
+    --white: #ffffff;
+    --light-bg: #f8fafc;
+    --dark-bg: #1e293b;
+    --text-main: #334155;
+    --border-color: #f1f5f9;
+}
+
+.dashboard-wrapper {
+    display: flex;
+    flex: 1;
+    min-height: calc(100vh - 70px);
+    background-color: var(--light-bg);
+}
+
+/* -----------------------------------
+    Sidebar Navigation
+------------------------------------ */
+.sidebar {
+    width: 240px;
+    background: var(--white);
+    border-right: 1px solid var(--border-color);
+    padding: 2rem 0;
+}
+
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+}
+
+.menu-item {
+    padding: 1rem 2rem;
+    color: #64748b;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.menu-item:hover {
+    color: var(--dark-bg);
+    background-color: #f8fafc;
+}
+
+.menu-item.active {
+    background-color: #f8fafc;
+    color: var(--primary-color);
+    border-left-color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* -----------------------------------
+    Main Content Area
+------------------------------------ */
+.dashboard-content {
+    flex: 1;
+    padding: 3rem; 
+    overflow-y: auto;
+}
+
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+
+.content-header h2 {
+    margin: 0;
+    color: var(--dark-bg);
+    font-weight: 600;
+}
+
+/* -----------------------------------
+    Stats & Cards
+------------------------------------ */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background: var(--white);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+/* -----------------------------------
+    The Table System (Structural Fixes)
+------------------------------------ */
+.table-section {
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    margin-bottom: 2rem;
+    overflow: hidden; /* Keeps borders clean */
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.data-table th {
+    background-color: #fafafa;
+    padding: 1rem 1.5rem;
+    font-size: 0.8rem;
+    color: #94a3b8;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table td {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.95rem;
+    color: var(--text-main);
+    vertical-align: middle;
+}
+
+.data-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Utility for text under titles (e.g., Company Name) */
+.sub-text {
+    display: block;
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin-top: 2px;
+    font-weight: 400;
+}
+
+/* -----------------------------------
+    Global Buttons
+------------------------------------ */
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-primary:hover { opacity: 0.9; }

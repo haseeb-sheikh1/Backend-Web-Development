@@ -1,0 +1,190 @@
+/* Fallback root variables (You can remove these if defined in your global CSS) */
+:root {
+    --primary-color: #2563eb;
+    --primary-hover: #1d4ed8;
+    --primary-light: #eff6ff;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --bg-page: #f8fafc;
+    --white: #ffffff;
+    --border-color: #e2e8f0;
+    --focus-ring: rgba(37, 99, 235, 0.2);
+}
+
+body {
+    background-color: var(--bg-page);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.login-page {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 24px;
+}
+
+.login-card {
+    background: var(--white);
+    padding: 3rem 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 
+                0 10px 15px -3px rgba(0, 0, 0, 0.05),
+                0 0 0 1px rgba(0, 0, 0, 0.025); /* Subtle border effect */
+    width: 100%;
+    max-width: 420px;
+}
+
+.card-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.brand-icon {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 56px;
+    height: 56px;
+    background: var(--primary-light);
+    color: var(--primary-color);
+    border-radius: 12px;
+    margin-bottom: 1.25rem;
+}
+
+.card-header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.025em;
+}
+
+.card-header .subtitle {
+    font-size: 0.925rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+}
+
+.label-row label {
+    margin-bottom: 0; /* Reset for flex row */
+}
+
+.forgot-link {
+    font-size: 0.875rem;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.forgot-link:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+}
+
+.form-group input, 
+.form-group select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    background-color: var(--white);
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+/* Custom styling for the select dropdown */
+.select-wrapper {
+    position: relative;
+}
+
+.select-wrapper::after {
+    content: "▼";
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.form-group select {
+    appearance: none; /* Removes default OS styling */
+    padding-right: 2.5rem;
+}
+
+.form-group input::placeholder {
+    color: #94a3b8;
+}
+
+/* Modern Focus States */
+.form-group input:focus, 
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.btn-primary {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.875rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 2rem;
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .login-card {
+        padding: 2rem 1.5rem;
+        border-radius: 12px;
+    }
+    
+    .card-header h1 {
+        font-size: 1.5rem;
+    }
+}
