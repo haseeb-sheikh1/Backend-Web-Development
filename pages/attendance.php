@@ -1,12 +1,10 @@
 <?php
     session_start();
 
-    // Check if the session variable we set in login.php exists
-    if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-        // If not logged in, kick them back to the login UI
-        header("Location: login.php");
-        exit();
-    }
+    if (!isset($_SESSION['email'])) {
+    header("Location: login.php");
+    exit();
+}
 
     $user_name = "Hammad";
     $user_role = "Employee";

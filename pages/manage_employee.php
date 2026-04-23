@@ -22,9 +22,7 @@ session_start();
 ?>
 
 <style>
-/* ════════════════════════════════════════════════
-   Manage Employee — CodeXentric HRM
-════════════════════════════════════════════════ */
+
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap');
 
 :root {
@@ -337,13 +335,6 @@ session_start();
 </style>
 
 <div class="emp-page">
-
-  <!-- Breadcrumb -->
-  <nav class="emp-breadcrumb">
-    <a href="administrator_dashboard.php">Dashboard</a> ›
-    <a href="manage_employee.php">Employees</a> ›
-    <span><?php echo htmlspecialchars($employee['name']); ?></span>
-  </nav>
 
   <!-- ══ Hero Banner ══ -->
   <div class="emp-hero">

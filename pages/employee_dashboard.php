@@ -1,12 +1,11 @@
 <?php
     session_start();
 
-    // Check if the session variable we set in login.php exists
-    if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
-        // If not logged in, kick them back to the login UI
-        header("Location: login.php");
-        exit();
-    }
+    if (!isset($_SESSION['email'])) {
+    header("Location: login.php");
+    exit();
+}
+
 
     $user_name = "Hammad";
     $user_role = "Senior Developer";
@@ -20,10 +19,12 @@
     $extra_css = "employee_dashboard";
     $title = "Employee Dashboard - CodeXentric";
     include_once "../includes/header.php";
+    include_once "../includes/sidebar.php";
+
 ?>
 
 <main class="main-content" role="main">
-    <di class="dashboard-container">
+    <div class="dashboard-container">
         <!-- Page Header -->
         <header class="page-header" role="banner">
             <div class="header-content">
@@ -130,9 +131,6 @@
     
 
 
-
-    
-
         <h3 class="section-title">Recent Leave Requests</h3>
         <section class="table-section">
             <table class="data-table">
@@ -154,7 +152,8 @@
                 </tbody>
             </table>
         </section>
-    </main>
+    
 </div>
-
+</main>
+</div>
 <?php include_once "../includes/footer.php"; ?>

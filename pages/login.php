@@ -3,7 +3,14 @@ session_start();
     $is_login_page = true;
     $extra_css = ""; 
     $title= "Login";
-    include_once "../includes/header.php"; 
+   
+          require_once '../pages/Database.php';
+         require_once '../pages/Users.php';
+         $db = new Database();
+          $connection = $db->getConnection();
+          $user = new Users($connection);
+          $user->logIn(); 
+           include_once "../includes/header.php"; 
 ?>
 
 <style>
@@ -332,19 +339,30 @@ session_start();
         <p>Please enter your credentials to access the system.</p>
       </div>
 
-      <form action="login_process.php" method="POST" class="login-form">
+      <form action="login_process.php" method="POST" class="login-form"
+
+        >
+        <?php
+        if (count($user->errors) > 0 && isset($user->errors['general'])) {
+            echo '<div class="error-messages" style="margin-bottom: 20px; color: #B91C1C; font-weight: 600;">';
+            foreach ($user->errors as $error) {
+                echo '<p>' . htmlspecialchars($error) . '</p>';
+            }
+            echo '</div>';
+        }
+        ?>
         <div class="form-group">
           <label for="email">Email Address</label>
-          <input type="email" id="email" name="email" required placeholder="name@company.com">
+          <input type="email" id="email" name="email" placeholder="name@company.com">
         </div>
 
         <div class="form-group">
           <label for="role">System Role</label>
           <div class="select-wrapper">
-            <select id="role" name="role" required>
+            <select id="role" name="role">
               <option value="" disabled selected>Select your access level</option>
               <option value="admin">Administrator</option>
-              <option value="dev">Employee</option>
+              <option value="employee">Employee</option>
             </select>
           </div>
         </div>
@@ -354,11 +372,11 @@ session_start();
             <label for="password">Password</label>
             <a href="#" class="forgot-link">Forgot password?</a>
           </div>
-          <input type="password" id="password" name="password" required placeholder="••••••••">
+          <input type="password" id="password" name="password" placeholder="••••••••">
         </div>
 
-        <button type="submit" class="btn-primary">
-          <span>Authenticate</span>
+        <button type="submit" class="btn-primary" name = "login">
+          <span>Login</span>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="5" y1="12" x2="19" y2="12"></line>
             <polyline points="12 5 19 12 12 19"></polyline>

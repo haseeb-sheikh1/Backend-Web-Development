@@ -1,7 +1,7 @@
 <?php 
 session_start();
 
-if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+if (!isset($_SESSION['email'])) {
     header("Location: login.php");
     exit();
 }
@@ -24,13 +24,12 @@ if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
     ];
 
     include_once "../includes/header.php";
+
 ?>
 
+
 <style>
-/* ════════════════════════════════════════════════
-   Admin Dashboard — Production Grade
-   CodeXentric HRM  |  Clean & Structured
-════════════════════════════════════════════════ */
+
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap');
 
 :root {

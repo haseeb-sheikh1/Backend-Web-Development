@@ -1,5 +1,9 @@
 <?php
 session_start();
+if (!isset($_SESSION['email'])) {
+    header("Location: login.php");
+    exit();
+}
     $user_role = "admin";
     $current_page = "add_employee";
     $extra_css = "add_employee"; // Move your form-specific CSS (like .form-card, .btn-save, etc.) into this file!

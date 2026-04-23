@@ -10,9 +10,13 @@
   @media (max-width: 900px) { .sidebar { display: none; } }
 </style>
 
-<?php 
-    // Default to 'employee' if not set, for safety
-    $role = isset($_SESSION['user_role']) ? $_SESSION['user_role'] : 'User'; 
+<?php
+// Only show sidebar if NOT on the login page AND a user is logged in
+if (!isset($current_page) || $current_page === 'login' || !isset($_SESSION['role_name'])) {
+    return; // Stop rendering the sidebar entirely
+}
+
+$role = $_SESSION['role_name'];
 ?>
 
 <aside class="sidebar">
@@ -27,11 +31,11 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             Add Employees
         </a>
-        <a href="manage_employee.php" class="sidebar-link <?php echo ($current_page == 'manage_employees') ? 'active' : ''; ?>">
+        <a href="employees_list.php" class="sidebar-link <?php echo ($current_page == 'manage_employees') ? 'active' : ''; ?>">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
             Manage Employees
         </a>
-         <a href="attendance_record.php" class="sidebar-link <?php echo ($current_page == 'attendance_record') ? 'active' : ''; ?>">
+        <a href="attendance_record.php" class="sidebar-link <?php echo ($current_page == 'attendance_record') ? 'active' : ''; ?>">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             Attendance Record
         </a>
