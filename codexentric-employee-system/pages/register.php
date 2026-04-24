@@ -1,16 +1,13 @@
-
 <?php 
-ob_start();
-    $is_login_page = true;
-    $extra_css = ""; 
-    $title= "Login";
+
+    $title= "Register";
    
     require_once '../pages/Database.php';
     require_once '../pages/Users.php';
     $db = new Database();
     $connection = $db->getConnection();
     $user = new Users($connection);
-    $user->logIn(); 
+   $user->registerUser(); 
     include_once "../includes/header.php"; 
 ?>
 
@@ -104,7 +101,7 @@ ob_start();
     letter-spacing: 0.2px;
   }
 
-  /* Illustration placeholder — abstract HRM art */
+  /* Illustration placeholder */
   .login-illustration {
     width: 100%;
     max-width: 340px;
@@ -177,6 +174,7 @@ ob_start();
     color: #374151;
     margin-bottom: 7px;
   }
+  .login-form input[type="text"],
   .login-form input[type="email"],
   .login-form input[type="password"],
   .login-form select {
@@ -222,21 +220,14 @@ ob_start();
     padding-right: 36px;
   }
 
-  .label-row {
+  /* Two-column row for first/last name */
+  .form-row {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 7px;
+    gap: 14px;
   }
-  .label-row label { margin-bottom: 0; }
-  .forgot-link {
-    font-size: 13px;
-    color: #1E6FD9;
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.15s;
+  .form-row .form-group {
+    flex: 1;
   }
-  .forgot-link:hover { color: #1559B5; text-decoration: underline; }
 
   .btn-primary {
     width: 100%;
@@ -265,12 +256,27 @@ ob_start();
   }
   .btn-primary:active { transform: translateY(0); }
 
+  .login-footer-link {
+    text-align: center;
+    margin-top: 22px;
+    font-size: 13.5px;
+    color: #6B7280;
+  }
+  .login-footer-link a {
+    color: #1E6FD9;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .login-footer-link a:hover { color: #1559B5; text-decoration: underline; }
+
   /* ── RESPONSIVE ── */
   @media (max-width: 860px) {
     .login-left { display: none; }
     .login-right { padding: 24px 16px; }
   }
-  @media (max-width: 480px) {
+  @media (max-width: 560px) {
+    .form-row { flex-direction: column; gap: 0; }
     .login-card { padding: 32px 24px; }
   }
 </style>
@@ -295,7 +301,6 @@ ob_start();
           <rect x="20" y="60" width="300" height="180" rx="16" fill="rgba(255,255,255,0.10)"/>
           <rect x="40" y="30" width="260" height="50" rx="10" fill="rgba(255,255,255,0.08)"/>
 
-          <!-- People icons -->
           <!-- Person 1 -->
           <circle cx="100" cy="110" r="22" fill="rgba(255,255,255,0.20)"/>
           <circle cx="100" cy="103" r="9" fill="rgba(255,255,255,0.70)"/>
@@ -310,6 +315,11 @@ ob_start();
           <circle cx="240" cy="110" r="22" fill="rgba(255,255,255,0.20)"/>
           <circle cx="240" cy="103" r="9" fill="rgba(255,255,255,0.70)"/>
           <path d="M218 136 Q240 124 262 136" stroke="rgba(255,255,255,0.70)" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+          <!-- Add user icon (plus badge on last person) -->
+          <circle cx="262" cy="88" r="12" fill="rgba(255,255,255,0.30)"/>
+          <line x1="262" y1="82" x2="262" y2="94" stroke="rgba(255,255,255,0.90)" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="256" y1="88" x2="268" y2="88" stroke="rgba(255,255,255,0.90)" stroke-width="2.5" stroke-linecap="round"/>
 
           <!-- Stats bar -->
           <rect x="50" y="160" width="240" height="12" rx="6" fill="rgba(255,255,255,0.12)"/>
@@ -328,8 +338,8 @@ ob_start();
         </svg>
       </div>
 
-      <h2 class="login-left-headline">Streamline Your Workforce</h2>
-      <p class="login-left-sub">Manage employees, payroll, and HR operations — all from one intelligent platform.</p>
+      <h2 class="login-left-headline">Join the Platform Today</h2>
+      <p class="login-left-sub">Create your account and start managing your workforce with ease and efficiency.</p>
 
     </div>
   </aside>
@@ -338,60 +348,86 @@ ob_start();
   <div class="login-right">
     <div class="login-card">
       <div class="login-card-header">
-        <h1>Welcome Back</h1>
-        <p>Please enter your credentials to access the system.</p>
+        <h1>Create Account</h1>
+        <p>Fill in the details below to register a new user.</p>
       </div>
 
-      <form action="login_process.php" method="POST" class="login-form"
+      <form action="register.php" method="POST" class="login-form">
 
-        >
-        <?php
-        if (count($user->errors) > 0 && isset($user->errors['general'])) {
-            echo '<div class="error-messages" style="margin-bottom: 20px; color: #B91C1C; font-weight: 600;">';
-            foreach ($user->errors as $error) {
-                echo '<p>' . htmlspecialchars($error) . '</p>';
-            }
-            echo '</div>';
-        }
-        ?>
-        <div class="form-group">
-          <label for="email">Email Address</label>
-          <input type="email" id="email" name="email" placeholder="name@company.com">
-        </div>
 
-        <div class="form-group">
-          <label for="role">System Role</label>
-          <div class="select-wrapper">
-            <select id="role" name="role">
-              <option value="" disabled selected>Select your access level</option>
-              <option value="admin">Administrator</option>
-              <option value="employee">Employee</option>
-            </select>
-          </div>
-        </div>
+        <!-- First Name & Last Name side by side -->
+<div class="form-row">
+  <div class="form-group">
+    <label for="first_name">First Name</label>
+    <input type="text" id="first_name" name="first_name" 
+           placeholder="Haseeb"
+           value="<?php echo isset($user->Fname) ? htmlspecialchars($user->Fname) : ''; ?>">
+    <?php if (isset($user->errors['first_name'])): ?>
+      <span style="color:red; font-size:12px;"><?php echo $user->errors['first_name']; ?></span>
+    <?php endif; ?>
+  </div>
 
-        <div class="form-group">
-          <div class="label-row">
-            <label for="password">Password</label>
-            <a href="#" class="forgot-link">Forgot password?</a>
-          </div>
-          <input type="password" id="password" name="password" placeholder="••••••••">
-        </div>
+  <div class="form-group">
+    <label for="last_name">Last Name</label>
+    <input type="text" id="last_name" name="last_name" 
+           placeholder="Sheikh"
+           value="<?php echo isset($user->Lname) ? htmlspecialchars($user->Lname) : ''; ?>">
+    <?php if (isset($user->errors['last_name'])): ?>
+      <span style="color:red; font-size:12px;"><?php echo $user->errors['last_name']; ?></span>
+    <?php endif; ?>
+  </div>
+</div>
 
-        <button type="submit" class="btn-primary" name = "login">
-          <span>Login</span>
+<!-- Email -->
+<div class="form-group">
+  <label for="email">Email Address</label>
+  <input type="email" id="email" name="email" 
+         placeholder="name@gmail.com"
+         value="<?php echo isset($user->email) ? htmlspecialchars($user->email) : ''; ?>">
+  <?php if (isset($user->errors['email'])): ?>
+    <span style="color:red; font-size:12px;"><?php echo $user->errors['email']; ?></span>
+  <?php endif; ?>
+</div>
+
+<!-- Password -->
+<div class="form-group">
+  <label for="password">Password</label>
+  <input type="password" id="password" name="password" placeholder="••••••••">
+  <?php if (isset($user->errors['password'])): ?>
+    <span style="color:red; font-size:12px;"><?php echo $user->errors['password']; ?></span>
+  <?php endif; ?>
+</div>
+
+<!-- Confirm Password -->
+<div class="form-group">
+  <label for="confirm_password">Confirm Password</label>
+  <input type="password" id="confirm_password" name="confirm_password" placeholder="••••••••">
+  <?php if (isset($user->errors['confirm_password'])): ?>
+    <span style="color:red; font-size:12px;"><?php echo $user->errors['confirm_password']; ?></span>
+  <?php endif; ?>
+</div>
+
+<!-- General Error (e.g. DB error, email exists) -->
+<?php if (isset($user->errors['general'])): ?>
+  <div style="color:red; font-size:13px; margin-bottom:10px;">
+    <?php echo $user->errors['general']; ?>
+  </div>
+<?php endif; ?>
+
+        <button type="submit" class="btn-primary" name="register">
+          <span>Create Account</span>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-            <polyline points="12 5 19 12 12 19"></polyline>
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <line x1="19" y1="8" x2="19" y2="14"></line>
+            <line x1="22" y1="11" x2="16" y2="11"></line>
           </svg>
         </button>
 
-        <div style="text-align: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid #E5E7EB;">
-          <p style="font-size: 14px; color: #6B7280; margin: 0;">
-            Don't have an account? <a href="register.php" style="color: #1E6FD9; font-weight: 600; text-decoration: none; transition: color 0.15s;">Register here</a>
-          </p>
-        </div>
       </form>
+
+      <p class="login-footer-link">Already have an account? <a href="login.php">Sign in</a></p>
+
     </div>
   </div>
 

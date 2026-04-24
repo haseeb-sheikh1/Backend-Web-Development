@@ -11,10 +11,10 @@
     <title><?php echo isset($title) ? $title : "CodeXentric HRM"; ?></title>
     
     <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../includes/styles/global.css">
+    <link rel="stylesheet" href="../styles/global.css">
 
     <?php if (isset($extra_css) && !empty($extra_css)): ?>
-        <link rel="stylesheet" href="../includes/styles/<?php echo htmlspecialchars($extra_css); ?>.css">
+        <link rel="stylesheet" href="../styles/<?php echo htmlspecialchars($extra_css); ?>.css">
     <?php endif; ?>
 
     <style>

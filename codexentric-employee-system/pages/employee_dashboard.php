@@ -28,7 +28,7 @@
         <!-- Page Header -->
         <header class="page-header" role="banner">
             <div class="header-content">
-                <h1 class="page-title">Welcome back, <?php echo htmlspecialchars($user_name); ?></h1>
+                <h1 class="page-title">Welcome back, <?php echo htmlspecialchars($_SESSION['email']); ?></h1>
                 <p class="page-subtitle"><?php echo "$user_dept | $user_role"; ?></p>
             </div>
             <div class="header-actions">
@@ -40,6 +40,13 @@
                         <line x1="3" y1="10" x2="21" y2="10"/>
                     </svg>
                     Request Time Off
+                </a>
+                <a href="employee_settings.php" class="action-button secondary" aria-label="View settings">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M20 12h2M2 12h2M19.07 19.07l-1.41-1.41M4.93 19.07l1.41-1.41"/>
+                    </svg>
+                    Settings
                 </a>
             </div>
         </header>

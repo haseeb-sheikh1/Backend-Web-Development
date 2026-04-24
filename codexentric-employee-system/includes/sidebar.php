@@ -59,11 +59,13 @@ $role = $_SESSION['role_name'];
         </a>
     <?php endif; ?>
 
-    <div class="sidebar-section-label">Administration</div>
-    <a href="settings.php" class="sidebar-link <?php echo ($current_page == 'settings') ? 'active' : ''; ?>">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M20 12h2M2 12h2M19.07 19.07l-1.41-1.41M4.93 19.07l1.41-1.41"/></svg>
-        Settings
-    </a>
+  <div class="sidebar-section-label">Administration</div>
+<a href="<?php echo ($_SESSION['role_name'] === 'admin') ? 'settings.php' : 'employee_settings.php'; ?>" 
+   class="sidebar-link <?php echo ($current_page == 'employee_settings' || $current_page == 'settings') ? 'active' : ''; ?>">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M20 12h2M2 12h2M19.07 19.07l-1.41-1.41M4.93 19.07l1.41-1.41"/></svg>
+    Settings
+</a>
+
     <a href="logout.php" class="sidebar-link">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         Logout
