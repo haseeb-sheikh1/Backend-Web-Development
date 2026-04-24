@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap');
 
 :root {
-  --blue:        #1E6FD9;
+  --blue:        #0a438d;
   --blue-dark:   #1559B5;
   --blue-light:  #EBF2FC;
   --blue-xlight: #F0F6FF;
@@ -46,7 +46,7 @@
 
 /* ── Welcome Banner ── */
 .page-header {
-    background: linear-gradient(125deg, #1248A0 0%, #1559B5 40%, #1E6FD9 75%, #2B87F0 100%);
+    background: linear-gradient(125deg, #0a306d 0%, #1559B5 40%, #1E6FD9 75%, #2B87F0 100%);
     border-radius: var(--radius);
     padding: 28px 32px;
     display: flex;
@@ -199,8 +199,8 @@
 }
 
 .action-card {
-    background: var(--card);
-    border: 1.5px solid var(--border);
+       background: var(--blue-xlight);
+    border: 1.5px solid #C7DCFB;
     border-radius: var(--radius);
     padding: 22px 22px 18px;
     text-decoration: none;
@@ -263,8 +263,8 @@
 }
 
 .stat-card {
-    background: var(--card);
-    border: 1.5px solid var(--border);
+        background: var(--blue-xlight);
+    border: 1.5px solid #C7DCFB;
     border-radius: var(--radius);
     padding: 22px 22px 18px;
     display: flex;

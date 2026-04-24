@@ -83,7 +83,7 @@
       .dropdown-header p { margin: 0; }
       .user-name  { font-size: 14px; font-weight: 600; color: var(--text-primary); }
       .user-role  { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--blue); margin-top: 2px; }
-      .user-email { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+      .user-id { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
       .dropdown-item { display: block; padding: 10px 16px; color: var(--text-secondary); text-decoration: none; font-size: 13.5px; transition: background 0.15s; }
       .dropdown-item:hover { background: var(--blue-light); color: var(--blue); }
       .dropdown-divider { height: 1px; background: var(--border); }
@@ -109,23 +109,25 @@
         <?php
      if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true):
 
-            // Role: check role_name first, fall back to role
-            $role_raw   = isset($_SESSION['role_name']) ? $_SESSION['role_name']
+            // Role: check role_id first, fall back to role
+            $role_raw   = isset($_SESSION['role_id']) ? $_SESSION['role_id']
                         : (isset($_SESSION['role'])      ? $_SESSION['role'] : '');
-            $is_admin   = (strtolower($role_raw) === 'admin');
+            $is_admin   = (strtolower($role_raw) === '1');
             $role_label = $is_admin ? 'Admin' : 'Employee';
 
             // Display name: prefer user_name, fall back to role label
-            $display_name = (!empty($_SESSION['user_name']))
-                          ? htmlspecialchars($_SESSION['user_name'])
+            $display_name = (!empty($_SESSION['first_name']))
+                          ? htmlspecialchars($_SESSION['first_name'])
                           : $role_label;
 
             // Avatar initials
             $initials = 'U';
-            if (!empty($_SESSION['user_initials'])) {
-                $initials = htmlspecialchars(strtoupper(substr($_SESSION['user_initials'], 0, 2)));
-            } elseif (!empty($_SESSION['user_name'])) {
-                $parts    = explode(' ', trim($_SESSION['user_name']));
+            if (!empty($_SESSION['first_name']) && !empty($_SESSION['last_name'])) {
+                $f_initial = substr($_SESSION['first_name'], 0, 1);
+                $l_initial = substr($_SESSION['last_name'], 0, 1);
+                $initials = strtoupper($f_initial . $l_initial); 
+            } elseif (!empty($_SESSION['first_name'])) {
+                $parts    = explode(' ', trim($_SESSION['first_name']));
                 $initials = strtoupper(substr($parts[0], 0, 1));
                 if (count($parts) > 1) $initials .= strtoupper(substr($parts[1], 0, 1));
             }
@@ -145,7 +147,7 @@
                     <p class="user-name"><?php echo $display_name; ?></p>
                     <p class="user-role"><?php echo $role_label; ?></p>
                     <?php if (!empty($_SESSION['email'])): ?>
-                        <p class="user-email"><?php echo htmlspecialchars($_SESSION['email']); ?></p>
+                        <p class="user-id"><?php  echo "CEMS-". htmlspecialchars($_SESSION['user_id']); ?></p>
                     <?php endif; ?>
                 </div>
                 <div class="dropdown-divider"></div>
@@ -159,7 +161,7 @@
         <?php endif; ?>
     </header>
 
-    <?php if (isset($_SESSION['role_name'])): ?>
+    <?php if (isset($_SESSION['role_id'])): ?>
         <div class="app-body">
             <?php include_once "sidebar.php"; ?>
             <main class="main-content" role="main">

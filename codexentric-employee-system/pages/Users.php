@@ -1,6 +1,4 @@
 <?php
-
-ob_start();
 class Users {
   public $Fname;
   public $Lname;
@@ -18,7 +16,7 @@ class Users {
     if (isset($_POST['login'])) {
         $this->email = $_POST['email'];
         $this->password = $_POST['password'];
-        $this->role = $_POST['role']??'';
+       
 
         // Server-side validation
         if (empty($this->email)) {
@@ -27,20 +25,13 @@ class Users {
         if (empty($this->password)) {
             $this->errors['password'] = "Password is required.";
         }
-        if (empty($this->role)) {
-            $this->errors['role'] = "Role is required.";
-        }
+   
 
         if (count($this->errors) > 0) {
             $this->errors['general'] = "Fix the errors below.";
         } else {
             
-            $query = "SELECT users.*, roles.role_name 
-                      FROM users 
-                      JOIN roles ON users.role_id = roles.role_id 
-                      WHERE users.email = '$this->email' AND roles.role_name = '$this->role'
-                      LIMIT 1";
-            
+            $query = "SELECT * FROM users WHERE email = '$this->email' LIMIT 1";
             
             $result = $this->connection->query($query);
             
@@ -52,16 +43,18 @@ class Users {
                 
                 if (password_verify($this->password, $row['password_hash'])) {
                     
-                    
+      
                     if (session_status() === PHP_SESSION_NONE) {
                         session_start();
                     }
                     
                     $_SESSION['user_id']   = $row['user_id'];
-                    $_SESSION['role_name']  = $row['role_name'];
+                    $_SESSION['first_name'] = $row['first_name'];
+                    $_SESSION['last_name']  = $row['last_name'];
+                    $_SESSION['role_id']  = $row['role_id'];
                     $_SESSION['email']     = $row['email'];
                     $_SESSION['logged_in'] = true;
-                    if($row['role_name'] === 'admin') {
+                    if($row['role_id'] === '1') {
                     header("Location: administrator_dashboard.php"); 
                     } else {
                         header("Location: employee_dashboard.php"); 
@@ -76,21 +69,21 @@ class Users {
             }
         }
     }
-
+    
    }
 
  
 public function registerUser() {
     if (isset($_POST['register'])) {
 
-        // ── Get form data ────────────────────────────────────────
+        // data from form
         $this->Fname     = trim($_POST['first_name']);
         $this->Lname     = trim($_POST['last_name']);
         $this->email     = trim($_POST['email']);
         $this->password  = $_POST['password'];
         $confirmPassword = $_POST['confirm_password'];
 
-        // ── Validation ───────────────────────────────────────────
+        // validation
         if (empty($this->Fname)) {
             $this->errors['first_name'] = "First name is required.";
         }
@@ -99,9 +92,7 @@ public function registerUser() {
         }
         if (empty($this->email)) {
             $this->errors['email'] = "Email is required.";
-        } elseif (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
-            $this->errors['email'] = "Invalid email format.";
-        }
+        } 
         if (empty($this->password)) {
             $this->errors['password'] = "Password is required.";
         } elseif (strlen($this->password) < 8) {
@@ -113,10 +104,10 @@ public function registerUser() {
             $this->errors['confirm_password'] = "Passwords do not match.";
         }
 
-        // ── Stop if errors ───────────────────────────────────────
+        // if error is found
         if (count($this->errors) > 0) return;
 
-        // ── Check if email already exists ────────────────────────
+        // if email is already in the database
         $checkQuery  = "SELECT user_id FROM users WHERE email = '$this->email' LIMIT 1";
         $checkResult = $this->connection->query($checkQuery);
 
@@ -125,7 +116,7 @@ public function registerUser() {
             return;
         }
 
-        // ── Get employee role_id ─────────────────────────────────
+        // getting employee role id
         $roleQuery  = "SELECT role_id FROM roles WHERE role_name = 'employee' LIMIT 1";
         $roleResult = $this->connection->query($roleQuery);
         $roleRow    = $roleResult->fetch_assoc();
@@ -136,39 +127,32 @@ public function registerUser() {
         }
         $roleId = $roleRow['role_id'];
 
-        // ── Hash password ────────────────────────────────────────
+        // hashing password
         $hashedPassword = password_hash($this->password, PASSWORD_BCRYPT);
 
-        // ── Insert into users table ──────────────────────────────
-        $insertUserQuery  = "INSERT INTO users (email, password_hash, role_id) 
-                             VALUES ('$this->email', '$hashedPassword', '$roleId')";
+        // Insert into users table 
+        $insertUserQuery  = "INSERT INTO users (first_name, last_name, email, password_hash, role_id) VALUES ('$this->Fname', '$this->Lname', '$this->email', '$hashedPassword', '$roleId')";
         $insertUserResult = $this->connection->query($insertUserQuery);
 
         if (!$insertUserResult) {
             $this->errors['general'] = "Registration failed: " . $this->connection->error;
             return;
         }
-
-        // ── Get the new user_id ──────────────────────────────────
+        // to get the new user_id
         $newUserId = $this->connection->insert_id;
-
-        // ── Insert into employees table ──────────────────────────
-        $insertEmpQuery  = "INSERT INTO employees (user_id, first_name, last_name) 
-                            VALUES ('$newUserId', '$this->Fname', '$this->Lname')";
+        // Insert into employees ta
+       $insertEmpQuery  = "INSERT INTO employees (user_id) VALUES ('$newUserId')";
         $insertEmpResult = $this->connection->query($insertEmpQuery);
-
         if (!$insertEmpResult) {
             $this->errors['general'] = "Employee insert failed: " . $this->connection->error;
-            // Rollback user insert to keep DB clean
+            // Rollback user insertion that happened previously if both the queries don't run
             $this->connection->query("DELETE FROM users WHERE user_id = '$newUserId'");
             return;
         }
 
-        // ── Start session and redirect ───────────────────────────
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
-
         $_SESSION['user_id']   = $newUserId;
         $_SESSION['role_name'] = 'employee';
         $_SESSION['email']     = $this->email;

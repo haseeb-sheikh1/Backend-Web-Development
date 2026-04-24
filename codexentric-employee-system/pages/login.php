@@ -1,6 +1,5 @@
 
 <?php 
-ob_start();
     $is_login_page = true;
     $extra_css = ""; 
     $title= "Login";
@@ -43,7 +42,7 @@ ob_start();
     overflow: hidden;
   }
 
-  /* Decorative circles */
+ 
   .login-left::before {
     content: '';
     position: absolute;
@@ -73,7 +72,7 @@ ob_start();
     text-align: center;
   }
 
-  /* Logo area */
+ 
   .login-brand {
     display: flex;
     align-items: center;
@@ -359,16 +358,7 @@ ob_start();
           <input type="email" id="email" name="email" placeholder="name@company.com">
         </div>
 
-        <div class="form-group">
-          <label for="role">System Role</label>
-          <div class="select-wrapper">
-            <select id="role" name="role">
-              <option value="" disabled selected>Select your access level</option>
-              <option value="admin">Administrator</option>
-              <option value="employee">Employee</option>
-            </select>
-          </div>
-        </div>
+
 
         <div class="form-group">
           <div class="label-row">

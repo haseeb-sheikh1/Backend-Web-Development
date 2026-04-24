@@ -28,7 +28,7 @@
         <!-- Page Header -->
         <header class="page-header" role="banner">
             <div class="header-content">
-                <h1 class="page-title">Welcome back, <?php echo htmlspecialchars($_SESSION['email']); ?></h1>
+                <h1 class="page-title">Welcome back, <?php echo htmlspecialchars($_SESSION['first_name']); ?></h1>
                 <p class="page-subtitle"><?php echo "$user_dept | $user_role"; ?></p>
             </div>
             <div class="header-actions">

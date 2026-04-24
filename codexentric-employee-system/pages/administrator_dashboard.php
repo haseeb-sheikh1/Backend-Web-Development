@@ -6,7 +6,6 @@ if (!isset($_SESSION['email'])) {
     exit();
 }
 
-    $user_role    = "admin"; 
     $current_page = "administrator_dashboard";
     $extra_css    = "admin_dashboard";
     $title        = "Admin Dashboard";  
@@ -24,6 +23,7 @@ if (!isset($_SESSION['email'])) {
     ];
 
     include_once "../includes/header.php";
+    include_once "../includes/sidebar.php";
 
 ?>
 
