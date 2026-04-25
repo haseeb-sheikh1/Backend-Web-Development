@@ -6,7 +6,7 @@ if (!isset($_SESSION['email'])) {
 }
     $user_role = "admin";
     $current_page = "add_employee";
-    $extra_css = "add_employee"; // Move your form-specific CSS (like .form-card, .btn-save, etc.) into this file!
+    $extra_css = "add_employee"; 
     $title = "Add Employee - Admin";
 
     include_once "../includes/header.php";
@@ -29,8 +29,21 @@ if (!isset($_SESSION['email'])) {
         </div>
       </div>
     </div>
-
-    <form action="../includes/logicFile.php" method="POST" class="employee-form" novalidate>
+      <?php 
+      include_once "../pages/database.php";
+      include_once "../pages/Employee.php";
+      $db = new Database();
+      $connection = $db->getConnection();
+      $employee = new Employee($connection);
+      $employee->createEmployee();
+ 
+      ?>
+     <?php if (!empty($employee->errors)): ?>
+    <div style="background-color: #ffebee; color: #c62828; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+        <?php foreach ($employee->errors as $error) { echo "<p>$error</p>"; } ?>
+    </div>
+<?php endif; ?>
+    <form action="add_employee.php" method="POST" name ="create_employee" class="employee-form" novalidate>
       
       <!-- Personal Information Section -->
       <fieldset class="form-fieldset">
@@ -49,7 +62,7 @@ if (!isset($_SESSION['email'])) {
                 First Name
                 <span class="form-required">*</span>
               </label>
-              <input type="text" id="first_name" name="first_name" class="form-input" placeholder="John" required>
+              <input type="text" method ="POST" id="first_name" name="first_name" class="form-input" placeholder="John" required>
               <p class="form-helper">Employee's first name</p>
             </div>
           </div>
@@ -65,36 +78,14 @@ if (!isset($_SESSION['email'])) {
           </div>
         </div>
 
-        <div class="form-row">
-          <div class="form-col">
-            <div class="form-group">
-              <label class="form-label" for="email">
-                Email Address
-                <span class="form-required">*</span>
-              </label>
-              <input type="email" id="email" name="email" class="form-input" placeholder="john.doe@company.com" required>
-              <p class="form-helper">Corporate email address</p>
-            </div>
-          </div>
-          <div class="form-col">
-            <div class="form-group">
-              <label class="form-label" for="phone">
-                Phone Number
-                <span class="form-required">*</span>
-              </label>
-              <input type="tel" id="phone" name="phone" class="form-input" placeholder="+92 300 1234567" required>
-              <p class="form-helper">Contact number (with country code)</p>
-            </div>
-          </div>
-        </div>
 
         <div class="form-row">
           <div class="form-col form-col-full">
             <div class="form-group">
-              <label class="form-label" for="address">
+              <label class="form-label" for="address" name ="home_address">
                 Address
               </label>
-              <input type="text" id="address" name="address" class="form-input" placeholder="123 Main Street, City, Country">
+              <input type="text" id="address" name="home_address" class="form-input" placeholder="123 Main Street, City, Country">
               <p class="form-helper">Residential address</p>
             </div>
           </div>
@@ -114,11 +105,11 @@ if (!isset($_SESSION['email'])) {
         <div class="form-row">
           <div class="form-col">
             <div class="form-group">
-              <label class="form-label" for="position">
+              <label class="form-label" for="position" name ="position_title">
                 Position/Role
                 <span class="form-required">*</span>
               </label>
-              <input type="text" id="position" name="position" class="form-input" placeholder="Senior Developer" required>
+              <input type="text" id="position" name="position_title" class="form-input" placeholder="Senior Developer" required>
               <p class="form-helper">Job title or position</p>
             </div>
           </div>
@@ -145,28 +136,52 @@ if (!isset($_SESSION['email'])) {
         <div class="form-row">
           <div class="form-col">
             <div class="form-group">
-              <label class="form-label" for="employment_type">
+              <label class="form-label" for="employment_type" name ="employee_type">
                 Employment Type
                 <span class="form-required">*</span>
               </label>
-              <select id="employment_type" name="employment_type" class="form-select" required>
+              <select id="employment_type" name="employee_type" class="form-select" required>
                 <option value="">Select Type</option>
                 <option value="full-time">Full-time</option>
-                <option value="part-time">Part-time</option>
+                <option value="part-time">Part-time</option>e
                 <option value="contract">Contract</option>
                 <option value="temporary">Temporary</option>
               </select>
               <p class="form-helper">Type of employment</p>
             </div>
           </div>
+       
+      </fieldset>
+
+      <!-- Account Credentials Section -->
+      <fieldset class="form-fieldset">
+        <legend class="fieldset-legend">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          <span>Account Credentials</span>
+        </legend>
+        
+        <div class="form-row">
           <div class="form-col">
             <div class="form-group">
-              <label class="form-label" for="joining_date">
-                Date of Joining
+              <label class="form-label" for="email">
+                Email Address
                 <span class="form-required">*</span>
               </label>
-              <input type="date" id="joining_date" name="joining_date" class="form-input" required>
-              <p class="form-helper">Employment start date</p>
+              <input type="email" id="email" name="email" class="form-input" placeholder="john.doe@company.com" required>
+              <p class="form-helper">Corporate email address</p>
+            </div>
+          </div>
+          <div class="form-col">
+            <div class="form-group">
+              <label class="form-label" for="password">
+                Password
+                <span class="form-required">*</span>
+              </label>
+              <input type="password" id="password" name="password" class="form-input" placeholder="Enter a secure password" required>
+              <p class="form-helper">Create a strong password for the employee account</p>
             </div>
           </div>
         </div>
@@ -178,7 +193,7 @@ if (!isset($_SESSION['email'])) {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="12" y1="1" x2="12" y2="23"/>
             <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-          </svg>
+</svg>
           <span>Compensation & Benefits</span>
         </legend>
         
@@ -207,10 +222,10 @@ if (!isset($_SESSION['email'])) {
         <div class="form-row">
           <div class="form-col">
             <div class="form-group">
-              <label class="form-label" for="bank_account">
+              <label class="form-label" for="bank_account" name ="bank_account_number">
                 Bank Account Number
               </label>
-              <input type="text" id="bank_account" name="bank_account" class="form-input" placeholder="XXXX XXXX XXXX XXXX">
+              <input type="text" id="bank_account" name="bank_account_number" class="form-input" placeholder="XXXX XXXX XXXX XXXX">
               <p class="form-helper">Bank account for salary transfer</p>
             </div>
           </div>
@@ -225,6 +240,7 @@ if (!isset($_SESSION['email'])) {
           </div>
         </div>
       </fieldset>
+    
 
       <!-- Form Actions -->
       <div class="form-actions">
@@ -235,7 +251,7 @@ if (!isset($_SESSION['email'])) {
           </svg>
           Back
         </a>
-        <button type="submit" class="form-button form-button-primary" name="create_employee">
+        <button type="submit" action ="POST"  class="form-button form-button-primary" name="create_employee">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
