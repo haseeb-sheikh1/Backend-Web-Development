@@ -115,7 +115,7 @@ if (!isset($_SESSION['email'])) {
           </div>
           <div class="form-col">
             <div class="form-group">
-              <label class="form-label" for="department">
+              <label class="form-label" for="department" name ="department">
                 Department
                 <span class="form-required">*</span>
               </label>

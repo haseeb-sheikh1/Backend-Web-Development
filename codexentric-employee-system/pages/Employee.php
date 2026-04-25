@@ -12,7 +12,6 @@ class Employee {
   public $Lname;
   public $email;
   public $password;
-  public $phone; // Added phone property
   public $errors = [];
   private $connection;
 
@@ -23,19 +22,18 @@ class Employee {
   public function createEmployee(){
     if (isset($_POST['create_employee'])) {
       
-      // 1. Capture all fields safely
+      // form data
       $this->Fname = trim($_POST['first_name'] ?? '');
       $this->Lname = trim($_POST['last_name'] ?? '');
       $this->email = trim($_POST['email'] ?? '');
       $this->password = trim($_POST['password'] ?? '');
-      $this->phone = trim($_POST['phone'] ?? ''); // Capturing phone!
       $this->homeAddress = trim($_POST['home_address'] ?? '');
       $this->positionTitle = trim($_POST['position_title'] ?? '');
       $this->department = trim($_POST['department'] ?? '');
       $this->employeeType = trim($_POST['employee_type'] ?? '');
       $this->baseSalary = trim($_POST['base_salary'] ?? 0);
       
-      // Fix empty string trying to insert into an INT/DECIMAL column
+      // empty string trying to insert into an INT/DECIMAL column
       $allowances_input = trim($_POST['allowances'] ?? '');
       $this->allowances = ($allowances_input === '') ? 0 : $allowances_input;
       
@@ -44,19 +42,16 @@ class Employee {
       
       $hashedPassword = password_hash($this->password, PASSWORD_DEFAULT); 
       
-      // IMPORTANT: Set the correct Role ID for an Employee based on your `roles` table.
-      // Assuming '2' is the role_id for a standard employee. Change this if needed!
       $role_id = 2; 
       
-      // 2. Insert into Users Table using Prepared Statements
+      // inserting into users table using prepared statement
       $stmtUser = $this->connection->prepare("INSERT INTO users (first_name, last_name, email, password_hash, role_id) VALUES (?, ?, ?, ?, ?)");
       
       if (!$stmtUser) {
-          $this->errors['general'] = "Prepare failed for user: " . $this->connection->error;
+          $this->errors['general'] = "Error: " . $this->connection->error;
           return false;
       }
       
-      // "ssssi" means: string, string, string, string, integer
       $stmtUser->bind_param("ssssi", $this->Fname, $this->Lname, $this->email, $hashedPassword, $role_id);
       
       if (!$stmtUser->execute()) {
@@ -67,7 +62,7 @@ class Employee {
       $newuserId = $stmtUser->insert_id;
       $stmtUser->close();
 
-      // 3. Insert into Employees Table using Prepared Statements
+      // Inserting into Employees Table using Prepared Statements
       $stmtEmp = $this->connection->prepare("INSERT INTO employees (user_id, home_address, position_title, department, employment_type, base_salary_rs, allowances_rs, bank_name, bank_account_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
       
       if (!$stmtEmp) {
@@ -77,7 +72,7 @@ class Employee {
           return false;
       }
 
-      // "isssssdss" means: integer, string, string, string, string, double, double, string, string
+     
       $stmtEmp->bind_param("isssssdss", $newuserId, $this->homeAddress, $this->positionTitle, $this->department, $this->employeeType, $this->baseSalary, $this->allowances, $this->bankName, $this->bankAccountNumber);
 
       if (!$stmtEmp->execute()) {
@@ -90,7 +85,7 @@ class Employee {
       
       $stmtEmp->close();
       
-      // Optional: Add a success message to the errors array to display on screen
+      //success message
       $this->errors['success'] = "Employee created successfully!";
       return true;
     }
