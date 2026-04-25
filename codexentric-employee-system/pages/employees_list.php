@@ -10,16 +10,11 @@
     $extra_css = "employees_list";
     $title = "Select Employee - CodeXentric";
     include_once "../includes/header.php";
-
-    // Mock employee data - In production, this would come from database
-    $employees = [
-        ["id" => 1, "name" => "Hammad Ali", "role" => "Senior Backend Developer", "email" => "hammad@gmail.com", "status" => "Active", "dept" => "Software Engineering", "joined" => "Dec 15, 2025"],
-        ["id" => 2, "name" => "Abdullah Khan", "role" => "Backend Developer", "email" => "abdullah@gmail.com", "status" => "Active", "dept" => "Software Engineering", "joined" => "Jan 10, 2025"],
-        ["id" => 3, "name" => "Khurum Ahmed", "role" => "Frontend Developer", "email" => "khurum@gmail.com", "status" => "Active", "dept" => "Software Engineering", "joined" => "Feb 5, 2025"],
-        ["id" => 4, "name" => "Sara Hassan", "role" => "UI/UX Designer", "email" => "sara@gmail.com", "status" => "Onboarding", "dept" => "Design", "joined" => "Mar 1, 2026"],
-        ["id" => 5, "name" => "Ahmed Malik", "role" => "QA Engineer", "email" => "ahmed.malik@gmail.com", "status" => "Active", "dept" => "Quality Assurance", "joined" => "Nov 20, 2025"],
-        ["id" => 6, "name" => "Fatima Sheikh", "role" => "HR Manager", "email" => "fatima@gmail.com", "status" => "Active", "dept" => "Human Resources", "joined" => "Sep 15, 2025"],
-    ];
+    require_once "../pages/database.php";
+    require_once "../pages/Employee.php";
+    $db = new Database();
+    $employeeObj = new Employee($db->getConnection());
+    $allEmployees = $employeeObj->getBasicEmployeeDetails();
 ?>
 
 <main class="main-content" role="main">
@@ -76,7 +71,7 @@
 
         <!-- Results Count -->
         <div class="results-info" id="resultsInfo">
-            Showing <span id="resultCount">6</span> employee(s)
+            Showing <span id="resultCount"><?php echo count($allEmployees); ?></span> employee(s)
         </div>
 
         <!-- Employees Table -->
@@ -95,29 +90,35 @@
                         </tr>
                     </thead>
                     <tbody id="employeesTableBody">
-                        <?php foreach ($employees as $emp): ?>
-                            <tr class="employee-row" data-id="<?php echo $emp['id']; ?>" data-name="<?php echo strtolower($emp['name']); ?>" data-email="<?php echo strtolower($emp['email']); ?>" data-role="<?php echo strtolower($emp['role']); ?>" data-dept="<?php echo strtolower($emp['dept']); ?>" data-status="<?php echo $emp['status']; ?>">
+                        <?php foreach ($allEmployees as $emp): ?>
+                            <tr class="employee-row" 
+                               data-id="<?php echo htmlspecialchars($emp['user_id'] ?? ''); ?>" 
+                                data-name="<?php echo htmlspecialchars(strtolower($emp['first_name'] ?? '')); ?>" 
+                                 data-email="<?php echo htmlspecialchars(strtolower($emp['email'] ?? '')); ?>" 
+                               data-role="<?php echo htmlspecialchars(strtolower($emp['position_title'] ?? '')); ?>" 
+                              data-dept="<?php echo htmlspecialchars(strtolower($emp['department'] ?? '')); ?>" 
+                                data-status="<?php echo htmlspecialchars($emp['status'] ?? ''); ?>">
                                 <td>
                                     <div class="employee-info">
                                         <div class="employee-avatar">
-                                            <?php echo substr($emp['name'], 0, 1); ?>
+                                            <?php echo substr($emp['first_name'], 0, 1); ?>
                                         </div>
                                         <div class="employee-details">
-                                            <div class="employee-name"><?php echo htmlspecialchars($emp['name']); ?></div>
-                                            <div class="employee-joined">Joined: <?php echo htmlspecialchars($emp['joined']); ?></div>
+                                            <div class="employee-name"><?php echo htmlspecialchars($emp['first_name'] . ' ' . $emp['last_name']); ?></div>
+                                            <div class="employee-joined">Joined: <?php echo htmlspecialchars($emp['date_of_joining']); ?></div>
                                         </div>
                                     </div>
                                 </td>
                                 <td><?php echo htmlspecialchars($emp['email']); ?></td>
-                                <td><span class="role-badge"><?php echo htmlspecialchars($emp['role']); ?></span></td>
-                                <td><?php echo htmlspecialchars($emp['dept']); ?></td>
+                                <td><span class="role-badge"><?php echo htmlspecialchars($emp['position_title']); ?></span></td>
+                                <td><?php echo htmlspecialchars($emp['department']); ?></td>
                                 <td>
                                     <span class="status-badge <?php echo strtolower(str_replace('/', '_', $emp['status'])); ?>">
                                         <?php echo htmlspecialchars($emp['status']); ?>
                                     </span>
                                 </td>
                                 <td>
-                                    <a href="manage_employee.php?id=<?php echo $emp['id']; ?>" class="action-link" aria-label="View details for <?php echo htmlspecialchars($emp['name']); ?>">
+                                    <a href="manage_employee.php?id=<?php echo $emp['user_id']; ?>" class="action-link" aria-label="View details for <?php echo htmlspecialchars($emp['first_name']); ?>">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                                             <circle cx="12" cy="12" r="3"/>

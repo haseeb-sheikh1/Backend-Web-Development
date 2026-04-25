@@ -91,5 +91,20 @@ class Employee {
     }
     return false;
   }
+   public function getBasicEmployeeDetails(){
+          $query = "SELECT u.first_name, u.last_name, u.email, e.position_title, e.department, e.status, e.date_of_joining, u.user_id
+          From users u
+          JOIN employees e ON u.user_id = e.user_id";
+
+          $result = $this->connection->query($query);
+          $employeesList = [];
+          while($row = $result->fetch_assoc()){
+            $employeesList[] = $row;
+          }
+          return $employeesList;
+   }
+
+
+
 }
 ?>
