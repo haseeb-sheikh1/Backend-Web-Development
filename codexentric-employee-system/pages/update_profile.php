@@ -1,28 +1,43 @@
 <?php 
 session_start();
+   if (!isset($_SESSION['email'])) {
+        header("Location: login.php");
+        exit();
+    }
     $user_role = "admin"; 
     $current_page = "manage_employees"; 
     $title = "Update Employee Profile";
     $extra_css = "add_employee"; 
     include_once "../includes/header.php"; 
+require_once '../pages/Database.php'; 
+require_once '../pages/Employee.php';
 
-    $employee = [
-        "id"       => "EMP-102",
-        "name"     => "Hammad Ali",
-        "role"     => "Senior Backend Developer",
-        "status"   => "Active",
-        "email"    => "hammad@gmail.com",
-        "phone"    => "03XXXXXXXXX",
-        "cnic"     => "XXXXX-XXXXXXX-X",
-        "salary"   => "85,000",
-        "bank"     => "HBL Pakistan",
-        "account"  => "PK00HBL123456789",
-        "tax_id"   => "NTN-882299-1"
-    ];
+$db = new Database();
+$employeeObj = new Employee($db->getConnection());
+
+$employee = null;
+
+if (isset($_GET['id']) && !empty($_GET['id'])) {
+    $employeeId = $_GET['id'];
+    $employee = $employeeObj->getEmployeeDetailsById($employeeId);
+    
+    if (!$employee) {
+        die("Error: Employee not found in the database.");
+    }
+} else {
+    // If someone visits the page without an ID
+    die("Error: No Employee ID provided.");
+}
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Update logic will go here!
+}
+ 
 ?>
 
 <style>
-    /* ── BASE & CONTAINER ── */
+    
     .main-content {
         padding: 30px;
         background-color: #f8f9fa; /* Light grey background */
@@ -190,10 +205,10 @@ session_start();
     <div class="dashboard-container">
         <header class="page-header" role="banner">
             <div>
-                <h1 class="page-title">Update Profile: <?php echo htmlspecialchars($employee['name']); ?></h1>
-                <p class="page-subtitle"><?php echo htmlspecialchars($employee['role']); ?> | ID: <?php echo htmlspecialchars($employee['id']); ?></p>
+                <h1 class="page-title">Update Profile: <?php echo htmlspecialchars($employee['first_name'] . ' ' . $employee['last_name']); ?></h1>
+                <p class="page-subtitle"><?php echo htmlspecialchars($employee['position_title']); ?> | ID: CEMS-<?php echo htmlspecialchars($employee['user_id']); ?></p>
             </div>
-            <a href="manage_employee.php" class="action-button secondary" aria-label="Return to employee profile">
+            <a href="manage_employee.php?id=<?php echo htmlspecialchars($employee['user_id']); ?>" class="action-button secondary" aria-label="Return to employee profile">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                     <path d="M19 12H5M12 19l-7-7 7-7"/>
                 </svg>
@@ -206,14 +221,14 @@ session_start();
                 <h2 id="form-heading" class="section-title">Edit Employee Information</h2>
             </div>
             <div class="form-container">
-                <form action="process_update_employee.php" method="POST" class="request-form">
-                    
+                <form action="" method="POST" class="request-form">
+                    <input type="hidden" name="employee_id" value="<?php echo htmlspecialchars($employee['user_id']); ?>">
                     <fieldset class="form-fieldset">
                         <legend class="fieldset-legend">Personal Information</legend>
                         <div class="form-grid">
                             <div class="input-group">
                                 <label for="full_name">Full Name</label>
-                                <input type="text" id="full_name" name="full_name" value="<?php echo htmlspecialchars($employee['name']); ?>" required>
+                                <input type="text" id="full_name" name="full_name" value="<?php echo htmlspecialchars($employee['first_name'] . ' ' . $employee['last_name']); ?>" required>
                             </div>
                             <div class="input-group">
                                 <label for="email">Email Address</label>
@@ -222,12 +237,12 @@ session_start();
                         </div>
                         <div class="form-grid">
                             <div class="input-group">
-                                <label for="phone">Phone Number</label>
-                                <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($employee['phone']); ?>" required>
+                                <label for="position_role">Position Role</label>
+                                <input type="text" id="position_role" name="position_role" value="<?php echo htmlspecialchars($employee['position_title']); ?>" required>
                             </div>
                             <div class="input-group">
-                                <label for="cnic">CNIC Number</label>
-                                <input type="text" id="cnic" name="cnic" value="<?php echo htmlspecialchars($employee['cnic']); ?>" required>
+                                <label for="home_address">Home Address</label>
+                                <input type="text" id="home_address" name="home_address" value="<?php echo htmlspecialchars($employee['home_address']); ?>" required>
                             </div>
                         </div>
                     </fieldset>
@@ -238,7 +253,7 @@ session_start();
                         <div class="form-grid">
                             <div class="input-group">
                                 <label for="employee_id">Employee ID</label>
-                                <input type="text" id="employee_id" name="employee_id" value="<?php echo htmlspecialchars($employee['id']); ?>" readonly>
+                                <input type="text" id="employee_id" name="employee_id" value="<?php echo htmlspecialchars($employee['employee_id']); ?>" readonly>
                             </div>
                             <div class="input-group">
                                 <label for="status">Employment Status</label>
@@ -253,34 +268,30 @@ session_start();
                         <div class="form-grid">
                             <div class="input-group">
                                 <label for="role">Role / Designation</label>
-                                <select id="role" name="role">
-                                    <option value="Senior Backend Developer" <?php echo ($employee['role'] == 'Senior Backend Developer') ? 'selected' : ''; ?>>Senior Backend Developer</option>
-                                    <option value="Backend Developer" <?php echo ($employee['role'] == 'Backend Developer') ? 'selected' : ''; ?>>Backend Developer</option>
-                                    <option value="Frontend Developer" <?php echo ($employee['role'] == 'Frontend Developer') ? 'selected' : ''; ?>>Frontend Developer</option>
-                                    <option value="UI/UX Designer" <?php echo ($employee['role'] == 'UI/UX Designer') ? 'selected' : ''; ?>>UI/UX Designer</option>
+                                <select id="role" name="position_title">
+                                    <option value="Senior Backend Developer" <?php echo ($employee['position_title'] == 'Senior Backend Developer') ? 'selected' : ''; ?>>Senior Backend Developer</option>
+                                    <option value="Senior Frontend Developer" <?php echo ($employee['position_title'] == 'Senior Frontend Developer') ? 'selected' : ''; ?>>Senior Frontend Developer</option>
+                                    <option value="Backend Developer" <?php echo ($employee['position_title'] == 'Backend Developer') ? 'selected' : ''; ?>>Backend Developer</option>
+                                    <option value="Frontend Developer" <?php echo ($employee['position_title'] == 'Frontend Developer') ? 'selected' : ''; ?>>Frontend Developer</option>
+                                    <option value="UI/UX Designer" <?php echo ($employee['position_title'] == 'UI/UX Designer') ? 'selected' : ''; ?>>UI/UX Designer</option>
+                                    <option value="Backend Intern" <?php echo ($employee['position_title'] == 'Backend Intern') ? 'selected' : ''; ?>>Backend Intern</option>
+                                    <option value="Frontend Intern" <?php echo ($employee['position_title'] == 'Frontend Intern') ? 'selected' : ''; ?>>Frontend Intern</option>
                                 </select>
                             </div>
                             <div class="input-group">
                                 <label for="salary">Base Salary (PKR)</label>
-                                <input type="text" id="salary" name="salary" value="<?php echo htmlspecialchars($employee['salary']); ?>">
+                                <input type="text" id="salary" name="base_salary_rs" value="<?php echo htmlspecialchars($employee['base_salary_rs']); ?>">
                             </div>
                         </div>
 
                         <div class="form-grid">
                             <div class="input-group">
                                 <label for="bank">Bank Name</label>
-                                <input type="text" id="bank" name="bank" value="<?php echo htmlspecialchars($employee['bank']); ?>">
+                                <input type="text" id="bank" name="bank_name" value="<?php echo htmlspecialchars($employee['bank_name']); ?>">
                             </div>
                             <div class="input-group">
                                 <label for="account">Account Number (IBAN)</label>
-                                <input type="text" id="account" name="account" value="<?php echo htmlspecialchars($employee['account']); ?>">
-                            </div>
-                        </div>
-
-                        <div class="form-grid">
-                            <div class="input-group" style="grid-column: 1 / 2;">
-                                <label for="tax_id">Tax ID (NTN)</label>
-                                <input type="text" id="tax_id" name="tax_id" value="<?php echo htmlspecialchars($employee['tax_id']); ?>">
+                                <input type="text" id="account" name="bank_account_number" value="<?php echo htmlspecialchars($employee['bank_account_number']); ?>">
                             </div>
                         </div>
                     </fieldset>

@@ -104,27 +104,43 @@ class Employee {
           return $employeesList;
    }
 
-   public function getEmployeeDetailsById($user_id){
-        $query = "SELECT u.first_name, u.last_name, u.email, e.home_address, e.position_title, e.department, e.employment_type, e.base_salary_rs, e.allowances_rs, e.bank_name, e.bank_account_number, e.status, e.date_of_joining
+public function getEmployeeDetailsById($user_id) {
+     
+        $query = "SELECT u.user_id, u.first_name, u.last_name, u.email, 
+                         e.home_address,e.employee_id, e.position_title, e.department, 
+                         e.employment_type, e.base_salary_rs, e.allowances_rs, 
+                         e.bank_name, e.bank_account_number, e.status, e.date_of_joining
                   FROM users u
                   JOIN employees e ON u.user_id = e.user_id
                   WHERE u.user_id = ?";
 
+        
         $result = $this->connection->prepare($query);
+        
+        
         if (!$result) {
             $this->errors['general'] = "Prepare failed: " . $this->connection->error;
             return false;
         }
+        
+        //  Binding ID  securely to the '?' placeholder
         $result->bind_param("i", $user_id);
         $result->execute();
+        
+        //  Fetching the actual data
         $resultData = $result->get_result();
+        
+        // if found exactly one employee
         if ($resultData->num_rows == 1) {
-            return $resultData->fetch_assoc();
+            
+            return $resultData->fetch_assoc(); 
         } else {
             $this->errors['general'] = "Employee not found.";
             return false;
         }
-   }
+    }
+
+
 
 }
 ?>
