@@ -11,7 +11,9 @@ class Employee {
   public $Fname;
   public $Lname;
   public $email;
+  public $status;
   public $password;
+  public $user_id;
   public $errors = [];
   private $connection;
 
@@ -139,7 +141,36 @@ public function getEmployeeDetailsById($user_id) {
             return false;
         }
     }
+   
 
+    public function updateEmployeeProfile($first_name, $last_name, $email, $position_title, $home_address, $status, $employment_type, $base_salary_rs, $bank_name, $bank_account_number, $user_id){
+        $query = "UPDATE users u
+        JOIN employees e ON u.user_id = e.user_id
+        set u. first_name = ?,
+        u.last_name = ?,
+          u.email = ?, 
+          e.position_title = ?,
+          e.home_address = ?,
+          e.status = ?,
+          e.employment_type = ?,
+          e.base_salary_rs = ?,
+          e.bank_name = ?,
+          e.bank_account_number = ?
+          WHERE u.user_id = ?";
+         
+        $result = $this->connection->prepare($query);
+        if (!$result) {
+            $this->errors['general'] = "Prepare failed: " . $this->connection->error;
+            return false;
+        }
+        $result->bind_param("ssssssdsssi", $first_name, $last_name, $email, $position_title, $home_address, $status, $employment_type, $base_salary_rs, $bank_name, $bank_account_number, $user_id);
+        if ($result->execute()) {
+            return true; // Success!
+        } else {
+            $this->errors['general'] = "Update failed: " . $result->error;
+            return false; // Something went wrong
+        }
+    }
 
 
 }

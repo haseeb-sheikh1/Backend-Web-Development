@@ -14,9 +14,6 @@ require_once '../pages/Employee.php';
 
 $db = new Database();
 $employeeObj = new Employee($db->getConnection());
-
-$employee = null;
-
 if (isset($_GET['id']) && !empty($_GET['id'])) {
     $employeeId = $_GET['id'];
     $employee = $employeeObj->getEmployeeDetailsById($employeeId);
@@ -30,10 +27,28 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
 }
 
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Update logic will go here!
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
+    $first_name = trim($_POST['first_name']);
+    $last_name = trim($_POST['last_name']);
+    $email = trim($_POST['email']);
+    $position_title = trim($_POST['position_title']);
+    $home_address = trim($_POST['home_address']);
+    $status = trim($_POST['status']);
+    $employment_type = trim($_POST['employment_type']); 
+    $base_salary_rs = trim($_POST['base_salary_rs']);
+    $bank_name = trim($_POST['bank_name']);
+    $bank_account_number = trim($_POST['bank_account_number']);
+
+       $updateEmployee = $employeeObj->updateEmployeeProfile($first_name,$last_name, $email, $position_title, $home_address, $status, $employment_type, $base_salary_rs, $bank_name, $bank_account_number, $_POST['employee_id']);
+
+  /*  if ($updateEmployee) {
+        header("Location: manage_employee.php?id=" . urlencode($employee['user_id']) . "&update=success");
+        exit();
+    } else {
+        echo "<div class='error-message'>Error updating employee profile: " . htmlspecialchars($employeeObj->errors['general']) . "</div>";
+    }*/
 }
- 
+    
 ?>
 
 <style>
@@ -227,8 +242,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <legend class="fieldset-legend">Personal Information</legend>
                         <div class="form-grid">
                             <div class="input-group">
-                                <label for="full_name">Full Name</label>
-                                <input type="text" id="full_name" name="full_name" value="<?php echo htmlspecialchars($employee['first_name'] . ' ' . $employee['last_name']); ?>" required>
+                                <label for="first_name">First Name</label>
+                                <input type="text" id="first_name" name="first_name" value="<?php echo htmlspecialchars($employee['first_name']); ?>" required>
+                                <label for="last_name">Last Name</label>
+                                <input type="text" id="last_name" name="last_name" value="<?php echo htmlspecialchars($employee['last_name']); ?>" required>
                             </div>
                             <div class="input-group">
                                 <label for="email">Email Address</label>
@@ -238,7 +255,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="form-grid">
                             <div class="input-group">
                                 <label for="position_role">Position Role</label>
-                                <input type="text" id="position_role" name="position_role" value="<?php echo htmlspecialchars($employee['position_title']); ?>" required>
+                                <input type="text" id="position_role" name="position_title" value="<?php echo htmlspecialchars($employee['position_title']); ?>" required>
                             </div>
                             <div class="input-group">
                                 <label for="home_address">Home Address</label>
@@ -268,14 +285,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="form-grid">
                             <div class="input-group">
                                 <label for="role">Role / Designation</label>
-                                <select id="role" name="position_title">
-                                    <option value="Senior Backend Developer" <?php echo ($employee['position_title'] == 'Senior Backend Developer') ? 'selected' : ''; ?>>Senior Backend Developer</option>
-                                    <option value="Senior Frontend Developer" <?php echo ($employee['position_title'] == 'Senior Frontend Developer') ? 'selected' : ''; ?>>Senior Frontend Developer</option>
-                                    <option value="Backend Developer" <?php echo ($employee['position_title'] == 'Backend Developer') ? 'selected' : ''; ?>>Backend Developer</option>
-                                    <option value="Frontend Developer" <?php echo ($employee['position_title'] == 'Frontend Developer') ? 'selected' : ''; ?>>Frontend Developer</option>
-                                    <option value="UI/UX Designer" <?php echo ($employee['position_title'] == 'UI/UX Designer') ? 'selected' : ''; ?>>UI/UX Designer</option>
-                                    <option value="Backend Intern" <?php echo ($employee['position_title'] == 'Backend Intern') ? 'selected' : ''; ?>>Backend Intern</option>
-                                    <option value="Frontend Intern" <?php echo ($employee['position_title'] == 'Frontend Intern') ? 'selected' : ''; ?>>Frontend Intern</option>
+                                <select id="role" name="employment_type">
+                                    <option value="Senior Backend Developer" <?php echo ($employee['employment_type'] == 'Senior Backend Developer') ? 'selected' : ''; ?>>Senior Backend Developer</option>
+                                    <option value="Senior Frontend Developer" <?php echo ($employee['employment_type'] == 'Senior Frontend Developer') ? 'selected' : ''; ?>>Senior Frontend Developer</option>
+                                    <option value="Backend Developer" <?php echo ($employee['employment_type'] == 'Backend Developer') ? 'selected' : ''; ?>>Backend Developer</option>
+                                    <option value="Frontend Developer" <?php echo ($employee['employment_type'] == 'Frontend Developer') ? 'selected' : ''; ?>>Frontend Developer</option>
+                                    <option value="UI/UX Designer" <?php echo ($employee['employment_type'] == 'UI/UX Designer') ? 'selected' : ''; ?>>UI/UX Designer</option>
+                                    <option value="Backend Intern" <?php echo ($employee['employment_type'] == 'Backend Intern') ? 'selected' : ''; ?>>Backend Intern</option>
+                                    <option value="Frontend Intern" <?php echo ($employee['employment_type'] == 'Frontend Intern') ? 'selected' : ''; ?>>Frontend Intern</option>
                                 </select>
                             </div>
                             <div class="input-group">
@@ -300,7 +317,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <a href="manage_employee.php" class="action-button secondary">
                             Cancel
                         </a>
-                        <button type="submit" class="action-button primary">Update Employee Details</button>
+                        <button type="submit" name="update_profile" class="action-button primary">Update Employee Details</button>
                     </div>
                 </form>
             </div>
