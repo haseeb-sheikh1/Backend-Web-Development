@@ -1,24 +1,32 @@
 <?php
 session_start();
-    $user_role    = "admin";
     $current_page = "manage_employees";
     $extra_css    = "manage_employee";
     $title        = "Manage Employee - CodeXentric";
     include_once "../includes/header.php";
+    require_once '../pages/Database.php';
+    require_once '../pages/Employee.php';
+    $db = new Database();
+    $connection = $db->getConnection();
+    $employeeObj = new Employee($connection);
 
-    $employee = [
-        "name"    => "Hammad Ali",
-        "role"    => "Senior Backend Developer",
-        "status"  => "Active",
-        "email"   => "hammad@gmail.com",
-        "phone"   => "0345-9875427",
-        "cnic"    => "XXXXX-XXXXXXX-X",
-        "joined"  => "Dec 15, 2025",
-        "salary"  => "Rs 85,000",
-        "bank"    => "HBL Pakistan",
-        "account" => "PK00HBL123456789",
-        "tax_id"  => "NTN-882299-1"
-    ];
+    if (isset($_GET['id']) && !empty($_GET['id'])) {
+        $employeeId = $_GET['id'];
+        $employee = $employeeObj->getEmployeeDetailsById($employeeId);
+        if (!$employee) {
+            echo "<p style='color:red; text-align:center; margin-top:40px;'>Employee not found.</p>";
+            include_once "../includes/footer.php";
+            exit;
+        }
+    } else {
+        echo "<p style='color:red; text-align:center; margin-top:40px;'>No employee ID provided.</p>";
+        include_once "../includes/footer.php";
+        exit;
+    }
+    
+
+
+
 ?>
 
 <style>
@@ -340,22 +348,22 @@ session_start();
   <div class="emp-hero">
     <div class="emp-hero-left">
       <div class="emp-avatar-xl" aria-hidden="true">
-        <?php echo strtoupper(substr($employee['name'], 0, 1)); ?>
+        <?php echo strtoupper(substr($employee['first_name'], 0, 1)); ?>
       </div>
       <div class="emp-hero-info">
-        <h1><?php echo htmlspecialchars($employee['name']); ?></h1>
-        <p><?php echo htmlspecialchars($employee['role']); ?></p>
+        <h1><?php echo htmlspecialchars($employee['first_name'] . ' ' . $employee['last_name']); ?></h1>
+        <p><?php echo htmlspecialchars($employee['position_title']); ?></p>
         <div class="emp-hero-meta">
           <span class="hero-badge <?php echo strtolower($employee['status']) !== 'active' ? 'onb' : ''; ?>">
             <?php echo htmlspecialchars($employee['status']); ?>
           </span>
           <span class="hero-meta-chip">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            Joined <?php echo htmlspecialchars($employee['joined']); ?>
+            Joined <?php echo htmlspecialchars($employee['date_of_joining']); ?>
           </span>
           <span class="hero-meta-chip">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            <?php echo htmlspecialchars($employee['salary']); ?>/mo
+            <?php echo htmlspecialchars($employee['base_salary_rs']); ?>/mo
           </span>
         </div>
       </div>
@@ -376,29 +384,24 @@ session_start();
   <div class="emp-stats">
     <div class="emp-stat">
       <span class="emp-stat-label">Base Salary</span>
-      <span class="emp-stat-value"><?php echo htmlspecialchars($employee['salary']); ?></span>
+      <span class="emp-stat-value"><?php echo htmlspecialchars($employee['base_salary_rs']); ?></span>
       <span class="emp-stat-sub">Per month</span>
     </div>
     <div class="emp-stat">
       <span class="emp-stat-label">Employment</span>
       <span class="emp-stat-value green">
         <?php
-          $joined_ts = strtotime('Dec 15, 2025');
+          $joined_ts = strtotime($employee['date_of_joining']);
           $diff = (new DateTime('@'.$joined_ts))->diff(new DateTime());
           echo $diff->y > 0 ? $diff->y . 'y ' . $diff->m . 'm' : $diff->m . ' months';
         ?>
       </span>
-      <span class="emp-stat-sub">Since <?php echo htmlspecialchars($employee['joined']); ?></span>
+      <span class="emp-stat-sub">Since <?php echo htmlspecialchars($employee['date_of_joining']); ?></span>
     </div>
     <div class="emp-stat">
       <span class="emp-stat-label">Bank</span>
-      <span class="emp-stat-value" style="font-size:16px;"><?php echo htmlspecialchars($employee['bank']); ?></span>
+      <span class="emp-stat-value" style="font-size:16px;"><?php echo htmlspecialchars($employee['bank_name']); ?></span>
       <span class="emp-stat-sub">Primary account</span>
-    </div>
-    <div class="emp-stat">
-      <span class="emp-stat-label">Tax ID</span>
-      <span class="emp-stat-value" style="font-size:16px;"><?php echo htmlspecialchars($employee['tax_id']); ?></span>
-      <span class="emp-stat-sub">NTN registered</span>
     </div>
   </div>
 
@@ -426,22 +429,14 @@ session_start();
               </dd>
             </div>
             <div class="emp-info-row">
-              <dt class="emp-info-dt">Phone</dt>
-              <dd class="emp-info-dd">
-                <a href="tel:<?php echo htmlspecialchars($employee['phone']); ?>" class="emp-info-link">
-                  <?php echo htmlspecialchars($employee['phone']); ?>
-                </a>
-              </dd>
-            </div>
-            <div class="emp-info-row">
-              <dt class="emp-info-dt">CNIC</dt>
-              <dd class="emp-info-dd"><span class="mono"><?php echo htmlspecialchars($employee['cnic']); ?></span></dd>
+              <dt class="emp-info-dt">Department</dt>
+              <dd class="emp-info-dd"><span class="mono"><?php echo htmlspecialchars($employee['department']); ?></span></dd>
             </div>
             <div class="emp-info-row">
               <dt class="emp-info-dt">Date Joined</dt>
               <dd class="emp-info-dd">
-                <time datetime="<?php echo date('Y-m-d', strtotime($employee['joined'])); ?>">
-                  <?php echo htmlspecialchars($employee['joined']); ?>
+                <time datetime="<?php echo date('Y-m-d', strtotime($employee['date_of_joining'])); ?>">
+                  <?php echo htmlspecialchars($employee['date_of_joining']); ?>
                 </time>
               </dd>
             </div>
@@ -462,21 +457,17 @@ session_start();
             <div class="emp-info-row">
               <dt class="emp-info-dt">Base Salary</dt>
               <dd class="emp-info-dd">
-                <span class="sal-val"><?php echo htmlspecialchars($employee['salary']); ?></span>
+                <span class="sal-val"><?php echo htmlspecialchars($employee['base_salary_rs']); ?></span>
                 <span class="sal-per">/month</span>
               </dd>
             </div>
             <div class="emp-info-row">
               <dt class="emp-info-dt">Bank</dt>
-              <dd class="emp-info-dd"><?php echo htmlspecialchars($employee['bank']); ?></dd>
+              <dd class="emp-info-dd"><?php echo htmlspecialchars($employee['bank_name']); ?></dd>
             </div>
             <div class="emp-info-row">
               <dt class="emp-info-dt">Account No.</dt>
-              <dd class="emp-info-dd"><span class="mono"><?php echo htmlspecialchars($employee['account']); ?></span></dd>
-            </div>
-            <div class="emp-info-row">
-              <dt class="emp-info-dt">Tax ID (NTN)</dt>
-              <dd class="emp-info-dd"><span class="mono"><?php echo htmlspecialchars($employee['tax_id']); ?></span></dd>
+              <dd class="emp-info-dd"><span class="mono"><?php echo htmlspecialchars($employee['bank_account_number']); ?></span></dd>
             </div>
           </dl>
         </div>
@@ -499,11 +490,11 @@ session_start();
               <div class="tl-content">
                 <div class="tl-title">Joined Company</div>
                 <div class="tl-date">
-                  <time datetime="<?php echo date('Y-m-d', strtotime($employee['joined'])); ?>">
-                    <?php echo htmlspecialchars($employee['joined']); ?>
+                  <time datetime="<?php echo date('Y-m-d', strtotime($employee['date_of_joining'])); ?>">
+                    <?php echo htmlspecialchars($employee['date_of_joining']); ?>
                   </time>
                 </div>
-                <div class="tl-desc">Started as <?php echo htmlspecialchars($employee['role']); ?></div>
+                <div class="tl-desc">Started as <?php echo htmlspecialchars($employee['position_title']); ?></div>
               </div>
             </div>
             <div class="tl-item">
@@ -531,7 +522,7 @@ session_start();
         <div class="emp-card-body">
           <div class="emp-actions-list">
 
-            <a href="#" class="emp-qa" aria-label="Generate payslip for <?php echo htmlspecialchars($employee['name']); ?>">
+            <a href="#" class="emp-qa" aria-label="Generate payslip for <?php echo htmlspecialchars($employee['first_name']); ?>">
               <div class="emp-qa-icon payslip">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
               </div>
