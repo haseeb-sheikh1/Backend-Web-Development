@@ -11,8 +11,9 @@ session_start();
     $employeeObj = new Employee($connection);
 
     if (isset($_GET['id']) && !empty($_GET['id'])) {
-        $employeeId = $_GET['id'];
-        $employee = $employeeObj->getEmployeeDetailsById($employeeId);
+        $user_id = $_GET['id'];
+ 
+        $employee = $employeeObj->getEmployeeDetailsById($user_id);
         if (!$employee) {
             echo "<p style='color:red; text-align:center; margin-top:40px;'>Employee not found.</p>";
             include_once "../includes/footer.php";

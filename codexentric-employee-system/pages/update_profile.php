@@ -15,34 +15,53 @@ require_once '../pages/Employee.php';
 $db = new Database();
 $employeeObj = new Employee($db->getConnection());
 if (isset($_GET['id']) && !empty($_GET['id'])) {
-    $employeeId = $_GET['id'];
-    $employee = $employeeObj->getEmployeeDetailsById($employeeId);
+    
+    $user_id = $_GET['id'];
+    $employee = $employeeObj->getEmployeeDetailsById($user_id);
     
     if (!$employee) {
         die("Error: Employee not found in the database.");
     }
+  
+
 } else {
+
     die("Error: No Employee ID provided.");
 }
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
+    
+    $bank_name = trim($_POST['bank_name']);
+    $bank_account_number = trim($_POST['bank_account_number']);
+    $user_id = trim($_POST['user_id']);
     $first_name = trim($_POST['first_name']);
     $last_name = trim($_POST['last_name']);
     $email = trim($_POST['email']);
     $position_title = trim($_POST['position_title']);
-    $home_address = trim($_POST['home_address']);
     $department = trim($_POST['department']);
+    $home_address = trim($_POST['home_address']);
     $status = trim($_POST['status']);
-    $employment_type = trim($_POST['employment_type']); 
-    $base_salary_rs = trim($_POST['base_salary_rs']);
-    $allowances = trim($_POST['allowances']);
-    $bank_name = trim($_POST['bank_name']);
-    $bank_account_number = trim($_POST['bank_account_number']);
+    $base_salary_rs = $_POST['base_salary_rs'];
+    $allowances = $_POST['allowances'];
+    $employment_type = $_POST['employment_type'];
 
-       $updateEmployee = $employeeObj->updateEmployeeProfile($first_name, $last_name, $email, $position_title, $department, $home_address, $status,$base_salary_rs,$allowances, $employment_type,$bank_name, $bank_account_number, $_POST['user_id']);
+    if (!empty($user_id)) {
+
+        $updateEmployee = $employeeObj->updateEmployeeProfile($first_name, $last_name, $email, $position_title, $department, $home_address, $status, $base_salary_rs, $allowances, $employment_type, $bank_name, $bank_account_number, $user_id);
+      
+        if ($updateEmployee) {
+            echo "<p style='color:green; text-align:center; margin-top:40px;'>Employee profile updated successfully.</p>";
+            echo "<p style='text-align:center;'><a href='manage_employee.php?id={$user_id}'>Back to Profile</a></p>";
+        } else {
+          echo "<p style='color:red;'>Error: " . $employeeObj->errors['general'] . "</p>";
+            echo "<p style='color:red; text-align:center; margin-top:40px;'>Employee profile update error.</p>";
+        } 
+        
+    } else {
+       
+        echo "<p style='color:red; text-align:center; margin-top:40px;'>Error: Missing User ID. Cannot update.</p>";
+    }  
 }
-    
 ?>
 
 
@@ -306,4 +325,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
   </div>
 </section>
 
-<?php include_once "../includes/footer.php"; ?>
+
+<?php include_once "../includes/footer.php" ; ?>

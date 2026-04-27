@@ -15,11 +15,9 @@
     $db = new Database();
     $employeeObj = new Employee($db->getConnection());
     $allEmployees = $employeeObj->getBasicEmployeeDetails();
-    $employeeObj = new Employee($db->getConnection());
-$allEmployees = $employeeObj->getBasicEmployeeDetails();
 $specificEmployee = null; 
 if (isset($_GET['id']) && !empty($_GET['id'])) {
-
+    $employeeId = $_GET['id'];
     $specificEmployee = $employeeObj->getEmployeeDetailsById($employeeId);
     
 }
