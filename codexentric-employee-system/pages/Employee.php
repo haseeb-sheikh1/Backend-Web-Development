@@ -143,17 +143,19 @@ public function getEmployeeDetailsById($user_id) {
     }
    
 
-    public function updateEmployeeProfile($first_name, $last_name, $email, $position_title, $home_address, $status, $employment_type, $base_salary_rs, $bank_name, $bank_account_number, $user_id){
+    public function updateEmployeeProfile($first_name, $last_name, $email, $position_title, $department, $home_address, $status,$base_salary_rs,$allowances, $employment_type,$bank_name, $bank_account_number, $user_id){
         $query = "UPDATE users u
         JOIN employees e ON u.user_id = e.user_id
         set u. first_name = ?,
         u.last_name = ?,
           u.email = ?, 
           e.position_title = ?,
+          e.department = ?,
           e.home_address = ?,
           e.status = ?,
+           e.base_salary_rs =?,
+          e.allowances = ?,
           e.employment_type = ?,
-          e.base_salary_rs = ?,
           e.bank_name = ?,
           e.bank_account_number = ?
           WHERE u.user_id = ?";
@@ -163,14 +165,22 @@ public function getEmployeeDetailsById($user_id) {
             $this->errors['general'] = "Prepare failed: " . $this->connection->error;
             return false;
         }
-        $result->bind_param("ssssssdsssi", $first_name, $last_name, $email, $position_title, $home_address, $status, $employment_type, $base_salary_rs, $bank_name, $bank_account_number, $user_id);
+        $result->bind_param("sssssssddssssi", $first_name, $last_name, $email, $position_title,$department, $home_address, $status,$base_salary_rs, $allowances, $employment_type, $bank_name, $bank_account_number, $user_id);
         if ($result->execute()) {
+             $this->errors['general'] = "Update successfull: " . $result->error;
             return true; // Success!
         } else {
             $this->errors['general'] = "Update failed: " . $result->error;
             return false; // Something went wrong
         }
     }
+     public function deleteEmployee($user_id){
+        $query = "DELETE FROM users WHERE user_id = ?";
+        $stmt = $this->connection->prepare($query); 
+        $stmt->bind_param("i", $user_id);
+        return $stmt->execute();
+     }
+
 
 
 }

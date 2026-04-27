@@ -22,7 +22,7 @@ $role = $_SESSION['role_id'];
 <aside class="sidebar">
     <div class="sidebar-section-label">Main Menu</div>
     
-    <?php if ($role === '1'): ?>
+    <?php if ($role == '1'): ?>
         <a href="administrator_dashboard.php" class="sidebar-link <?php echo ($current_page == 'administrator_dashboard') ? 'active' : ''; ?>">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
             Overview
@@ -60,7 +60,7 @@ $role = $_SESSION['role_id'];
     <?php endif; ?>
 
   <div class="sidebar-section-label">Administration</div>
-<a href="<?php echo ($_SESSION['role_id'] === '1') ? 'settings.php' : 'employee_settings.php'; ?>" 
+<a href="<?php echo ($_SESSION['role_id'] == '1') ? 'settings.php' : 'employee_settings.php'; ?>" 
    class="sidebar-link <?php echo ($current_page == 'employee_settings' || $current_page == 'settings') ? 'active' : ''; ?>">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M20 12h2M2 12h2M19.07 19.07l-1.41-1.41M4.93 19.07l1.41-1.41"/></svg>
     Settings

@@ -22,7 +22,6 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
         die("Error: Employee not found in the database.");
     }
 } else {
-    // If someone visits the page without an ID
     die("Error: No Employee ID provided.");
 }
 
@@ -33,296 +32,278 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     $email = trim($_POST['email']);
     $position_title = trim($_POST['position_title']);
     $home_address = trim($_POST['home_address']);
+    $department = trim($_POST['department']);
     $status = trim($_POST['status']);
     $employment_type = trim($_POST['employment_type']); 
     $base_salary_rs = trim($_POST['base_salary_rs']);
+    $allowances = trim($_POST['allowances']);
     $bank_name = trim($_POST['bank_name']);
     $bank_account_number = trim($_POST['bank_account_number']);
 
-       $updateEmployee = $employeeObj->updateEmployeeProfile($first_name,$last_name, $email, $position_title, $home_address, $status, $employment_type, $base_salary_rs, $bank_name, $bank_account_number, $_POST['employee_id']);
-
-  /*  if ($updateEmployee) {
-        header("Location: manage_employee.php?id=" . urlencode($employee['user_id']) . "&update=success");
-        exit();
-    } else {
-        echo "<div class='error-message'>Error updating employee profile: " . htmlspecialchars($employeeObj->errors['general']) . "</div>";
-    }*/
+       $updateEmployee = $employeeObj->updateEmployeeProfile($first_name, $last_name, $email, $position_title, $department, $home_address, $status,$base_salary_rs,$allowances, $employment_type,$bank_name, $bank_account_number, $_POST['user_id']);
 }
     
 ?>
 
-<style>
-    
-    .main-content {
-        padding: 30px;
-        background-color: #f8f9fa; /* Light grey background */
-        min-height: 100vh;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-    .dashboard-container {
-        max-width: 900px;
-        margin: 0 auto;
-    }
 
-    /* ── HEADER ── */
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 25px;
-    }
-    .page-title {
-        font-size: 24px;
-        font-weight: 700;
-        color: #202124;
-        margin: 0 0 5px 0;
-    }
-    .page-subtitle {
-        font-size: 14px;
-        color: #5f6368;
-        margin: 0;
-    }
-
-    /* ── FORM SECTION ── */
-    .form-section {
-        background: #ffffff;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        overflow: hidden;
-    }
-    .section-header {
-        padding: 20px 25px;
-        border-bottom: 1px solid #e0e0e0;
-        background-color: #fafafa;
-    }
-    .section-title {
-        font-size: 18px;
-        font-weight: 600;
-        color: #202124;
-        margin: 0;
-    }
-    .form-container {
-        padding: 25px;
-    }
-
-    /* ── FORM ELEMENTS ── */
-    .form-fieldset {
-        border: none;
-        padding: 0;
-        margin: 0 0 30px 0;
-    }
-    .fieldset-legend {
-        font-size: 15px;
-        font-weight: 600;
-        color: #1a73e8; /* Theme blue */
-        margin-bottom: 15px;
-        padding-bottom: 5px;
-        border-bottom: 2px solid #e8eaed;
-        width: 100%;
-    }
-    .form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-        margin-bottom: 15px;
-    }
-    .input-group {
-        display: flex;
-        flex-direction: column;
-    }
-    .input-group label {
-        font-size: 13px;
-        font-weight: 500;
-        color: #3c4043;
-        margin-bottom: 6px;
-    }
-    .input-group input, 
-    .input-group select {
-        padding: 10px 12px;
-        font-size: 14px;
-        border: 1px solid #dadce0;
-        border-radius: 6px;
-        outline: none;
-        transition: border-color 0.2s;
-        background-color: #fff;
-    }
-    .input-group input:focus, 
-    .input-group select:focus {
-        border-color: #1a73e8;
-        box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
-    }
-    
-    /* Read-only styling for the ID field */
-    .input-group input[readonly] {
-        background-color: #f1f3f4;
-        color: #5f6368;
-        cursor: not-allowed;
-        border-color: #e8eaed;
-    }
-    .input-group input[readonly]:focus {
-        border-color: #e8eaed;
-        box-shadow: none;
-    }
-
-    /* ── BUTTONS & ACTIONS ── */
-    .form-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 15px;
-        padding-top: 20px;
-        border-top: 1px solid #e0e0e0;
-    }
-    .action-button {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 20px;
-        font-size: 14px;
-        font-weight: 500;
-        border-radius: 6px;
-        text-decoration: none;
-        cursor: pointer;
-        transition: background-color 0.2s, color 0.2s;
-        border: none;
-    }
-    .action-button.primary {
-        background-color: #1a73e8;
-        color: #ffffff;
-    }
-    .action-button.primary:hover {
-        background-color: #1557b0;
-    }
-    .action-button.secondary {
-        background-color: #f1f3f4;
-        color: #3c4043;
-        border: 1px solid #dadce0;
-    }
-    .action-button.secondary:hover {
-        background-color: #e8eaed;
-    }
-
-    /* ── RESPONSIVE DESIGN ── */
-    @media (max-width: 768px) {
-        .form-grid {
-            grid-template-columns: 1fr;
-            gap: 15px;
-        }
-        .page-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 15px;
-        }
-    }
-</style>
-
-<main class="main-content" role="main">
-    <div class="dashboard-container">
-        <header class="page-header" role="banner">
-            <div>
-                <h1 class="page-title">Update Profile: <?php echo htmlspecialchars($employee['first_name'] . ' ' . $employee['last_name']); ?></h1>
-                <p class="page-subtitle"><?php echo htmlspecialchars($employee['position_title']); ?> | ID: CEMS-<?php echo htmlspecialchars($employee['user_id']); ?></p>
-            </div>
-            <a href="manage_employee.php?id=<?php echo htmlspecialchars($employee['user_id']); ?>" class="action-button secondary" aria-label="Return to employee profile">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <path d="M19 12H5M12 19l-7-7 7-7"/>
-                </svg>
-                Back to Profile
-            </a>
-        </header>
-
-        <section class="form-section" aria-labelledby="form-heading">
-            <div class="section-header">
-                <h2 id="form-heading" class="section-title">Edit Employee Information</h2>
-            </div>
-            <div class="form-container">
-                <form action="" method="POST" class="request-form">
-                    <input type="hidden" name="employee_id" value="<?php echo htmlspecialchars($employee['user_id']); ?>">
-                    <fieldset class="form-fieldset">
-                        <legend class="fieldset-legend">Personal Information</legend>
-                        <div class="form-grid">
-                            <div class="input-group">
-                                <label for="first_name">First Name</label>
-                                <input type="text" id="first_name" name="first_name" value="<?php echo htmlspecialchars($employee['first_name']); ?>" required>
-                                <label for="last_name">Last Name</label>
-                                <input type="text" id="last_name" name="last_name" value="<?php echo htmlspecialchars($employee['last_name']); ?>" required>
-                            </div>
-                            <div class="input-group">
-                                <label for="email">Email Address</label>
-                                <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($employee['email']); ?>" required>
-                            </div>
-                        </div>
-                        <div class="form-grid">
-                            <div class="input-group">
-                                <label for="position_role">Position Role</label>
-                                <input type="text" id="position_role" name="position_title" value="<?php echo htmlspecialchars($employee['position_title']); ?>" required>
-                            </div>
-                            <div class="input-group">
-                                <label for="home_address">Home Address</label>
-                                <input type="text" id="home_address" name="home_address" value="<?php echo htmlspecialchars($employee['home_address']); ?>" required>
-                            </div>
-                        </div>
-                    </fieldset>
-
-                    <fieldset class="form-fieldset">
-                        <legend class="fieldset-legend">Job & Financial Details</legend>
-                        
-                        <div class="form-grid">
-                            <div class="input-group">
-                                <label for="employee_id">Employee ID</label>
-                                <input type="text" id="employee_id" name="employee_id" value="<?php echo htmlspecialchars($employee['employee_id']); ?>" readonly>
-                            </div>
-                            <div class="input-group">
-                                <label for="status">Employment Status</label>
-                                <select id="status" name="status">
-                                    <option value="Active" <?php echo ($employee['status'] == 'Active') ? 'selected' : ''; ?>>Active</option>
-                                    <option value="On Leave" <?php echo ($employee['status'] == 'On Leave') ? 'selected' : ''; ?>>On Leave</option>
-                                    <option value="Terminated" <?php echo ($employee['status'] == 'Terminated') ? 'selected' : ''; ?>>Terminated</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-grid">
-                            <div class="input-group">
-                                <label for="role">Role / Designation</label>
-                                <select id="role" name="employment_type">
-                                    <option value="Senior Backend Developer" <?php echo ($employee['employment_type'] == 'Senior Backend Developer') ? 'selected' : ''; ?>>Senior Backend Developer</option>
-                                    <option value="Senior Frontend Developer" <?php echo ($employee['employment_type'] == 'Senior Frontend Developer') ? 'selected' : ''; ?>>Senior Frontend Developer</option>
-                                    <option value="Backend Developer" <?php echo ($employee['employment_type'] == 'Backend Developer') ? 'selected' : ''; ?>>Backend Developer</option>
-                                    <option value="Frontend Developer" <?php echo ($employee['employment_type'] == 'Frontend Developer') ? 'selected' : ''; ?>>Frontend Developer</option>
-                                    <option value="UI/UX Designer" <?php echo ($employee['employment_type'] == 'UI/UX Designer') ? 'selected' : ''; ?>>UI/UX Designer</option>
-                                    <option value="Backend Intern" <?php echo ($employee['employment_type'] == 'Backend Intern') ? 'selected' : ''; ?>>Backend Intern</option>
-                                    <option value="Frontend Intern" <?php echo ($employee['employment_type'] == 'Frontend Intern') ? 'selected' : ''; ?>>Frontend Intern</option>
-                                </select>
-                            </div>
-                            <div class="input-group">
-                                <label for="salary">Base Salary (PKR)</label>
-                                <input type="text" id="salary" name="base_salary_rs" value="<?php echo htmlspecialchars($employee['base_salary_rs']); ?>">
-                            </div>
-                        </div>
-
-                        <div class="form-grid">
-                            <div class="input-group">
-                                <label for="bank">Bank Name</label>
-                                <input type="text" id="bank" name="bank_name" value="<?php echo htmlspecialchars($employee['bank_name']); ?>">
-                            </div>
-                            <div class="input-group">
-                                <label for="account">Account Number (IBAN)</label>
-                                <input type="text" id="account" name="bank_account_number" value="<?php echo htmlspecialchars($employee['bank_account_number']); ?>">
-                            </div>
-                        </div>
-                    </fieldset>
-
-                    <div class="form-actions">
-                        <a href="manage_employee.php" class="action-button secondary">
-                            Cancel
-                        </a>
-                        <button type="submit" name="update_profile" class="action-button primary">Update Employee Details</button>
-                    </div>
-                </form>
-            </div>
-        </section>
+<section class="form-section">
+  <div class="form-container">
+    <div class="form-header">
+      <div class="form-header-content">
+        <div class="form-header-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+        <div class="form-header-text">
+          <h1 class="form-title">Update Employee Profile</h1>
+          <p class="form-subtitle">
+            Editing: <strong><?php echo htmlspecialchars($employee['first_name'] . ' ' . $employee['last_name']); ?></strong>
+            &nbsp;|&nbsp; <?php echo htmlspecialchars($employee['position_title']); ?>
+            &nbsp;|&nbsp; ID: CEMS-<?php echo htmlspecialchars($employee['user_id']); ?>
+          </p>
+        </div>
+      </div>
     </div>
-</main>
+
+    <form action="" method="POST" class="employee-form" novalidate>
+      <input type="hidden" name="user_id" value="<?php echo htmlspecialchars($employee['user_id']); ?>">
+
+      <!-- Personal Information Section -->
+      <fieldset class="form-fieldset">
+        <legend class="fieldset-legend">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          <span>Personal Information</span>
+        </legend>
+
+        <div class="form-row">
+          <div class="form-col">
+            <div class="form-group">
+              <label class="form-label" for="first_name">
+                First Name
+                <span class="form-required">*</span>
+              </label>
+              <input type="text" id="first_name" name="first_name" class="form-input"
+                value="<?php echo htmlspecialchars($employee['first_name']); ?>" required>
+              <p class="form-helper">Employee's first name</p>
+            </div>
+          </div>
+          <div class="form-col">
+            <div class="form-group">
+              <label class="form-label" for="last_name">
+                Last Name
+                <span class="form-required">*</span>
+              </label>
+              <input type="text" id="last_name" name="last_name" class="form-input"
+                value="<?php echo htmlspecialchars($employee['last_name']); ?>" required>
+              <p class="form-helper">Employee's last name</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-col form-col-full">
+            <div class="form-group">
+              <label class="form-label" for="home_address">
+                Address
+              </label>
+              <input type="text" id="home_address" name="home_address" class="form-input"
+                value="<?php echo htmlspecialchars($employee['home_address']); ?>"
+                placeholder="123 Main Street, City, Country">
+              <p class="form-helper">Residential address</p>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Employment Information Section -->
+      <fieldset class="form-fieldset">
+        <legend class="fieldset-legend">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+          </svg>
+          <span>Employment Information</span>
+        </legend>
+
+        <div class="form-row">
+          <div class="form-col">
+            <div class="form-group">
+              <label class="form-label" for="email">
+                Email Address
+                <span class="form-required">*</span>
+              </label>
+              <input type="email" id="email" name="email" class="form-input"
+                value="<?php echo htmlspecialchars($employee['email']); ?>" required>
+              <p class="form-helper">Corporate email address</p>
+            </div>
+          </div>
+          <div class="form-col">
+            <div class="form-group">
+              <label class="form-label" for="position_role">
+                Position Title
+                <span class="form-required">*</span>
+              </label>
+              <input type="text" id="position_role" name="position_title" class="form-input"
+                value="<?php echo htmlspecialchars($employee['position_title']); ?>" required>
+              <p class="form-helper">Job title or position</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-col">
+            <div class="form-group">
+              <label class="form-label" for="department">
+                Department
+                <span class="form-required">*</span>
+              </label>
+              <select id="department" name="department" class="form-select" required>
+                <option value="Software Engineering" <?php echo ($employee['department'] == 'Software Engineering') ? 'selected' : ''; ?>>Software Engineering</option>
+                <option value="Marketing"            <?php echo ($employee['department'] == 'Marketing')            ? 'selected' : ''; ?>>Marketing</option>
+                <option value="Design"               <?php echo ($employee['department'] == 'Design')               ? 'selected' : ''; ?>>Design</option>
+              </select>
+              <p class="form-helper">Department assignment</p>
+            </div>
+          </div>
+          <div class="form-col">
+            <div class="form-group">
+              <label class="form-label" for="employment_type">
+                Employment Type
+                <span class="form-required">*</span>
+              </label>
+              <select id="employment_type" name="employment_type" class="form-select" required>
+                <option value="Full-time"  <?php echo ($employee['employment_type'] == 'Full-time')  ? 'selected' : ''; ?>>Full-time</option>
+                <option value="Part-time"  <?php echo ($employee['employment_type'] == 'Part-time')  ? 'selected' : ''; ?>>Part-time</option>
+                <option value="Contract"   <?php echo ($employee['employment_type'] == 'Contract')   ? 'selected' : ''; ?>>Contract</option>
+                <option value="Temporary"  <?php echo ($employee['employment_type'] == 'Temporary')  ? 'selected' : ''; ?>>Temporary</option>
+              </select>
+              <p class="form-helper">Type of employment</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-col">
+            <div class="form-group">
+              <label class="form-label" for="employee_id">Employee ID</label>
+              <input type="text" id="employee_id" name="employee_id" class="form-input"
+                value="<?php echo htmlspecialchars($employee['employee_id']); ?>" readonly>
+              <p class="form-helper">System-assigned, read-only</p>
+            </div>
+          </div>
+          <div class="form-col">
+            <div class="form-group">
+              <label class="form-label" for="status">
+                Employment Status
+                <span class="form-required">*</span>
+              </label>
+              <select id="status" name="status" class="form-select" required>
+                <option value="ACTIVE"     <?php echo ($employee['status'] == 'ACTIVE')     ? 'selected' : ''; ?>>Active</option>
+                <option value="ON_LEAVE"   <?php echo ($employee['status'] == 'ON_LEAVE')   ? 'selected' : ''; ?>>On Leave</option>
+                <option value="TERMINATED" <?php echo ($employee['status'] == 'TERMINATED') ? 'selected' : ''; ?>>Terminated</option>
+              </select>
+              <p class="form-helper">Current employment status</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-col form-col-full">
+            <div class="form-group">
+              <label class="form-label" for="role">Role / Designation</label>
+              <select id="role" name="employment_type" class="form-select">
+                <option value="Senior Backend Developer"  <?php echo ($employee['employment_type'] == 'Senior Backend Developer')  ? 'selected' : ''; ?>>Senior Backend Developer</option>
+                <option value="Senior Frontend Developer" <?php echo ($employee['employment_type'] == 'Senior Frontend Developer') ? 'selected' : ''; ?>>Senior Frontend Developer</option>
+                <option value="Backend Developer"         <?php echo ($employee['employment_type'] == 'Backend Developer')         ? 'selected' : ''; ?>>Backend Developer</option>
+                <option value="Frontend Developer"        <?php echo ($employee['employment_type'] == 'Frontend Developer')        ? 'selected' : ''; ?>>Frontend Developer</option>
+                <option value="UI/UX Designer"            <?php echo ($employee['employment_type'] == 'UI/UX Designer')            ? 'selected' : ''; ?>>UI/UX Designer</option>
+                <option value="Backend Intern"            <?php echo ($employee['employment_type'] == 'Backend Intern')            ? 'selected' : ''; ?>>Backend Intern</option>
+                <option value="Frontend Intern"           <?php echo ($employee['employment_type'] == 'Frontend Intern')           ? 'selected' : ''; ?>>Frontend Intern</option>
+              </select>
+              <p class="form-helper">Specific role or designation within the department</p>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Compensation & Banking Section -->
+      <fieldset class="form-fieldset">
+        <legend class="fieldset-legend">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="1" x2="12" y2="23"/>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+          <span>Compensation &amp; Banking</span>
+        </legend>
+
+        <div class="form-row">
+          <div class="form-col">
+            <div class="form-group">
+              <label class="form-label" for="base_salary_rs">
+                Base Salary (Rs)
+                <span class="form-required">*</span>
+              </label>
+              <input type="number" id="base_salary_rs" name="base_salary_rs" class="form-input"
+                value="<?php echo htmlspecialchars($employee['base_salary_rs']); ?>"
+                placeholder="monthy salary in Rs" min="0"  >
+              <p class="form-helper">Monthly base salary in Pakistani Rupees</p>
+            </div>
+          </div>
+          <div class="form-col">
+            <div class="form-group">
+              <label class="form-label" for="allowances">Allowances (Rs)</label>
+              <input type="number" id="allowances" name="allowances" class="form-input"
+                value="<?php echo htmlspecialchars($employee['allowances'] ?? ''); ?>"
+                placeholder="Additional monthly allowances in Rs" min ="0">
+              <p class="form-helper">Additional allowances (optional)</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-col">
+            <div class="form-group">
+              <label class="form-label" for="bank">Bank Name</label>
+              <input type="text" id="bank" name="bank_name" class="form-input"
+                value="<?php echo htmlspecialchars($employee['bank_name']); ?>"
+                placeholder="HBL, Meezan, Alfalah, etc.">
+              <p class="form-helper">Name of the bank</p>
+            </div>
+          </div>
+          <div class="form-col">
+            <div class="form-group">
+              <label class="form-label" for="account">Account Number (IBAN)</label>
+              <input type="text" id="account" name="bank_account_number" class="form-input"
+                value="<?php echo htmlspecialchars($employee['bank_account_number']); ?>"
+                placeholder="XXXX XXXX XXXX XXXX">
+              <p class="form-helper">Bank account for salary transfer</p>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <a href="manage_employee.php?id=<?php echo htmlspecialchars($employee['user_id']); ?>" class="form-button form-button-secondary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+          Back to Profile
+        </a>
+        <button type="submit" name="update_profile" class="form-button form-button-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          Update Employee Details
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
 
 <?php include_once "../includes/footer.php"; ?>

@@ -152,6 +152,7 @@
                 </div>
                 <div class="dropdown-divider"></div>
                 <a href="../pages/settings.php" class="dropdown-item">Settings</a>
+        
                 <a href="../pages/update_profile.php" class="dropdown-item">Profile</a>
                 <div class="dropdown-divider"></div>
                 <a href="../pages/logout.php" class="dropdown-item dropdown-item-danger">Logout</a>
