@@ -18,9 +18,26 @@
 $specificEmployee = null; 
 if (isset($_GET['id']) && !empty($_GET['id'])) {
     $employeeId = $_GET['id'];
-    $specificEmployee = $employeeObj->getEmployeeDetailsById($employeeId);
-    
+    $specificEmployee = $employeeObj->getEmployeeDetailsById($employeeId);   
 }
+// searching employees based on keyword, status, and department
+// capturing the data
+$keyword = trim($_GET['keyword'] ?? '');
+$status = $_GET['status'] ?? '';
+$department = $_GET['department'] ?? '';
+// pagination
+$limit = 3;
+// getting the pagination..page we are currently on and calculating the offset for sql query
+$page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = (int)(($page - 1) * $limit);
+// total number of employees based on search criteria and fetching the employees for current page
+$total_employees = $employeeObj->getTotalEmployeesCount($keyword, $department, $status);
+// fetching the employees for current page
+$employees = $employeeObj->searchEmployee($keyword, $department, $status, $limit, $offset);
+// Use filtered employees if search is active, otherwise use all employees
+$allEmployees = (!empty($keyword) || !empty($department) || !empty($status)) ? $employees : $employeeObj->getBasicEmployeeDetails();
+//calculating total pages for pagination
+$totalPages = ceil($total_employees / $limit);
  
 ?>
 
@@ -45,35 +62,46 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
         <!-- Search Section -->
         <section class="search-section" aria-labelledby="search-heading">
             <h2 id="search-heading" class="sr-only">Search Employees</h2>
-            <div class="search-container">
-                <div class="search-box">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                        <circle cx="11" cy="11" r="8"/>
-                        <path d="m21 21-4.35-4.35"/>
-                    </svg>
-                    <input 
-                        type="text" 
-                        id="searchInput" 
-                        class="search-input" 
-                        placeholder="Search by name, email, role, or department..."
-                        aria-label="Search employees"
-                    >
+            <form method="GET" action="">
+                <div class="search-container">
+                    <div class="search-box">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="m21 21-4.35-4.35"/>
+                        </svg>
+                        <input 
+                            type="text" 
+                            name="keyword"
+                            id="searchInput" 
+                            class="search-input" 
+                            placeholder="Search by name, email, role, or department..."
+                            aria-label="Search employees"
+                            value="<?php echo htmlspecialchars($_GET['keyword'] ?? ''); ?>"
+                        >
+                        <button type="submit" class="search-button" aria-label="Search">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                <path d="M5 12h14M12 5v14"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="filter-group">
+                        <select id="statusFilter" name="status" class="filter-select" aria-label="Filter by status" onchange="this.form.submit()">
+                            <option value="">All Status</option>
+                            <option value="Active" <?php echo (isset($_GET['status']) && $_GET['status'] == 'Active') ? 'selected' : ''; ?>>Active</option>
+                            <option value="Onboarding" <?php echo (isset($_GET['status']) && $_GET['status'] == 'Onboarding') ? 'selected' : ''; ?>>Onboarding</option>
+                        </select>
+
+                        <select id="deptFilter" name="department" class="filter-select" aria-label="Filter by department" onchange="this.form.submit()">
+                            <option value="">All Departments</option>
+                            <option value="Software Engineering" <?php echo (isset($_GET['department']) && $_GET['department'] == 'Software Engineering') ? 'selected' : ''; ?>>Software Engineering</option>
+                            <option value="Design" <?php echo (isset($_GET['department']) && $_GET['department'] == 'Design') ? 'selected' : ''; ?>>Design</option>
+                            <option value="Quality Assurance" <?php echo (isset($_GET['department']) && $_GET['department'] == 'Quality Assurance') ? 'selected' : ''; ?>>Quality Assurance</option>
+                            <option value="Human Resources" <?php echo (isset($_GET['department']) && $_GET['department'] == 'Human Resources') ? 'selected' : ''; ?>>Human Resources</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="filter-group">
-                    <select id="statusFilter" class="filter-select" aria-label="Filter by status">
-                        <option value="">All Status</option>
-                        <option value="Active">Active</option>
-                        <option value="Onboarding">Onboarding</option>
-                    </select>
-                    <select id="deptFilter" class="filter-select" aria-label="Filter by department">
-                        <option value="">All Departments</option>
-                        <option value="Software Engineering">Software Engineering</option>
-                        <option value="Design">Design</option>
-                        <option value="Quality Assurance">Quality Assurance</option>
-                        <option value="Human Resources">Human Resources</option>
-                    </select>
-                </div>
-            </div>
+            </form>
         </section>
 
         <!-- Results Count -->
@@ -142,86 +170,74 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
                 No employees found matching your search criteria.
             </div>
         </section>
+
+        <!-- Pagination Section -->
+        <?php if ($totalPages > 1): ?>
+        <section class="pagination-section" aria-label="Pagination">
+            <nav class="pagination" role="navigation">
+                <!-- Previous Button -->
+                <?php if ($page > 1): ?>
+                    <a href="?page=<?php echo ($page - 1); ?>&keyword=<?php echo urlencode($keyword); ?>&status=<?php echo urlencode($status); ?>&department=<?php echo urlencode($department); ?>" 
+                       class="pagination-btn pagination-prev" aria-label="Previous page">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path d="M15 19l-7-7 7-7"/>
+                        </svg>
+                        Previous
+                    </a>
+                <?php else: ?>
+                    <span class="pagination-btn pagination-prev disabled" aria-disabled="true">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path d="M15 19l-7-7 7-7"/>
+                        </svg>
+                        Previous
+                    </span>
+                <?php endif; ?>
+
+                <!-- Page Numbers -->
+                <div class="pagination-pages">
+                    <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                        <?php if ($page == $i): ?>
+                            <span class="pagination-page active" aria-current="page">
+                                <?php echo $i; ?>
+                            </span>
+                        <?php else: ?>
+                            <a href="?page=<?php echo $i; ?>&keyword=<?php echo urlencode($keyword); ?>&status=<?php echo urlencode($status); ?>&department=<?php echo urlencode($department); ?>" 
+                               class="pagination-page" aria-label="Page <?php echo $i; ?>">
+                                <?php echo $i; ?>
+                            </a>
+                        <?php endif; ?>
+                    <?php endfor; ?>
+                </div>
+
+                <!-- Next Button -->
+                <?php if ($page < $totalPages): ?>
+                    <a href="?page=<?php echo ($page + 1); ?>&keyword=<?php echo urlencode($keyword); ?>&status=<?php echo urlencode($status); ?>&department=<?php echo urlencode($department); ?>" 
+                       class="pagination-btn pagination-next" aria-label="Next page">
+                        Next
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                <?php else: ?>
+                    <span class="pagination-btn pagination-next disabled" aria-disabled="true">
+                        Next
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </span>
+                <?php endif; ?>
+            </nav>
+            <div class="pagination-info">
+                Page <strong><?php echo $page; ?></strong> of <strong><?php echo $totalPages; ?></strong>
+            </div>
+        </section>
+        <?php endif; ?>
     </div>
 </main>
 
 <?php include_once "../includes/footer.php"; ?>
 
-<script>
-    // Get search and filter inputs
-    const searchInput = document.getElementById('searchInput');
-    const statusFilter = document.getElementById('statusFilter');
-    const deptFilter = document.getElementById('deptFilter');
-    const employeeRows = document.querySelectorAll('.employee-row');
-    const noResults = document.getElementById('noResults');
-    const resultCount = document.getElementById('resultCount');
 
-    // Debounce function
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
-
-    // Filter employees
-    const filterEmployees = debounce(function() {
-        const searchTerm = searchInput.value.toLowerCase();
-        const selectedStatus = statusFilter.value;
-        const selectedDept = deptFilter.value;
-        let visibleCount = 0;
-
-        employeeRows.forEach(row => {
-            const name = row.dataset.name;
-            const email = row.dataset.email;
-            const role = row.dataset.role;
-            const dept = row.dataset.dept;
-            const status = row.dataset.status;
-
-            // Check search term
-            const matchesSearch = !searchTerm || 
-                                name.includes(searchTerm) || 
-                                email.includes(searchTerm) || 
-                                role.includes(searchTerm) ||
-                                dept.toLowerCase().includes(searchTerm);
-
-            // Check status filter
-            const matchesStatus = !selectedStatus || status === selectedStatus;
-
-            // Check department filter
-            const matchesDept = !selectedDept || dept === selectedDept.toLowerCase();
-
-            // Show/hide row
-            const shouldShow = matchesSearch && matchesStatus && matchesDept;
-            row.style.display = shouldShow ? '' : 'none';
-            if (shouldShow) visibleCount++;
-        });
-
-        // Show/hide no results message
-        noResults.style.display = visibleCount === 0 ? 'block' : 'none';
-        resultCount.textContent = visibleCount;
-    }, 300);
-
-    // Add event listeners
-    searchInput.addEventListener('input', filterEmployees);
-    statusFilter.addEventListener('change', filterEmployees);
-    deptFilter.addEventListener('change', filterEmployees);
-
-    // Keyboard shortcuts for better accessibility
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            searchInput.value = '';
-            statusFilter.value = '';
-            deptFilter.value = '';
-            filterEmployees();
-        }
-    });
-</script>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap');
@@ -413,6 +429,27 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
     color: var(--text-s);
 }
 
+.search-button {
+    background: transparent;
+    border: none;
+    color: var(--text-m);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+}
+
+.search-button:hover {
+    color: var(--blue);
+}
+
+.search-button:active {
+    color: var(--blue-dark);
+}
+
 .filter-group {
     display: flex;
     gap: 12px;
@@ -440,6 +477,102 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
 
 .filter-select:hover {
     border-color: var(--blue-light);
+}
+
+/* ── Pagination Section ── */
+.pagination-section {
+    margin-top: 28px;
+    padding: 20px 0;
+    border-top: 1.5px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.pagination-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: white;
+    color: var(--text-h);
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.pagination-btn:hover:not(.disabled) {
+    border-color: var(--blue);
+    background: var(--blue-xlight);
+    color: var(--blue-dark);
+}
+
+.pagination-btn:active:not(.disabled) {
+    background: var(--blue-light);
+    border-color: var(--blue-dark);
+}
+
+.pagination-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    color: var(--text-m);
+}
+
+.pagination-pages {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.pagination-page {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: white;
+    color: var(--text-h);
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.pagination-page:hover {
+    border-color: var(--blue);
+    background: var(--blue-xlight);
+    color: var(--blue);
+}
+
+.pagination-page.active {
+    background: linear-gradient(125deg, var(--blue-dark) 0%, var(--blue) 100%);
+    border-color: var(--blue-dark);
+    color: white;
+    font-weight: 600;
+    cursor: default;
+    box-shadow: 0 2px 8px rgba(21, 89, 181, 0.2);
+}
+
+.pagination-info {
+    font-size: 13px;
+    color: var(--text-m);
+    font-weight: 500;
 }
 
 /* ── Results Info ── */

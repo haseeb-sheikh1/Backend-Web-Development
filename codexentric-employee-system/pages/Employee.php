@@ -208,4 +208,88 @@ class Employee
     $stmt->bind_param("i", $user_id);
     return $stmt->execute();
   }
+
+  public function getTotalEmployeesCount($keyword = "", $department = "", $status = "") {
+    $query = "SELECT COUNT(u.user_id) as total FROM users u
+              JOIN employees e ON u.user_id = e.user_id
+              WHERE 1=1";
+
+    $types = "";
+    $parameters = [];
+
+    if (!empty($keyword)) {
+        $query .= " AND (u.first_name LIKE ? OR u.last_name LIKE ? OR u.email LIKE ? OR e.position_title LIKE ? OR e.department LIKE ?)";
+        $types .= "sssss";
+        $kw = "%$keyword%";
+        array_push($parameters, $kw, $kw, $kw, $kw, $kw);
+    }
+
+    if (!empty($department)) {
+        $query .= " AND e.department = ?";
+        $types .= "s";
+        $parameters[] = $department;
+    }
+
+    if (!empty($status)) {
+        $query .= " AND e.status = ?";
+        $types .= "s";
+        $parameters[] = $status;
+    }
+
+    $stmt = $this->connection->prepare($query);
+    
+    if (!empty($parameters)) {
+        $stmt->bind_param($types, ...$parameters);
+    }
+
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    return $row['total'] ?? 0;
 }
+
+   public function searchEmployee($keyword = "", $department = "", $status = "", $limit = 3, $offset = 0) {
+    $query = "SELECT u.user_id, u.first_name, u.last_name, u.email, e.position_title, e.department, e.status, e.date_of_joining 
+              FROM users u
+              JOIN employees e ON u.user_id = e.user_id
+              WHERE 1=1";
+    
+    $types = "";
+    $parameters = [];
+
+    // 1. Keyword Filter
+    if (!empty($keyword)) {
+        $query .= " AND (u.first_name LIKE ? OR u.last_name LIKE ? OR u.email LIKE ? OR e.position_title LIKE ?)";
+        $types .= "ssss";
+        $kw = "%$keyword%";
+        array_push($parameters, $kw, $kw, $kw, $kw);
+    }
+
+    // 2. Department Filter
+    if (!empty($department)) {
+        $query .= " AND e.department = ?";
+        $types .= "s";
+        $parameters[] = $department;
+    }
+
+    // 3. Status Filter
+    if (!empty($status)) {
+        $query .= " AND e.status = ?";
+        $types .= "s";
+        $parameters[] = $status;
+    }
+
+    
+    $query .= " LIMIT ? OFFSET ?";
+    $types .= "ii";
+    array_push($parameters, $limit, $offset);
+
+    $stmt = $this->connection->prepare($query);
+    $stmt->bind_param($types, ...$parameters);
+    $stmt->execute();
+    
+    return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+}
+
+}
+?>
