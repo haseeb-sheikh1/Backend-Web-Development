@@ -4,6 +4,7 @@ class Users {
   public $Lname;
   public $email;
   public $password;
+  public $profile_image;
   private $connection;
   public $role;
   public $errors = array();
@@ -36,7 +37,7 @@ class Users {
             if ($stmt) {
                 $stmt->bind_param("s", $this->email);
                 
-                // Execute the statement
+                // Executing the statement
                 $stmt->execute();
                 
                 // Getting the result set
@@ -193,6 +194,35 @@ public function registerUser() {
         header("Location: employee_dashboard.php");
         exit();
     }
+}
+
+public function uploadUserImage($file_array){
+    //destination
+    $destination = "../assets/";
+    $file_extension = pathinfo($file_array['name'], PATHINFO_EXTENSION);
+    $new_file_name = uniqid() . "." . $file_extension;
+    $target_file = $destination . $new_file_name;
+    // size check
+    if ($file_array['size']>50000) {
+        return "file too large";
+    }
+    //uploading to server
+    if (move_uploaded_file($file_array['tmp_name'], $target_file)) {
+        //update database with new file name
+        $updateQuery = "UPDATE users SET profile_image = ? WHERE email = ?";
+        $stmt = $this->connection->prepare($updateQuery);
+        $stmt->bind_param("ss", $new_file_name, $this->email);
+        if ($stmt->execute()) {
+            $_SESSION['profile_image'] = $new_file_name; 
+            return "file uploaded successfully";
+        } else {
+            return "database update failed: " . $this->connection->error;
+        }
+    } else {
+        return "file upload failed";
+    }
+
+
 }
 }
 ?>

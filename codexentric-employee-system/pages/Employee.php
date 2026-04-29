@@ -257,7 +257,7 @@ class Employee
     $types = "";
     $parameters = [];
 
-    // 1. Keyword Filter
+    // Keyword Filter
     if (!empty($keyword)) {
         $query .= " AND (u.first_name LIKE ? OR u.last_name LIKE ? OR u.email LIKE ? OR e.position_title LIKE ?)";
         $types .= "ssss";
@@ -265,14 +265,14 @@ class Employee
         array_push($parameters, $kw, $kw, $kw, $kw);
     }
 
-    // 2. Department Filter
+    //  Department Filter
     if (!empty($department)) {
         $query .= " AND e.department = ?";
         $types .= "s";
         $parameters[] = $department;
     }
 
-    // 3. Status Filter
+    // Status Filter
     if (!empty($status)) {
         $query .= " AND e.status = ?";
         $types .= "s";
