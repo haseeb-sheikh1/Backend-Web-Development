@@ -1,607 +1,669 @@
 <?php
     session_start();
 
-    if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
+    // ── 1. Authentication Check ──────────────────────────────────────────────
+    if (!isset($_SESSION['email'])) {
         header("Location: login.php");
         exit();
     }
 
-    // ── Handle "Give Salary" POST action ──────────────────────────────────────
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['give_salary'])) {
-        $emp_index = (int)$_POST['emp_index'];
-        // In production: update DB status to 'Paid' for this employee's payroll record
-        // e.g. $conn->query("UPDATE payroll SET status='Paid' WHERE employee_id=$emp_id AND period='2026-04'");
-        $_SESSION['salary_given'][$emp_index] = true;
-        header("Location: " . $_SERVER['PHP_SELF']);
+    // ── 2. Handle POST Request: "Process Salary" ─────────────────────────────
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['process_salary'])) {
+        $emp_id = (int)$_POST['emp_id'];
+        $payroll_month = $_POST['payroll_month'];
+        
+        // Gather new earnings & dynamic allowances
+        $bonus = (float)($_POST['bonus_amount'] ?? 0);
+        $allowance_names = $_POST['allowance_names'] ?? [];
+        $allowance_amounts = $_POST['allowance_amounts'] ?? [];
+        
+        // Gather dynamic deductions
+        $deduction_names = $_POST['deduction_names'] ?? [];
+        $deduction_amounts = $_POST['deduction_amounts'] ?? [];
+        
+        // --- PRODUCTION DATABASE LOGIC HERE ---
+        // 1. Calculate Allowances Total: array_sum($allowance_amounts)
+        // 2. Calculate Deductions Total: array_sum($deduction_amounts)
+        // 3. Calculate Net = Base + Bonus + Total Allowances - Total Deductions
+        // 4. INSERT into `salaries` table.
+        // 5. INSERT into `salary_allowances` and `salary_deductions` tables using the arrays.
+        // --------------------------------------
+
+        $_SESSION['salary_given'][$emp_id] = true;
+        $_SESSION['just_paid'] = true;
+        
+        header("Location: payroll.php?emp_id=" . $emp_id);
         exit();
     }
-    // ── Handle "Reset" (for demo purposes) ───────────────────────────────────
+
+    // ── Handle Demo Reset ──
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_demo'])) {
         unset($_SESSION['salary_given']);
-        header("Location: " . $_SERVER['PHP_SELF']);
+        header("Location: payroll.php");
         exit();
     }
 
-    $user_role   = "admin";
-    $current_page = "payroll";
-    $extra_css   = "payroll";
-    $title       = "Payroll Management - CodeXentric";
-    include_once "../includes/header.php";
-
-    $payroll_summary = [
-        ["label" => "Gross Total",      "value" => "Rs 5,20,000", "sub" => "Total gross salaries",     "icon" => "gross",   "trend" => "+8.2% vs last month"],
-        ["label" => "Total Deductions", "value" => "Rs 34,800",   "sub" => "Combined deductions",       "icon" => "deduct",  "trend" => "-2.1% vs last month"],
-        ["label" => "Net Payable",      "value" => "Rs 4,85,200", "sub" => "Final disbursement amount", "icon" => "net",     "trend" => "+9.1% vs last month"],
-    ];
-
+    // ── 3. Fetch Data (Mocked for Demo, Replace with SQL) ────────────────────
     $salary_breakdown = [
-        ["id" => 1, "name" => "Hammad Ali",  "bank" => "HBL – 123456789",       "base" => "85,000",  "allowance" => "5,000",  "deduction" => "4,200", "net" => "85,800",  "status_default" => "Draft"],
-        ["id" => 2, "name" => "Abdullah",    "bank" => "Meezan – 987654321",     "base" => "65,000",  "allowance" => "2,000",  "deduction" => "1,500", "net" => "65,500",  "status_default" => "Draft"],
-        ["id" => 3, "name" => "Khurum",      "bank" => "Alfalah – 456789123",    "base" => "55,000",  "allowance" => "0",      "deduction" => "8,000", "net" => "47,000",  "status_default" => "Calculated"],
+        [
+            "id" => 1, "name" => "Hammad Awan", "bank" => "HBL – 123456789", 
+            "base_salary" => "85000", "tax_default" => "3000", "deduction_default" => "1200",
+            "allowances_list" => [ ["name" => "Transport Allowance", "amount" => "5000"] ]
+        ],
+        [
+            "id" => 2, "name" => "Shahzad Awan", "bank" => "Meezan – 987654321", 
+            "base_salary" => "65000", "tax_default" => "1500", "deduction_default" => "0",
+            "allowances_list" => [ ["name" => "Fuel Allowance", "amount" => "2000"] ]
+        ],
+        [
+            "id" => 3, "name" => "Zeeshan Ali", "bank" => "Alfalah – 456789123", 
+            "base_salary" => "55000", "tax_default" => "5000", "deduction_default" => "3000",
+            "allowances_list" => [] 
+        ],
     ];
+
+    // ── 4. Catch Selected Employee from URL ──────────────────────────────────
+    $selected_emp_id = null;
+    $selected_employee_data = null;
+
+    if (isset($_GET['emp_id'])) {
+        $selected_emp_id = (int)$_GET['emp_id'];
+        foreach ($salary_breakdown as $emp) {
+            if ($emp['id'] === $selected_emp_id) {
+                $selected_employee_data = $emp;
+                break;
+            }
+        }
+    }
+
+    // ── Dashboard Variables & Includes ───────────────────────────────────────
+    $current_page = "payroll"; 
+    $extra_css    = "admin_dashboard";
+    $title        = "Payroll Workspace - Admin";
+
+    include_once "../includes/header.php";
 ?>
 
 <style>
-/* ════════════════════════════════════════════════
-   Payroll — Production Grade  |  CodeXentric HRM
-════════════════════════════════════════════════ */
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap');
 
 :root {
-  --blue:       #1E6FD9;
-  --blue-dark:  #1559B5;
-  --blue-light: #EBF2FC;
-  --green:      #059669;
-  --green-bg:   #D1FAE5;
-  --red:        #DC2626;
-  --red-bg:     #FEE2E2;
-  --amber:      #D97706;
-  --amber-bg:   #FEF3C7;
-  --slate:      #64748B;
-  --border:     #E2E8F0;
-  --surface:    #F8FAFC;
-  --card:       #ffffff;
-  --text-h:     #0F172A;
-  --text-b:     #374151;
-  --text-m:     #64748B;
-  --radius:     12px;
-  --shadow-sm:  0 1px 4px rgba(15,23,42,0.06);
-  --shadow-md:  0 4px 20px rgba(15,23,42,0.09);
-  --shadow-lg:  0 8px 32px rgba(21,89,181,0.14);
+  --blue:        #1E6FD9;
+  --blue-dark:   #1559B5;
+  --blue-light:  #EBF2FC;
+  --blue-xlight: #F0F6FF;
+  --green:       #059669;
+  --green-bg:    #D1FAE5;
+  --amber:       #D97706;
+  --amber-bg:    #FEF3C7;
+  --red:         #DC2626;
+  --red-bg:      #FEE2E2;
+  --border:      #E2E8F0;
+  --surface:     #F8FAFC;
+  --card:        #ffffff;
+  --text-h:      #0F172A;
+  --text-b:      #374151;
+  --text-m:      #64748B;
+  --text-s:      #94A3B8;
+  --radius:      12px;
+  --radius-sm:   8px;
+  --shadow-xs:   0 1px 3px rgba(15,23,42,0.05);
+  --shadow-sm:   0 1px 6px rgba(15,23,42,0.07);
+  --shadow-md:   0 4px 20px rgba(15,23,42,0.09);
 }
 
-/* ── Page wrapper ── */
-.pr-page { display: flex; flex-direction: column; gap: 28px; }
+/* Base Wrapper */
+.dash { display: flex; flex-direction: column; gap: 28px; width: 100%; box-sizing: border-box; }
 
-/* ── Page header ── */
-.pr-header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
-.pr-header-left h1 { font-family: 'Nunito', sans-serif; font-size: 22px; font-weight: 800; color: var(--text-h); margin: 0 0 4px; }
-.pr-breadcrumb { font-size: 12.5px; color: var(--text-m); display: flex; align-items: center; gap: 5px; }
-.pr-breadcrumb a { color: var(--blue); text-decoration: none; }
-.pr-breadcrumb a:hover { text-decoration: underline; }
+/* ── Header Area ── */
+.dash-header-bar { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+.dash-header-bar h1 { font-family: 'Nunito', sans-serif; font-size: 24px; font-weight: 900; color: var(--text-h); margin: 0; }
+.dash-header-sub { font-size: 13.5px; color: var(--text-m); margin: 4px 0 0 0; }
 
-/* Period pill */
-.pr-period-wrap { display: flex; align-items: center; gap: 10px; }
-.pr-period-label { font-size: 12.5px; font-weight: 600; color: var(--text-m); text-transform: uppercase; letter-spacing: 0.5px; }
+.pr-period-wrap { display: flex; align-items: center; gap: 12px; }
+.pr-period-label { font-size: 11px; font-weight: 800; color: var(--text-s); text-transform: uppercase; letter-spacing: 0.8px; }
 .pr-period-select {
-  height: 38px; padding: 0 36px 0 14px;
-  border: 1.5px solid var(--border); border-radius: 8px;
-  font-size: 13.5px; font-weight: 600; color: var(--text-h);
-  background: var(--card); cursor: pointer; outline: none;
-  appearance: none; -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%2364748B' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: right 12px center;
-  transition: border-color .18s, box-shadow .18s;
+    height: 38px; padding: 0 36px 0 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 700; color: var(--text-h);
+    background: var(--card); cursor: pointer; outline: none; box-shadow: var(--shadow-xs);
+    appearance: none; -webkit-appearance: none; 
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' stroke='%2394A3B8' stroke-width='2' stroke-linecap='round' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 14px center;
 }
-.pr-period-select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(30,111,217,.1); }
+.pr-period-select:focus { border-color: var(--blue); }
 
-/* ── Summary cards ── */
-.pr-summary-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+.btn-reset {
+    height: 38px; padding: 0 14px; background: transparent; color: var(--text-m); border: 1.5px solid var(--border); border-radius: var(--radius-sm); 
+    font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: var(--shadow-xs); display: inline-flex; align-items: center; gap: 6px;
 }
-@media (max-width: 860px) { .pr-summary-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 540px) { .pr-summary-grid { grid-template-columns: 1fr; } }
+.btn-reset:hover { background: var(--surface); color: var(--text-h); border-color: var(--text-m); }
 
-.pr-stat-card {
-  background: var(--card);
-  border-radius: var(--radius);
-  padding: 22px 24px;
-  box-shadow: var(--shadow-sm);
-  border: 1.5px solid var(--border);
-  display: flex; flex-direction: column; gap: 10px;
-  position: relative; overflow: hidden;
-  transition: box-shadow .2s, transform .2s;
-}
-.pr-stat-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+/* ── Section label ── */
+.dash-section-label { font-size: 11px; font-weight: 800; color: var(--text-s); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.dash-section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-/* coloured top stripe */
-.pr-stat-card::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  background: linear-gradient(90deg, var(--blue-dark), var(--blue));
-}
-.pr-stat-card.deduct::before { background: linear-gradient(90deg, #b91c1c, #ef4444); }
-.pr-stat-card.net::before    { background: linear-gradient(90deg, #047857, #10b981); }
+/* ── Stats Grid ── */
+.dash-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+@media (max-width: 860px) { .dash-stats { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 520px)  { .dash-stats { grid-template-columns: 1fr; } }
 
-.pr-stat-top { display: flex; align-items: center; justify-content: space-between; }
-.pr-stat-label { font-size: 12.5px; font-weight: 700; color: var(--text-m); text-transform: uppercase; letter-spacing: 0.55px; }
-.pr-stat-icon {
-  width: 38px; height: 38px; border-radius: 9px;
-  display: flex; align-items: center; justify-content: center;
-  background: var(--blue-light); color: var(--blue);
+.stat-card {
+  background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius);
+  padding: 22px 22px 18px; display: flex; flex-direction: column; gap: 14px;
+  position: relative; overflow: hidden; transition: box-shadow .2s, transform .2s; box-shadow: var(--shadow-xs);
 }
-.pr-stat-card.deduct .pr-stat-icon { background: var(--red-bg);   color: var(--red); }
-.pr-stat-card.net    .pr-stat-icon { background: var(--green-bg); color: var(--green); }
+.stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.stat-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--blue-dark), var(--blue)); opacity: 0; transition: opacity .2s; }
+.stat-card:hover::after { opacity: 1; }
+.stat-card.deduct::after { background: linear-gradient(90deg, #DC2626, #EF4444); }
+.stat-card.net::after    { background: linear-gradient(90deg, #059669, #10B981); }
 
-.pr-stat-value {
-  font-family: 'Nunito', sans-serif;
-  font-size: 26px; font-weight: 900; color: var(--text-h);
-  line-height: 1.1; letter-spacing: -0.5px;
-}
-.pr-stat-card.deduct .pr-stat-value { color: var(--red); }
-.pr-stat-card.net    .pr-stat-value { color: var(--green); }
+.stat-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.stat-label { font-size: 12px; font-weight: 700; color: var(--text-m); text-transform: uppercase; letter-spacing: 0.55px; margin: 0; }
+.stat-icon-wrap { width: 42px; height: 42px; border-radius: 10px; background: var(--blue-light); color: var(--blue); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.stat-card.deduct .stat-icon-wrap { background: var(--red-bg); color: var(--red); }
+.stat-card.net .stat-icon-wrap { background: var(--green-bg); color: var(--green); }
 
-.pr-stat-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 2px; }
-.pr-stat-sub { font-size: 12px; color: var(--text-m); }
-.pr-stat-trend {
-  font-size: 11.5px; font-weight: 700; padding: 2px 8px;
-  border-radius: 20px; background: var(--green-bg); color: var(--green);
-}
-.pr-stat-card.deduct .pr-stat-trend { background: var(--red-bg);   color: var(--red); }
+.stat-value { font-family: 'Nunito', sans-serif; font-size: 30px; font-weight: 900; color: var(--text-h); line-height: 1; letter-spacing: -0.5px; margin: 0; }
+.stat-footer { display: flex; align-items: center; justify-content: space-between; }
+.stat-sub { font-size: 12px; color: var(--text-s); }
+.stat-trend { font-size: 11.5px; font-weight: 700; padding: 3px 8px; border-radius: 20px; white-space: nowrap; }
+.stat-trend.neutral { color: var(--text-m); background: var(--surface); }
+.stat-trend.warn { background: var(--red-bg); color: var(--red); }
+.stat-trend.good { background: var(--green-bg); color: var(--green); }
 
-/* ── Table card ── */
-.pr-table-card {
-  background: var(--card);
-  border-radius: var(--radius);
-  border: 1.5px solid var(--border);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-}
-.pr-table-head {
-  padding: 18px 24px;
-  border-bottom: 1.5px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
-  background: var(--surface);
-}
-.pr-table-title {
-  font-family: 'Nunito', sans-serif;
-  font-size: 15px; font-weight: 800; color: var(--text-h);
-  display: flex; align-items: center; gap: 9px;
-}
-.pr-table-title .dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--blue-dark), var(--blue));
-}
-.pr-count-badge {
-  background: var(--blue-light); color: var(--blue);
-  font-size: 12px; font-weight: 700;
-  padding: 3px 10px; border-radius: 20px;
-}
+/* ── Split Layout Workspace ── */
+.dash-split { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; }
+@media (max-width: 980px) { .dash-split { grid-template-columns: 1fr; } }
 
-/* Responsive table */
-.pr-table-scroll { overflow-x: auto; }
-.pr-table {
-  width: 100%; border-collapse: collapse;
-  font-size: 13.5px; min-width: 700px;
-}
-.pr-table thead tr { background: var(--surface); border-bottom: 2px solid var(--border); }
-.pr-table thead th {
-  padding: 11px 16px; text-align: left;
-  font-size: 11px; font-weight: 700; color: var(--text-m);
-  text-transform: uppercase; letter-spacing: 0.6px; white-space: nowrap;
-}
-.pr-table tbody tr {
-  border-bottom: 1px solid #F1F5F9;
-  transition: background .12s;
-}
-.pr-table tbody tr:last-child { border-bottom: none; }
-.pr-table tbody tr:hover { background: #F8FAFD; }
-.pr-table td { padding: 15px 16px; vertical-align: middle; color: var(--text-b); }
+/* Shared Card style for workspace */
+.dash-card { background: var(--card); border: 1.5px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-xs); overflow: hidden; }
+.dash-card-head { padding: 16px 20px; border-bottom: 1.5px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.dash-card-title { font-family: 'Nunito', sans-serif; font-size: 14.5px; font-weight: 800; color: var(--text-h); display: flex; align-items: center; gap: 8px; margin: 0; }
+.dash-card-title .dot { width: 8px; height: 8px; border-radius: 50%; background: linear-gradient(135deg, var(--blue-dark), var(--blue)); }
 
-/* Employee cell */
-.emp-cell { display: flex; align-items: center; gap: 12px; }
-.emp-avatar {
-  width: 38px; height: 38px; border-radius: 10px;
-  background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 100%);
-  color: #fff; font-family: 'Nunito', sans-serif;
-  font-size: 15px; font-weight: 800;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.emp-name { font-weight: 700; color: var(--text-h); font-size: 14px; line-height: 1.2; }
-.emp-bank { font-size: 12px; color: var(--text-m); margin-top: 2px; }
+/* Sidebar List */
+.sidebar-list { height: calc(100vh - 350px); min-height: 400px; overflow-y: auto; padding: 6px 0; }
+.emp-item { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 12px 20px; border-bottom: 1px solid #F1F5F9; text-decoration: none; transition: background .12s; border-left: 3px solid transparent; }
+.emp-item:last-child { border-bottom: none; }
+.emp-item:hover { background: #F8FAFD; }
+.emp-item.active { background: var(--blue-xlight); border-left-color: var(--blue); }
 
-/* Amount cells */
-.amt { font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 14px; }
-.amt-base    { color: var(--text-h); }
-.amt-allow   { color: var(--green); }
-.amt-deduct  { color: var(--red); }
-.amt-net     { color: var(--blue-dark); font-size: 15px; }
-.amt-prefix  { font-size: 11px; font-weight: 600; opacity: 0.7; }
+.emp-cell { display: flex; align-items: center; gap: 11px; }
+.emp-av { width: 36px; height: 36px; border-radius: 9px; flex-shrink: 0; background: linear-gradient(135deg, var(--blue-dark), var(--blue)); color: #fff; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.emp-item.active .emp-av { box-shadow: 0 4px 10px rgba(30,111,217,0.25); }
+.emp-name-txt { font-weight: 700; color: var(--text-h); font-size: 13.5px; }
+.emp-role-txt { font-size: 12px; color: var(--text-s); margin-top: 1px; }
 
 /* Status badges */
-.status-badge {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 4px 11px; border-radius: 20px;
-  font-size: 12px; font-weight: 700; white-space: nowrap;
-}
-.status-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-.s-draft      { background: #F1F5F9; color: #64748B; }
-.s-calculated { background: var(--blue-light); color: var(--blue-dark); }
-.s-paid       { background: var(--green-bg); color: var(--green); }
+.st-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.st-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.badge-active { background: var(--green-bg); color: var(--green); }
+.badge-draft { background: var(--surface); color: var(--text-m); border: 1px solid var(--border); padding: 3px 9px; }
 
-/* Action buttons in table */
-.tbl-actions { display: flex; align-items: center; gap: 8px; }
-.btn-edit {
-  height: 32px; padding: 0 14px;
-  border: 1.5px solid var(--border); border-radius: 6px;
-  background: #fff; color: var(--text-m);
-  font-size: 12.5px; font-weight: 600;
-  font-family: 'Source Sans 3', sans-serif;
-  cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
-  text-decoration: none;
-  transition: border-color .15s, color .15s;
-}
-.btn-edit:hover { border-color: var(--blue); color: var(--blue); }
+/* Detail Pane */
+.detail-body { padding: 32px; }
+.salary-component { margin-bottom: 32px; }
+.salary-component > label { font-size: 12.5px; font-weight: 800; color: var(--text-m); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 12px; }
 
-.btn-give {
-  height: 32px; padding: 0 14px;
-  border: none; border-radius: 6px;
-  background: linear-gradient(135deg, #047857, #10b981);
-  color: #fff; font-size: 12.5px; font-weight: 700;
-  font-family: 'Source Sans 3', sans-serif;
-  cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
-  transition: opacity .15s, transform .1s;
-  box-shadow: 0 2px 8px rgba(5,150,105,.25);
-}
-.btn-give:hover { opacity: .88; transform: translateY(-1px); }
-.btn-give:active { transform: translateY(0); }
+.amt-box { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 800; color: var(--text-h); }
+.allowance-item { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.allowance-name { font-weight: 700; color: var(--text-b); font-size: 14.5px; }
+.allowance-amt { font-family: 'Nunito', sans-serif; font-weight: 800; color: var(--green); font-size: 15px; }
+.deduction-amt { font-family: 'Nunito', sans-serif; font-weight: 800; color: var(--red); font-size: 15px; }
 
-.btn-given {
-  height: 32px; padding: 0 14px;
-  border: 1.5px solid var(--green); border-radius: 6px;
-  background: var(--green-bg); color: var(--green);
-  font-size: 12.5px; font-weight: 700;
-  font-family: 'Source Sans 3', sans-serif;
-  cursor: default; display: inline-flex; align-items: center; gap: 5px;
+/* Form Inputs */
+.input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; background: var(--surface); border: 1.5px solid var(--border); padding: 20px; border-radius: var(--radius-sm); }
+.input-wrap label { font-size: 12px; color: var(--text-s); font-weight: 700; text-transform: none; letter-spacing: normal; margin-bottom: 6px; display: block;}
+.input-rel { position: relative; }
+.input-prefix { position: absolute; left: 14px; top: 12px; font-weight: 700; color: var(--text-m); font-size: 14px; pointer-events: none; }
+.dash-input {
+  width: 100%; height: 44px; padding: 0 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700; color: var(--text-h);
+  background: #fff; box-sizing: border-box; transition: border-color .2s, box-shadow .2s;
 }
+.dash-input.with-prefix { padding-left: 40px; font-weight: 800; }
+.dash-input.red-text { color: var(--red); }
+.dash-input:focus { border-color: var(--blue); outline: none; box-shadow: 0 0 0 3px var(--blue-light); }
+.dash-input[readonly], .dash-input:disabled { background: transparent; border-style: dashed; color: var(--text-m); cursor: not-allowed; }
 
-/* ── Bottom action bar ── */
-.pr-action-bar {
-  display: flex; align-items: center; justify-content: space-between;
-  flex-wrap: wrap; gap: 14px;
-  background: var(--card);
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius);
-  padding: 16px 24px;
-  box-shadow: var(--shadow-sm);
-}
-.pr-action-bar-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+select.dash-input { cursor: pointer; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' stroke='%2394A3B8' stroke-width='2' stroke-linecap='round' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; }
 
-.btn-primary-lg {
-  height: 42px; padding: 0 22px;
-  background: linear-gradient(135deg, var(--blue-dark), var(--blue));
-  color: #fff; border: none; border-radius: 8px;
-  font-size: 14px; font-weight: 700;
-  font-family: 'Source Sans 3', sans-serif;
-  cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
-  box-shadow: 0 3px 10px rgba(21,89,181,.28);
-  transition: box-shadow .18s, transform .1s;
-}
-.btn-primary-lg:hover { box-shadow: 0 5px 18px rgba(21,89,181,.4); transform: translateY(-1px); }
+/* Dynamic Add/Remove Buttons */
+.btn-icon-sq { width: 44px; height: 44px; border-radius: var(--radius-sm); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+.btn-add-sq { background: var(--blue-light); color: var(--blue); }
+.btn-add-sq:hover { background: var(--blue); color: #fff; box-shadow: 0 4px 10px rgba(30,111,217,0.25); transform: translateY(-1px);}
+.btn-rem-sq { background: var(--red-bg); color: var(--red); }
+.btn-rem-sq:hover { background: var(--red); color: #fff; box-shadow: 0 4px 10px rgba(220,38,38,0.25); transform: translateY(-1px);}
 
-.btn-success-lg {
-  height: 42px; padding: 0 22px;
-  background: linear-gradient(135deg, #047857, #10b981);
-  color: #fff; border: none; border-radius: 8px;
-  font-size: 14px; font-weight: 700;
-  font-family: 'Source Sans 3', sans-serif;
-  cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
-  box-shadow: 0 3px 10px rgba(5,150,105,.28);
-  transition: box-shadow .18s, transform .1s;
-}
-.btn-success-lg:hover { box-shadow: 0 5px 18px rgba(5,150,105,.4); transform: translateY(-1px); }
+/* Action Buttons */
+.btn-primary-lg { width: 100%; height: 50px; margin-top: 20px; background: var(--green); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 16px; font-weight: 800; font-family: 'Nunito', sans-serif; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background .2s, transform .1s; box-shadow: var(--shadow-sm); }
+.btn-primary-lg:hover { background: #047857; transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.btn-locked-lg { width: 100%; height: 50px; margin-top: 20px; background: var(--surface); color: var(--green); border: 2px solid var(--green-bg); border-radius: var(--radius-sm); font-size: 15px; font-weight: 800; font-family: 'Nunito', sans-serif; cursor: default; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
-.btn-ghost {
-  height: 42px; padding: 0 18px;
-  background: transparent; color: var(--text-m);
-  border: 1.5px solid var(--border); border-radius: 8px;
-  font-size: 13px; font-weight: 600;
-  font-family: 'Source Sans 3', sans-serif;
-  cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
-  transition: border-color .15s, color .15s;
-}
-.btn-ghost:hover { border-color: var(--blue); color: var(--blue); }
+/* Empty State */
+.dash-empty { text-align: center; padding: 80px 24px; color: var(--text-s); }
+.dash-empty svg { opacity: .35; margin-bottom: 12px; }
+.dash-empty strong { display: block; font-size: 16px; color: var(--text-h); margin-bottom: 4px; font-family: 'Nunito', sans-serif; font-weight: 800; }
+.dash-empty p { font-size: 13.5px; max-width: 300px; margin: 0 auto; line-height: 1.5; }
 
-.pr-paid-count {
-  font-size: 13px; color: var(--text-m); font-weight: 500;
-}
-.pr-paid-count strong { color: var(--green); font-weight: 700; }
-
-/* Fade in */
-@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-.pr-stat-card { animation: fadeUp .3s ease both; }
-.pr-stat-card:nth-child(1) { animation-delay: .0s; }
-.pr-stat-card:nth-child(2) { animation-delay: .07s; }
-.pr-stat-card:nth-child(3) { animation-delay: .14s; }
-.pr-table-card { animation: fadeUp .3s .2s ease both; }
-.pr-action-bar { animation: fadeUp .3s .28s ease both; }
-
-/* Toast notification */
-.pr-toast {
-  position: fixed; bottom: 28px; right: 28px; z-index: 9999;
-  background: #0F172A; color: #fff;
-  padding: 14px 20px; border-radius: 10px;
-  font-size: 13.5px; font-weight: 600;
-  display: flex; align-items: center; gap: 10px;
-  box-shadow: 0 8px 28px rgba(0,0,0,.25);
-  transform: translateY(80px); opacity: 0;
-  transition: transform .35s cubic-bezier(.34,1.56,.64,1), opacity .3s;
-}
+/* Toast */
+.pr-toast { position: fixed; bottom: 32px; right: 32px; background: var(--text-h); color: #fff; padding: 16px 24px; border-radius: var(--radius-sm); font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow-md); transform: translateY(120px); opacity: 0; transition: all .4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 9999; }
 .pr-toast.show { transform: translateY(0); opacity: 1; }
-.pr-toast svg { color: #10b981; }
+
+/* Animations */
+@keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+.dash-header-bar { animation: fadeUp .35s ease both; }
+.dash-stats      { animation: fadeUp .35s .1s ease both; }
+.dash-split      { animation: fadeUp .35s .2s ease both; }
 </style>
 
-<div class="pr-page">
+<div class="dash">
 
-  <!-- ── Page Header ── -->
-  <div class="pr-header">
-    <div class="pr-header-left">
-      <h1>Payroll Management</h1>
-      <nav class="pr-breadcrumb">
-        <a href="administrator_dashboard.php">Dashboard</a> ›
-        <span>Payroll</span>
-      </nav>
-    </div>
-    <div class="pr-period-wrap">
-      <span class="pr-period-label">Period</span>
-      <select class="pr-period-select" aria-label="Select payroll period">
-        <option value="2026-04">April 2026</option>
-        <option value="2026-03">March 2026</option>
-        <option value="2026-02">February 2026</option>
-        <option value="2026-01">January 2026</option>
-      </select>
-    </div>
-  </div>
-
-  <!-- ── Summary Cards ── -->
-  <div class="pr-summary-grid">
-
-    <!-- Gross -->
-    <div class="pr-stat-card gross">
-      <div class="pr-stat-top">
-        <span class="pr-stat-label">Gross Total</span>
-        <div class="pr-stat-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-          </svg>
+    <!-- ══ Header Area ══ -->
+    <div class="dash-header-bar">
+        <div>
+            <h1>Payroll Workspace</h1>
+            <p class="dash-header-sub">Process monthly salaries and manage allowances.</p>
         </div>
-      </div>
-      <div class="pr-stat-value">Rs 5,20,000</div>
-      <div class="pr-stat-footer">
-        <span class="pr-stat-sub">Total gross salaries</span>
-        <span class="pr-stat-trend">↑ 8.2%</span>
-      </div>
-    </div>
-
-    <!-- Deductions -->
-    <div class="pr-stat-card deduct">
-      <div class="pr-stat-top">
-        <span class="pr-stat-label">Total Deductions</span>
-        <div class="pr-stat-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/>
-          </svg>
+        <div class="pr-period-wrap">
+            <form method="POST" style="display:inline;">
+                <button type="submit" name="reset_demo" class="btn-reset">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                    Reset Demo
+                </button>
+            </form>
+            <span class="pr-period-label">Period</span>
+            <select class="pr-period-select" form="salaryForm" name="payroll_month">
+                <option value="2026-04-01">April 2026</option>
+                <option value="2026-03-01">March 2026</option>
+            </select>
         </div>
-      </div>
-      <div class="pr-stat-value">Rs 34,800</div>
-      <div class="pr-stat-footer">
-        <span class="pr-stat-sub">Combined deductions</span>
-        <span class="pr-stat-trend" style="background:var(--red-bg);color:var(--red);">↓ 2.1%</span>
-      </div>
     </div>
 
-    <!-- Net -->
-    <div class="pr-stat-card net">
-      <div class="pr-stat-top">
-        <span class="pr-stat-label">Net Payable</span>
-        <div class="pr-stat-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>
-        </div>
-      </div>
-      <div class="pr-stat-value">Rs 4,85,200</div>
-      <div class="pr-stat-footer">
-        <span class="pr-stat-sub">Final disbursement amount</span>
-        <span class="pr-stat-trend">↑ 9.1%</span>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ── Salary Breakdown Table ── -->
-  <div class="pr-table-card">
-    <div class="pr-table-head">
-      <div class="pr-table-title">
-        <span class="dot"></span>
-        Employee Salary Breakdown
-      </div>
-      <span class="pr-count-badge"><?php echo count($salary_breakdown); ?> Employees</span>
-    </div>
-    <div class="pr-table-scroll">
-      <table class="pr-table" aria-label="Employee salary breakdown">
-        <thead>
-          <tr>
-            <th>Employee</th>
-            <th>Base Salary</th>
-            <th>Allowances</th>
-            <th>Deductions</th>
-            <th>Net Salary</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php foreach ($salary_breakdown as $i => $row):
-            $is_paid = isset($_SESSION['salary_given'][$i]) && $_SESSION['salary_given'][$i];
-            if ($is_paid) {
-                $status = 'Paid';
-            } else {
-                $status = $row['status_default'];
-            }
-            $badge_class = $status === 'Paid' ? 's-paid' : ($status === 'Calculated' ? 's-calculated' : 's-draft');
-          ?>
-          <tr>
-            <!-- Employee -->
-            <td>
-              <div class="emp-cell">
-                <div class="emp-avatar"><?php echo strtoupper(substr($row['name'], 0, 1)); ?></div>
-                <div>
-                  <div class="emp-name"><?php echo htmlspecialchars($row['name']); ?></div>
-                  <div class="emp-bank"><?php echo htmlspecialchars($row['bank']); ?></div>
+    <!-- ══ Top Stats ══ -->
+    <div>
+        <div class="dash-section-label">Overview</div>
+        <div class="dash-stats">
+            <div class="stat-card">
+                <div class="stat-card-top">
+                    <p class="stat-label">Gross Total</p>
+                    <div class="stat-icon-wrap">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    </div>
                 </div>
-              </div>
-            </td>
+                <div class="stat-value">Rs 5,20,000</div>
+                <div class="stat-footer">
+                    <span class="stat-sub">Across all active employees</span>
+                    <span class="stat-trend neutral">3 Total</span>
+                </div>
+            </div>
 
-            <!-- Base -->
-            <td>
-              <span class="amt amt-base">
-                <span class="amt-prefix">Rs </span><?php echo $row['base']; ?>
-              </span>
-            </td>
+            <div class="stat-card deduct">
+                <div class="stat-card-top">
+                    <p class="stat-label">Total Deductions</p>
+                    <div class="stat-icon-wrap">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                    </div>
+                </div>
+                <div class="stat-value">Rs 34,800</div>
+                <div class="stat-footer">
+                    <span class="stat-sub">Incl. Taxes & Adjustments</span>
+                    <span class="stat-trend warn">Pending check</span>
+                </div>
+            </div>
 
-            <!-- Allowance -->
-            <td>
-              <span class="amt amt-allow">
-                <?php echo $row['allowance'] !== '0' ? '+' : ''; ?>
-                <span class="amt-prefix">Rs </span><?php echo $row['allowance']; ?>
-              </span>
-            </td>
+            <div class="stat-card net">
+                <div class="stat-card-top">
+                    <p class="stat-label">Net Payable</p>
+                    <div class="stat-icon-wrap">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    </div>
+                </div>
+                <div class="stat-value">Rs 4,85,200</div>
+                <div class="stat-footer">
+                    <span class="stat-sub">Ready for Disbursement</span>
+                    <span class="stat-trend good">Cleared</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            <!-- Deduction -->
-            <td>
-              <span class="amt amt-deduct">
-                −<span class="amt-prefix">Rs </span><?php echo $row['deduction']; ?>
-              </span>
-            </td>
+    <!-- ══ Workspace (Split Layout) ══ -->
+    <div>
+        <div class="dash-section-label">Payroll Processing</div>
+        
+        <div class="dash-split">
+            
+            <!-- Sidebar: Employee List -->
+            <div class="dash-card">
+                <div class="dash-card-head">
+                    <h2 class="dash-card-title"><span class="dot"></span>Select Employee</h2>
+                </div>
+                <div class="sidebar-list">
+                    <?php foreach ($salary_breakdown as $row): 
+                        $is_active = ($selected_emp_id == $row['id']) ? 'active' : '';
+                        $is_paid = isset($_SESSION['salary_given'][$row['id']]);
+                    ?>
+                        <a href="payroll.php?emp_id=<?php echo $row['id']; ?>" class="emp-item <?php echo $is_active; ?>">
+                            <div class="emp-cell">
+                                <div class="emp-av" aria-hidden="true"><?php echo strtoupper(substr($row['name'], 0, 1)); ?></div>
+                                <div>
+                                    <div class="emp-name-txt"><?php echo htmlspecialchars($row['name']); ?></div>
+                                    <div class="emp-role-txt"><?php echo htmlspecialchars($row['bank']); ?></div>
+                                </div>
+                            </div>
+                            <?php if($is_paid): ?>
+                                <span class="st-badge badge-active" aria-label="Status: Paid">Paid</span>
+                            <?php else: ?>
+                                <span class="st-badge badge-draft" aria-label="Status: Draft">Draft</span>
+                            <?php endif; ?>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
 
-            <!-- Net -->
-            <td>
-              <span class="amt amt-net">
-                <span class="amt-prefix">Rs </span><?php echo $row['net']; ?>
-              </span>
-            </td>
+            <!-- Detail Pane: Calculations -->
+            <div class="dash-card">
+                <?php if ($selected_employee_data): 
+                    $already_paid = isset($_SESSION['salary_given'][$selected_employee_data['id']]);
+                ?>
+                    <div class="dash-card-head">
+                        <div>
+                            <h2 class="dash-card-title"><?php echo htmlspecialchars($selected_employee_data['name']); ?></h2>
+                            <p class="dash-card-sub" style="margin-top:2px;">Bank: <?php echo htmlspecialchars($selected_employee_data['bank']); ?></p>
+                        </div>
+                        <?php if($already_paid): ?>
+                            <span class="st-badge badge-active" style="padding: 6px 14px; font-size:12px;">✓ Salary Disbursed</span>
+                        <?php endif; ?>
+                    </div>
 
-            <!-- Status -->
-            <td>
-              <span class="status-badge <?php echo $badge_class; ?>">
-                <?php echo $status; ?>
-              </span>
-            </td>
+                    <div class="detail-body">
+                        <form method="POST" id="salaryForm">
+                            <input type="hidden" name="emp_id" value="<?php echo $selected_employee_data['id']; ?>">
 
-            <!-- Actions -->
-            <td>
-              <div class="tbl-actions">
-                <a href="edit_adjustments.php?id=<?php echo $row['id']; ?>" class="btn-edit">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                  </svg>
-                  Edit
-                </a>
+                            <!-- Base Salary -->
+                            <div class="salary-component">
+                                <label>Base Contracted Pay</label>
+                                <div class="amt-box">
+                                    <span>Monthly Base Salary</span>
+                                    <span>Rs <?php echo number_format($selected_employee_data['base_salary']); ?></span>
+                                </div>
+                            </div>
 
-                <?php if ($is_paid): ?>
-                  <span class="btn-given">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                    Salary Given
-                  </span>
+                            <!-- Earnings (Bonus & Allowances) -->
+                            <div class="salary-component">
+                                <label>Earnings & Allowances</label>
+                                
+                                <!-- Bonus Box -->
+                                <div class="input-grid" style="margin-bottom: 20px;">
+                                    <div class="input-wrap">
+                                        <label>Performance Bonus</label>
+                                        <div class="input-rel">
+                                            <span class="input-prefix">Rs</span>
+                                            <input type="number" class="dash-input with-prefix" style="color: var(--green);" name="bonus_amount" 
+                                                   value="0" 
+                                                   <?php echo $already_paid ? 'readonly' : ''; ?>>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; align-items: center; color: var(--text-s); font-size: 13px;">
+                                        Add a one-time performance or target bonus for this month.
+                                    </div>
+                                </div>
+
+                                <!-- Dynamic Allowances -->
+                                <div>
+                                    <label style="font-size: 12px; color: var(--text-s); font-weight: 700; text-transform: none; letter-spacing: normal; margin-bottom: 8px;">Select Allowances</label>
+                                    
+                                    <div id="allowances-container" style="display: flex; flex-direction: column; gap: 12px;">
+                                        
+                                        <?php if ($already_paid): ?>
+                                            <!-- Read-only View for locked records -->
+                                            <?php if (empty($selected_employee_data['allowances_list'])): ?>
+                                                <div style="text-align: center; padding: 16px; background: var(--surface); border-radius: var(--radius-sm); color: var(--text-s); font-size: 13.5px; border: 1.5px dashed var(--border);">
+                                                    No allowances added for this period.
+                                                </div>
+                                            <?php else: ?>
+                                                <?php foreach($selected_employee_data['allowances_list'] as $allowance): ?>
+                                                    <div class="allowance-item">
+                                                        <span class="allowance-name"><?php echo htmlspecialchars($allowance['name']); ?></span>
+                                                        <span class="allowance-amt">+ Rs <?php echo htmlspecialchars($allowance['amount']); ?></span>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
+
+                                        <?php else: ?>
+                                            <!-- Editable View: load existing ones if any -->
+                                            <?php if (!empty($selected_employee_data['allowances_list'])): ?>
+                                                <?php foreach($selected_employee_data['allowances_list'] as $allowance): ?>
+                                                    <div class="allowance-row" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: center;">
+                                                        <select class="dash-input" name="allowance_names[]" required>
+                                                            <option value="<?php echo htmlspecialchars($allowance['name']); ?>" selected><?php echo htmlspecialchars($allowance['name']); ?></option>
+                                                            <option value="House Rent Allowance">House Rent Allowance</option>
+                                                            <option value="Medical Allowance">Medical Allowance</option>
+                                                            <option value="Transport Allowance">Transport Allowance</option>
+                                                            <option value="Fuel Allowance">Fuel Allowance</option>
+                                                            <option value="Other">Other</option>
+                                                        </select>
+                                                        <div class="input-rel">
+                                                            <span class="input-prefix" style="top: 12px; font-size: 14px;">Rs</span>
+                                                            <input type="number" class="dash-input with-prefix" style="color: var(--green);" name="allowance_amounts[]" value="<?php echo htmlspecialchars(str_replace(',', '', $allowance['amount'])); ?>" required>
+                                                        </div>
+                                                        <button type="button" class="btn-icon-sq btn-rem-sq" onclick="this.parentElement.remove()" title="Remove Allowance">
+                                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                                        </button>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
+                                            
+                                            <!-- Dynamic Add Row -->
+                                            <div class="allowance-row" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: center;">
+                                                <select class="dash-input" name="allowance_names[]">
+                                                    <option value="" disabled selected>Select Allowance Category...</option>
+                                                    <option value="House Rent Allowance">House Rent Allowance</option>
+                                                    <option value="Medical Allowance">Medical Allowance</option>
+                                                    <option value="Transport Allowance">Transport Allowance</option>
+                                                    <option value="Fuel Allowance">Fuel Allowance</option>
+                                                    <option value="Other">Other</option>
+                                                </select>
+                                                <div class="input-rel">
+                                                    <span class="input-prefix" style="top: 12px; font-size: 14px;">Rs</span>
+                                                    <input type="number" class="dash-input with-prefix" style="color: var(--green);" name="allowance_amounts[]" placeholder="Amount">
+                                                </div>
+                                                <button type="button" class="btn-icon-sq btn-add-sq" onclick="addAllowanceField()" title="Add Allowance">
+                                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                                </button>
+                                            </div>
+                                        <?php endif; ?>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Deductions -->
+                            <div class="salary-component">
+                                <label>Deductions & Adjustments</label>
+                                
+                                <div id="deductions-container" style="display: flex; flex-direction: column; gap: 12px;">
+                                    <?php if ($already_paid): ?>
+                                        <!-- Read-only View for Deductions -->
+                                        <div class="allowance-item">
+                                            <span class="allowance-name">Income Tax</span>
+                                            <span class="deduction-amt">- Rs <?php echo htmlspecialchars($selected_employee_data['tax_default']); ?></span>
+                                        </div>
+                                        <div class="allowance-item">
+                                            <span class="allowance-name">Other Deductions</span>
+                                            <span class="deduction-amt">- Rs <?php echo htmlspecialchars($selected_employee_data['deduction_default']); ?></span>
+                                        </div>
+                                    <?php else: ?>
+                                        <!-- Default Income Tax Row (Pre-filled) -->
+                                        <div class="deduction-row" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: center;">
+                                            <select class="dash-input" name="deduction_names[]" required>
+                                                <option value="Income Tax" selected>Income Tax</option>
+                                                <option value="Provident Fund">Provident Fund</option>
+                                                <option value="Unpaid Leave">Unpaid Leave</option>
+                                                <option value="Loan Repayment">Loan Repayment</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                            <div class="input-rel">
+                                                <span class="input-prefix" style="top: 12px; font-size: 14px;">Rs</span>
+                                                <input type="number" class="dash-input with-prefix red-text" name="deduction_amounts[]" value="<?php echo htmlspecialchars($selected_employee_data['tax_default']); ?>" required>
+                                            </div>
+                                            <button type="button" class="btn-icon-sq" style="background: transparent; color: transparent; pointer-events: none;"></button> <!-- Spacer to keep alignment -->
+                                        </div>
+
+                                        <!-- Default Other Deduction Row (Pre-filled if value > 0) -->
+                                        <?php if ((int)$selected_employee_data['deduction_default'] > 0): ?>
+                                            <div class="deduction-row" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: center;">
+                                                <select class="dash-input" name="deduction_names[]" required>
+                                                    <option value="Other" selected>Other Deductions</option>
+                                                    <option value="Income Tax">Income Tax</option>
+                                                    <option value="Provident Fund">Provident Fund</option>
+                                                    <option value="Unpaid Leave">Unpaid Leave</option>
+                                                    <option value="Loan Repayment">Loan Repayment</option>
+                                                </select>
+                                                <div class="input-rel">
+                                                    <span class="input-prefix" style="top: 12px; font-size: 14px;">Rs</span>
+                                                    <input type="number" class="dash-input with-prefix red-text" name="deduction_amounts[]" value="<?php echo htmlspecialchars($selected_employee_data['deduction_default']); ?>" required>
+                                                </div>
+                                                <button type="button" class="btn-icon-sq btn-rem-sq" onclick="this.parentElement.remove()" title="Remove Deduction">
+                                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                                </button>
+                                            </div>
+                                        <?php endif; ?>
+                                        
+                                        <!-- Dynamic Add Row for Deductions -->
+                                        <div class="deduction-row" style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: center;">
+                                            <select class="dash-input" name="deduction_names[]">
+                                                <option value="" disabled selected>Select Deduction Category...</option>
+                                                <option value="Income Tax">Income Tax</option>
+                                                <option value="Provident Fund">Provident Fund</option>
+                                                <option value="Unpaid Leave">Unpaid Leave</option>
+                                                <option value="Loan Repayment">Loan Repayment</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                            <div class="input-rel">
+                                                <span class="input-prefix" style="top: 12px; font-size: 14px;">Rs</span>
+                                                <input type="number" class="dash-input with-prefix red-text" name="deduction_amounts[]" placeholder="Amount">
+                                            </div>
+                                            <button type="button" class="btn-icon-sq btn-add-sq" onclick="addDeductionField()" title="Add Deduction">
+                                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                            </button>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <!-- Submit Action -->
+                            <?php if($already_paid): ?>
+                                <div class="btn-locked-lg">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                    Record Locked for Selected Month
+                                </div>
+                            <?php else: ?>
+                                <button type="submit" name="process_salary" class="btn-primary-lg" onclick="return confirm('Process this salary? This will log the payment and lock the record for the selected month.');">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                    Process & Finalize Salary
+                                </button>
+                            <?php endif; ?>
+                        </form>
+                    </div>
+
                 <?php else: ?>
-                  <form method="POST" style="display:inline;" onsubmit="return confirmGive('<?php echo htmlspecialchars($row['name']); ?>')">
-                    <input type="hidden" name="emp_index" value="<?php echo $i; ?>">
-                    <button type="submit" name="give_salary" class="btn-give">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                      </svg>
-                      Give Salary
-                    </button>
-                  </form>
+                    <!-- Empty State -->
+                    <div class="dash-empty">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <strong>No Employee Selected</strong>
+                        <p>Select a team member from the directory on the left to process their monthly payroll.</p>
+                    </div>
                 <?php endif; ?>
-              </div>
-            </td>
-          </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
-    </div>
-  </div>
+            </div>
 
-  <!-- ── Bottom Action Bar ── -->
-  <div class="pr-action-bar">
-    <div class="pr-action-bar-left">
-      <button class="btn-primary-lg" onclick="window.print()">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/>
-          <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/>
-        </svg>
-        Download PDF Report
-      </button>
-
-      <form method="POST" style="display:inline;" onsubmit="return confirm('Process all unpaid salaries?')">
-        <button type="submit" name="process_all" class="btn-success-lg">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>
-          Process All Salaries
-        </button>
-      </form>
-
-      <!-- Demo reset -->
-      <form method="POST" style="display:inline;">
-        <button type="submit" name="reset_demo" class="btn-ghost">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/>
-          </svg>
-          Reset Demo
-        </button>
-      </form>
+        </div>
     </div>
 
-    <?php
-      $paid_count = 0;
-      foreach ($salary_breakdown as $i => $r) {
-          if (isset($_SESSION['salary_given'][$i]) && $_SESSION['salary_given'][$i]) $paid_count++;
-      }
-    ?>
-    <span class="pr-paid-count">
-      <strong><?php echo $paid_count; ?></strong> / <?php echo count($salary_breakdown); ?> salaries disbursed
-    </span>
-  </div>
+</div><!-- /.dash -->
 
-</div>
-
-<!-- Toast -->
+<!-- ── Toast Notification ── -->
 <div class="pr-toast" id="prToast">
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-  <span id="prToastMsg">Salary marked as given.</span>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    <span>Salary Processed Successfully!</span>
 </div>
 
 <script>
-function confirmGive(name) {
-  return confirm('Mark salary as given for ' + name + '?\nThis action will update their status to "Salary Given".');
-}
+    <?php if (isset($_SESSION['just_paid'])): unset($_SESSION['just_paid']); ?>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toast = document.getElementById('prToast');
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 4000);
+        });
+    <?php endif; ?>
 
-// Show toast if salary was just given (detect via URL or session flag via PHP)
-<?php if (isset($_SESSION['just_paid'])): unset($_SESSION['just_paid']); ?>
-document.addEventListener('DOMContentLoaded', function() {
-  const t = document.getElementById('prToast');
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3500);
-});
-<?php endif; ?>
+    // JavaScript to handle dynamic allowance rows
+    function addAllowanceField() {
+        const container = document.getElementById('allowances-container');
+        const row = document.createElement('div');
+        row.className = 'allowance-row';
+        row.style.display = 'grid';
+        row.style.gridTemplateColumns = '1fr 1fr auto';
+        row.style.gap = '12px';
+        row.style.alignItems = 'center';
+        
+        row.innerHTML = `
+            <select class="dash-input" name="allowance_names[]" required>
+                <option value="" disabled selected>Select Allowance Category...</option>
+                <option value="House Rent Allowance">House Rent Allowance</option>
+                <option value="Medical Allowance">Medical Allowance</option>
+                <option value="Transport Allowance">Transport Allowance</option>
+                <option value="Fuel Allowance">Fuel Allowance</option>
+                <option value="Other">Other</option>
+            </select>
+            <div class="input-rel">
+                <span class="input-prefix" style="top: 12px; font-size: 14px;">Rs</span>
+                <input type="number" class="dash-input with-prefix" style="color: var(--green);" name="allowance_amounts[]" placeholder="Amount" required>
+            </div>
+            <button type="button" class="btn-icon-sq btn-rem-sq" onclick="this.parentElement.remove()" title="Remove Allowance">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+        `;
+        
+        // Append right before the add button row
+        const addButtonRow = container.lastElementChild;
+        container.insertBefore(row, addButtonRow);
+    }
+
+    // JavaScript to handle dynamic deduction rows
+    function addDeductionField() {
+        const container = document.getElementById('deductions-container');
+        const row = document.createElement('div');
+        row.className = 'deduction-row';
+        row.style.display = 'grid';
+        row.style.gridTemplateColumns = '1fr 1fr auto';
+        row.style.gap = '12px';
+        row.style.alignItems = 'center';
+        
+        row.innerHTML = `
+            <select class="dash-input" name="deduction_names[]" required>
+                <option value="" disabled selected>Select Deduction Category...</option>
+                <option value="Income Tax">Income Tax</option>
+                <option value="Provident Fund">Provident Fund</option>
+                <option value="Unpaid Leave">Unpaid Leave</option>
+                <option value="Loan Repayment">Loan Repayment</option>
+                <option value="Other">Other</option>
+            </select>
+            <div class="input-rel">
+                <span class="input-prefix" style="top: 12px; font-size: 14px;">Rs</span>
+                <input type="number" class="dash-input with-prefix red-text" name="deduction_amounts[]" placeholder="Amount" required>
+            </div>
+            <button type="button" class="btn-icon-sq btn-rem-sq" onclick="this.parentElement.remove()" title="Remove Deduction">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+        `;
+        
+        // Append right before the add button row
+        const addButtonRow = container.lastElementChild;
+        container.insertBefore(row, addButtonRow);
+    }
 </script>
 
 <?php include_once "../includes/footer.php"; ?>
