@@ -58,6 +58,7 @@ class Users {
                         $_SESSION['last_name']  = $row['last_name'];
                         $_SESSION['role_id']    = $row['role_id'];
                         $_SESSION['email']      = $row['email'];
+                        $_SESSION['profile_image'] = $row['profile_image'];
                         $_SESSION['logged_in']  = true;
 
                         if ($_SESSION['role_id'] == '1') {
@@ -195,34 +196,39 @@ public function registerUser() {
         exit();
     }
 }
+public function updateProfileImage($fileArray) {
+    // 1. Define where it goes
+    $uploadFolder = "../assets/uploads/";
+    $fileExt = pathinfo($fileArray['name'], PATHINFO_EXTENSION);
+    
+    // Ensure $this->email actually has a value from the session or database
+    $newFileName = "profile_" . $this->email . "_" . time() . "." . $fileExt;
+    $destination = $uploadFolder . $newFileName;
 
-public function uploadUserImage($file_array){
-    //destination
-    $destination = "../assets/";
-    $file_extension = pathinfo($file_array['name'], PATHINFO_EXTENSION);
-    $new_file_name = uniqid() . "." . $file_extension;
-    $target_file = $destination . $new_file_name;
-    // size check
-    if ($file_array['size']>50000) {
-        return "file too large";
-    }
-    //uploading to server
-    if (move_uploaded_file($file_array['tmp_name'], $target_file)) {
-        //update database with new file name
-        $updateQuery = "UPDATE users SET profile_image = ? WHERE email = ?";
-        $stmt = $this->connection->prepare($updateQuery);
-        $stmt->bind_param("ss", $new_file_name, $this->email);
+    // 2. Security Check
+    if ($fileArray['size'] > 5000000) return "File too large.";
+    
+    // 3. Move File
+    if (move_uploaded_file($fileArray['tmp_name'], $destination)) {
+        // 4. Database Update
+        $query = "UPDATE users SET profile_image = ? WHERE email = ?";
+        $stmt = $this->connection->prepare($query);
+
+        // FIX: Both are strings, so use "ss"
+        $stmt->bind_param("ss", $newFileName, $this->email);
+
         if ($stmt->execute()) {
-            $_SESSION['profile_image'] = $new_file_name; 
-            return "file uploaded successfully";
+    $_SESSION['profile_image'] = $newFileName; // ← ADD THIS
+    return true;
+            }  
         } else {
-            return "database update failed: " . $this->connection->error;
+            return "Database update failed: " . $this->connection->error    ;
         }
-    } else {
-        return "file upload failed";
-    }
-
 
 }
+
+  
 }
+
+
 ?>

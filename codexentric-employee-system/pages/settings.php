@@ -1,11 +1,12 @@
 <?php 
     session_start();
-
+    
+    
     if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
         header("Location: login.php");
         exit();
     }
-
+    
     // Determine user role
     $is_admin = isset($_SESSION['role_id']) && $_SESSION['role_id'] == 1;
     $current_page = "settings";
@@ -18,22 +19,27 @@
     require_once "../pages/Users.php";
     $db = new Database();
     $user = new Users($db->getConnection());
-    if(isset($_FILES['profile_image'])) {
-        $result = $user->uploadUserImage($_FILES['profile_image']);
-        if ($result) {
-            header("Location: settings.php");
+    
+    // Setting the email so the object knows who to update
+    $user->email = $_SESSION['email']; 
+
+    if(isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] == 0) {
+        $result = $user->updateProfileImage($_FILES['profile_image']);
+        
+        if ($result === true) {
+            header("Location: settings.php?success=1");
             exit();
         } else {
+            // $result contains the error message string
             echo "<div class='error-message'>" . $result . "</div>";
         }
     }
-    
+
     include_once "../includes/header.php";
-    // Include sidebar only for employees
-    if (!$is_admin) {
-        include_once "../includes/sidebar.php";
-    }
 ?>
+
+<div class="app-body">
+    <?php include_once "../includes/sidebar.php"; ?>
 
 <?php if ($is_admin): ?>
     <!-- ADMIN SETTINGS -->
@@ -54,12 +60,12 @@
                     </div>
                 </div>
 
-                <form class="settings-form" action="#" method="POST" enctype="multipart/form-data">
+                <form class="settings-form" action="" method="POST" enctype="multipart/form-data">
                     <!-- Profile Image Upload -->
                     <div class="form-row" style="margin-bottom: 20px;">
                         <div class="image-upload-group">
                             <div class="profile-image-preview">
-                                <img id="admin-preview" src="../assets/default-profile.png" alt="Profile Picture" style="width: 120px; height: 120px; border-radius: 8px; object-fit: cover; display: block;">
+                                <img name="profile_image" src="../assets/default-profile.png" alt="Profile Picture" style="width: 120px; height: 120px; border-radius: 8px; object-fit: cover; display: block;">
                             </div>
                             <div class="upload-input-wrapper">
                                 <label for="admin-profile-image">Change Profile Picture</label>
@@ -383,5 +389,7 @@
         margin-top: 5px;
     }
 </style>
+
+</div><!-- end app-body -->
 
 <?php include_once "../includes/footer.php"; ?>

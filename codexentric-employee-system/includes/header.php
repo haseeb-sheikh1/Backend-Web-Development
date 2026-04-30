@@ -69,7 +69,16 @@
       
       .topbar-right { display: flex; align-items: center; gap: 14px; position: relative; }
       .topbar-user  { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-      .topbar-avatar { width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; border: 1.5px solid rgba(255,255,255,0.45); }
+      .topbar-avatar { 
+  width: 32px; height: 32px; background: rgba(255,255,255,0.2); 
+  border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+  font-size: 13px; font-weight: 700; color: #fff; 
+  border: 1.5px solid rgba(255,255,255,0.45); 
+  overflow: hidden;  /* ← add this */
+}
+.topbar-avatar img { 
+  width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: block; 
+}
 
       /* User info stack: name on top, role label below */
       .topbar-user-info { display: flex; flex-direction: column; line-height: 1.2; }
@@ -135,7 +144,17 @@
 
         <div class="topbar-right">
             <div class="topbar-user" id="userMenuToggle" aria-expanded="false">
-                <div class="topbar-avatar"><?php echo $initials; ?></div>
+                <div class="topbar-avatar">
+    <?php if (!empty($_SESSION['profile_image'])): ?>
+        <img 
+            src="../assets/uploads/<?php echo htmlspecialchars($_SESSION['profile_image']); ?>" 
+            alt="<?php echo $display_name; ?>"
+            onerror="this.style.display='none'; this.parentElement.textContent='<?php echo $initials; ?>';"
+        >
+    <?php else: ?>
+        <?php echo $initials; ?>
+    <?php endif; ?>
+</div>
                 <div class="topbar-user-info">
                     <span class="topbar-username"><?php echo $display_name; ?></span>
                     <span class="topbar-role-badge"><?php echo $role_label; ?></span>
