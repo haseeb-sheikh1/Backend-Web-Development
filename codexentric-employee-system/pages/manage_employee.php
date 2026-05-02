@@ -36,54 +36,59 @@ session_start();
         }
     }
     
-
-
-
 ?>
 
 <style>
-
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap');
+/* Relying on Source Sans 3 from the global header */
 
 :root {
-  --blue:       #1E6FD9;
-  --blue-dark:  #1559B5;
-  --blue-light: #EBF2FC;
-  --blue-xl:    #F0F6FF;
-  --green:      #059669;
-  --green-bg:   #D1FAE5;
-  --amber:      #D97706;
-  --amber-bg:   #FEF3C7;
-  --red:        #DC2626;
-  --red-bg:     #FEE2E2;
-  --border:     #E2E8F0;
-  --surface:    #F8FAFC;
-  --card:       #ffffff;
-  --text-h:     #0F172A;
-  --text-b:     #374151;
-  --text-m:     #64748B;
-  --text-s:     #94A3B8;
-  --radius:     12px;
-  --shadow-xs:  0 1px 3px rgba(15,23,42,0.05);
-  --shadow-sm:  0 1px 8px rgba(15,23,42,0.07);
-  --shadow-md:  0 4px 20px rgba(15,23,42,0.09);
-  --shadow-bl:  0 6px 24px rgba(21,89,181,0.16);
+  /* Updated Core Theme Variables */
+  --blue:          #1a6eff;
+  --blue-dark:     #1252cc;
+  --blue-light:    rgba(26, 110, 255, 0.12);
+  --blue-xl:       rgba(26, 110, 255, 0.05);
+  --body-bg:       #F0F4FA;
+  --text-h:        #111827;
+  --text-b:        #4B5563;
+  --text-m:        #6B7280;
+  --text-s:        #9CA3AF;
+  --border:        #E2E8F0;
+  --font:          'Source Sans 3', sans-serif;
+
+  /* Retained Semantic Colors */
+  --green:         #059669;
+  --green-bg:      #D1FAE5;
+  --amber:         #D97706;
+  --amber-bg:      #FEF3C7;
+  --red:           #DC2626;
+  --red-bg:        #FEE2E2;
+
+  /* Component Mappings */
+  --surface:       var(--body-bg);
+  --card:          #ffffff;
+  
+  --radius:        12px;
+  --shadow-xs:     0 1px 3px rgba(17, 24, 39, 0.05);
+  --shadow-sm:     0 1px 8px rgba(17, 24, 39, 0.07);
+  --shadow-md:     0 4px 20px rgba(17, 24, 39, 0.09);
+  --shadow-bl:     0 6px 24px rgba(26, 110, 255, 0.2);
 }
 
 /* ── Page wrapper ── */
-.emp-page { display: flex; flex-direction: column; gap: 24px; }
+.emp-page { display: flex; flex-direction: column; gap: 24px; font-family: var(--font); }
 
 /* ── Breadcrumb ── */
 .emp-breadcrumb {
-  font-size: 12.5px; color: var(--text-s);
+  font-size: 13px; color: var(--text-s); font-weight: 500;
   display: flex; align-items: center; gap: 5px; margin-bottom: -8px;
 }
 .emp-breadcrumb a { color: var(--blue); text-decoration: none; }
-.emp-breadcrumb a:hover { text-decoration: underline; }
+.emp-breadcrumb a:hover { text-decoration: underline; color: var(--blue-dark); }
 
 /* ════ HERO BANNER ════ */
 .emp-hero {
-  background: linear-gradient(125deg, #1248A0 0%, #1559B5 40%, #1E6FD9 75%, #2B87F0 100%);
+  /* Updated to match header's gradient aesthetic */
+  background: linear-gradient(135deg, #0f1c2e 0%, #1252cc 60%, #1a6eff 100%);
   border-radius: var(--radius);
   padding: 28px 32px;
   display: flex; align-items: center; justify-content: space-between;
@@ -94,13 +99,13 @@ session_start();
 .emp-hero::before {
   content: ''; position: absolute;
   width: 300px; height: 300px; border-radius: 50%;
-  background: rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.04);
   top: -100px; right: -60px; pointer-events: none;
 }
 .emp-hero::after {
   content: ''; position: absolute;
   width: 160px; height: 160px; border-radius: 50%;
-  background: rgba(255,255,255,0.04);
+  background: rgba(255,255,255,0.03);
   bottom: -50px; right: 200px; pointer-events: none;
 }
 
@@ -108,29 +113,29 @@ session_start();
 
 .emp-avatar-xl {
   width: 64px; height: 64px; border-radius: 16px; flex-shrink: 0;
-  background: rgba(255,255,255,0.18);
-  border: 2px solid rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.3);
   backdrop-filter: blur(6px);
-  font-family: 'Nunito', sans-serif;
-  font-size: 26px; font-weight: 900; color: #fff;
+  font-family: var(--font);
+  font-size: 24px; font-weight: 700; color: #fff;
   display: flex; align-items: center; justify-content: center;
 }
 
 .emp-hero-info h1 {
-  font-family: 'Nunito', sans-serif;
-  font-size: 20px; font-weight: 900; color: #fff; margin: 0 0 4px;
+  font-family: var(--font);
+  font-size: 22px; font-weight: 700; color: #fff; margin: 0 0 4px;
 }
 .emp-hero-info p {
-  font-size: 13.5px; color: rgba(255,255,255,0.78); margin: 0 0 10px;
+  font-size: 14px; color: rgba(255,255,255,0.7); margin: 0 0 10px;
 }
 .emp-hero-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
 .hero-badge {
   display: inline-flex; align-items: center; gap: 5px;
   padding: 4px 11px; border-radius: 20px;
-  font-size: 12px; font-weight: 700;
-  background: rgba(255,255,255,0.18);
-  color: #fff; border: 1px solid rgba(255,255,255,0.28);
+  font-size: 12px; font-weight: 600;
+  background: rgba(255,255,255,0.15);
+  color: #fff; border: 1px solid rgba(255,255,255,0.25);
   backdrop-filter: blur(4px);
 }
 .hero-badge::before {
@@ -142,10 +147,10 @@ session_start();
 .hero-meta-chip {
   display: inline-flex; align-items: center; gap: 5px;
   padding: 4px 11px; border-radius: 20px;
-  font-size: 12px; font-weight: 600;
-  background: rgba(255,255,255,0.10);
+  font-size: 12.5px; font-weight: 600;
+  background: rgba(255,255,255,0.08);
   color: rgba(255,255,255,0.85);
-  border: 1px solid rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.15);
 }
 
 /* Hero action buttons */
@@ -153,24 +158,27 @@ session_start();
   display: flex; align-items: center; gap: 10px;
   position: relative; z-index: 1; flex-wrap: wrap;
 }
+.emp-hero-actions form { margin: 0; }
 .btn-hero {
   height: 38px; padding: 0 18px;
-  border-radius: 7px; font-size: 13px; font-weight: 700;
-  font-family: 'Source Sans 3', sans-serif;
+  border-radius: 8px; font-size: 13.5px; font-weight: 600;
+  font-family: var(--font);
   cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
   text-decoration: none; white-space: nowrap; border: none;
-  transition: opacity .18s, transform .12s;
+  transition: opacity .18s, transform .12s, background .18s, border-color .18s;
 }
-.btn-hero:hover { opacity: .88; transform: translateY(-1px); }
+.btn-hero:hover { transform: translateY(-1px); }
 .btn-hero-warn {
-  background: rgba(239,68,68,0.18);
+  background: rgba(239,68,68,0.12);
   color: #FCA5A5;
-  border: 1.5px solid rgba(239,68,68,0.35);
+  border: 1px solid rgba(239,68,68,0.3);
 }
+.btn-hero-warn:hover { background: rgba(239,68,68,0.2); }
 .btn-hero-primary {
   background: #fff; color: var(--blue-dark);
+  border: 1px solid #fff;
 }
-.btn-hero-primary:hover { background: #f0f6ff; }
+.btn-hero-primary:hover { background: #f0f4fa; color: var(--blue); border-color: #f0f4fa; }
 
 /* ════ STATS ROW ════ */
 .emp-stats {
@@ -183,29 +191,33 @@ session_start();
 
 .emp-stat {
   background: var(--card);
-  border: 1.5px solid var(--border);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 18px 20px;
   display: flex; flex-direction: column; gap: 6px;
   box-shadow: var(--shadow-xs);
-  transition: box-shadow .2s, transform .2s;
+  transition: box-shadow .2s, transform .2s, border-color .2s;
   position: relative; overflow: hidden;
 }
-.emp-stat:hover { box-shadow: var(--shadow-bl); transform: translateY(-2px); }
+.emp-stat:hover { 
+  box-shadow: var(--shadow-md); 
+  transform: translateY(-2px); 
+  border-color: var(--blue-light); 
+}
 .emp-stat::before {
   content: ''; position: absolute; top:0; left:0; right:0; height:3px;
   background: linear-gradient(90deg, var(--blue-dark), var(--blue));
   opacity: 0; transition: opacity .2s;
 }
 .emp-stat:hover::before { opacity: 1; }
-.emp-stat-label { font-size: 11px; font-weight: 700; color: var(--text-s); text-transform: uppercase; letter-spacing: 0.55px; }
-.emp-stat-value { font-family: 'Nunito', sans-serif; font-size: 20px; font-weight: 900; color: var(--text-h); }
+.emp-stat-label { font-size: 11.5px; font-weight: 600; color: var(--text-s); text-transform: uppercase; letter-spacing: 0.5px; }
+.emp-stat-value { font-family: var(--font); font-size: 22px; font-weight: 700; color: var(--text-h); }
 .emp-stat-value.green { color: var(--green); }
-.emp-stat-sub { font-size: 11.5px; color: var(--text-s); }
+.emp-stat-sub { font-size: 12.5px; color: var(--text-s); }
 
 /* ════ SECTION LABEL ════ */
 .emp-section-label {
-  font-size: 11px; font-weight: 800; color: var(--text-s);
+  font-size: 11.5px; font-weight: 700; color: var(--text-s);
   text-transform: uppercase; letter-spacing: 0.8px;
   margin-bottom: 14px;
   display: flex; align-items: center; gap: 8px;
@@ -223,7 +235,7 @@ session_start();
 /* ── Card shell ── */
 .emp-card {
   background: var(--card);
-  border: 1.5px solid var(--border);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-xs);
   overflow: hidden;
@@ -233,8 +245,8 @@ session_start();
 
 .emp-card-head {
   padding: 15px 22px;
-  border-bottom: 1.5px solid var(--border);
-  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  background: #ffffff;
   display: flex; align-items: center; gap: 10px;
 }
 .emp-card-icon {
@@ -242,17 +254,17 @@ session_start();
   background: var(--blue-light); color: var(--blue);
   display: flex; align-items: center; justify-content: center;
 }
-.emp-card-icon.fin { background: #EDE9FE; color: #7C3AED; }
+.emp-card-icon.fin { background: #F3E8FF; color: #7E22CE; }
 .emp-card-icon.hist { background: var(--green-bg); color: var(--green); }
 .emp-card-icon.act { background: var(--amber-bg); color: var(--amber); }
 
 .emp-card-title {
-  font-family: 'Nunito', sans-serif;
-  font-size: 14px; font-weight: 800; color: var(--text-h); margin: 0;
+  font-family: var(--font);
+  font-size: 15px; font-weight: 600; color: var(--text-h); margin: 0;
   display: flex; align-items: center; gap: 7px;
 }
 .emp-card-title .dot {
-  width: 7px; height: 7px; border-radius: 50%;
+  width: 8px; height: 8px; border-radius: 50%;
   background: linear-gradient(135deg, var(--blue-dark), var(--blue));
 }
 
@@ -263,7 +275,7 @@ session_start();
 .emp-info-row {
   display: flex; align-items: flex-start;
   padding: 13px 22px;
-  border-bottom: 1px solid #F1F5F9;
+  border-bottom: 1px solid #F3F4F6;
   gap: 16px;
   transition: background .12s;
 }
@@ -272,12 +284,12 @@ session_start();
 
 .emp-info-dt {
   width: 130px; flex-shrink: 0;
-  font-size: 12px; font-weight: 700;
-  color: var(--text-s); text-transform: uppercase; letter-spacing: 0.4px;
+  font-size: 12px; font-weight: 600;
+  color: var(--text-s); text-transform: uppercase; letter-spacing: 0.5px;
   padding-top: 1px;
 }
 .emp-info-dd {
-  font-size: 13.5px; font-weight: 600; color: var(--text-b);
+  font-size: 14px; font-weight: 600; color: var(--text-b);
   margin: 0; word-break: break-word;
 }
 .emp-info-link {
@@ -286,13 +298,13 @@ session_start();
 }
 .emp-info-link:hover { color: var(--blue-dark); text-decoration: underline; }
 
-.sal-val { font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 900; color: var(--text-h); }
-.sal-per { font-size: 12px; color: var(--text-s); margin-left: 2px; font-weight: 500; }
+.sal-val { font-family: var(--font); font-size: 16px; font-weight: 700; color: var(--text-h); }
+.sal-per { font-size: 12.5px; color: var(--text-s); margin-left: 2px; font-weight: 500; }
 
 .mono {
   font-family: 'Courier New', monospace;
-  font-size: 12.5px; background: var(--surface);
-  padding: 3px 8px; border-radius: 5px;
+  font-size: 13px; background: var(--surface);
+  padding: 3px 8px; border-radius: 6px;
   border: 1px solid var(--border); color: var(--text-b);
   letter-spacing: 0.3px;
 }
@@ -317,9 +329,9 @@ session_start();
   color: var(--green); z-index: 1;
 }
 .tl-content { flex: 1; }
-.tl-title { font-size: 13.5px; font-weight: 700; color: var(--text-h); margin-bottom: 2px; }
-.tl-date  { font-size: 12px; color: var(--text-s); margin-bottom: 4px; }
-.tl-desc  { font-size: 12.5px; color: var(--text-m); }
+.tl-title { font-size: 14px; font-weight: 600; color: var(--text-h); margin-bottom: 2px; }
+.tl-date  { font-size: 12.5px; color: var(--text-s); margin-bottom: 4px; }
+.tl-desc  { font-size: 13px; color: var(--text-m); }
 
 /* ── Quick Actions ── */
 .emp-actions-list { padding: 10px 14px; display: flex; flex-direction: column; gap: 6px; }
@@ -328,22 +340,22 @@ session_start();
   padding: 12px 14px;
   border-radius: 9px;
   background: var(--surface);
-  border: 1.5px solid var(--border);
+  border: 1px solid var(--border);
   text-decoration: none;
   transition: border-color .15s, background .15s, box-shadow .15s;
   cursor: pointer;
 }
-.emp-qa:hover { border-color: var(--blue); background: var(--blue-xl); box-shadow: 0 2px 10px rgba(21,89,181,0.10); }
+.emp-qa:hover { border-color: var(--blue); background: var(--blue-xl); box-shadow: 0 2px 10px rgba(26,110,255,0.08); }
 .emp-qa-icon {
   width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
 }
-.emp-qa-icon.payslip { background: #EDE9FE; color: #7C3AED; }
+.emp-qa-icon.payslip { background: #F3E8FF; color: #7E22CE; }
 .emp-qa-icon.attend  { background: var(--green-bg); color: var(--green); }
 .emp-qa-icon.review  { background: var(--amber-bg); color: var(--amber); }
 .emp-qa-text-wrap { flex: 1; }
-.emp-qa-label { font-size: 13.5px; font-weight: 700; color: var(--text-h); }
-.emp-qa-desc  { font-size: 12px; color: var(--text-s); margin-top: 1px; }
+.emp-qa-label { font-size: 14px; font-weight: 600; color: var(--text-h); }
+.emp-qa-desc  { font-size: 12.5px; color: var(--text-s); margin-top: 1px; }
 .emp-qa-arr { color: var(--text-s); transition: transform .15s, color .15s; }
 .emp-qa:hover .emp-qa-arr { transform: translateX(3px); color: var(--blue); }
 
@@ -381,12 +393,12 @@ session_start();
       </div>
     </div>
     <div class="emp-hero-actions">
-      <form action = "" method = "POST">
-      <button type="submit" action = "POST" class="btn-hero btn-hero-warn" name = "deactivate" aria-label="Deactivate employee account">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-        Deactivate
-      </button>
-</form>
+      <form action="" method="POST">
+        <button type="submit" class="btn-hero btn-hero-warn" name="deactivate" aria-label="Deactivate employee account">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          Deactivate
+        </button>
+      </form>
       <a href="update_profile.php?id=<?php echo $employee['user_id']; ?>" class="btn-hero btn-hero-primary" aria-label="Update employee profile">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         Update Profile
@@ -414,7 +426,7 @@ session_start();
     </div>
     <div class="emp-stat">
       <span class="emp-stat-label">Bank</span>
-      <span class="emp-stat-value" style="font-size:16px;"><?php echo htmlspecialchars($employee['bank_name']); ?></span>
+      <span class="emp-stat-value" style="font-size:18px; line-height: 1.2; padding-top: 2px;"><?php echo htmlspecialchars($employee['bank_name']); ?></span>
       <span class="emp-stat-sub">Primary account</span>
     </div>
   </div>
@@ -464,7 +476,7 @@ session_start();
           <div class="emp-card-icon fin">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
           </div>
-          <h3 class="emp-card-title"><span class="dot" style="background:linear-gradient(135deg,#6D28D9,#7C3AED)"></span>Financial &amp; Banking</h3>
+          <h3 class="emp-card-title"><span class="dot" style="background:linear-gradient(135deg,#7E22CE,#9333EA)"></span>Financial &amp; Banking</h3>
         </div>
         <div class="emp-card-body">
           <dl class="emp-info-list">
@@ -493,7 +505,7 @@ session_start();
           <div class="emp-card-icon hist">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           </div>
-          <h3 class="emp-card-title"><span class="dot" style="background:linear-gradient(135deg,#047857,#10b981)"></span>Employment History</h3>
+          <h3 class="emp-card-title"><span class="dot" style="background:linear-gradient(135deg,#059669,#10b981)"></span>Employment History</h3>
         </div>
         <div class="emp-card-body">
           <div class="emp-timeline">
@@ -531,7 +543,7 @@ session_start();
           <div class="emp-card-icon act">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
           </div>
-          <h3 class="emp-card-title"><span class="dot" style="background:linear-gradient(135deg,#B45309,#D97706)"></span>Quick Actions</h3>
+          <h3 class="emp-card-title"><span class="dot" style="background:linear-gradient(135deg,#D97706,#F59E0B)"></span>Quick Actions</h3>
         </div>
         <div class="emp-card-body">
           <div class="emp-actions-list">
@@ -577,6 +589,5 @@ session_start();
   </div>
 
 </div><!-- /.emp-page -->
-
 
 <?php include_once "../includes/footer.php"; ?>

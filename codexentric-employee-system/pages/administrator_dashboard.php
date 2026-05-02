@@ -27,43 +27,53 @@ if (!isset($_SESSION['email'])) {
 
 ?>
 
-
 <style>
-
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap');
+/* Removed Nunito import; relying on Source Sans 3 from the header */
 
 :root {
-  --blue:        #1E6FD9;
-  --blue-dark:   #1559B5;
-  --blue-light:  #EBF2FC;
-  --blue-xlight: #F0F6FF;
-  --green:       #059669;
-  --green-bg:    #D1FAE5;
-  --amber:       #D97706;
-  --amber-bg:    #FEF3C7;
-  --red:         #DC2626;
-  --red-bg:      #FEE2E2;
-  --border:      #E2E8F0;
-  --surface:     #F8FAFC;
-  --card:        #ffffff;
-  --text-h:      #0F172A;
-  --text-b:      #374151;
-  --text-m:      #64748B;
-  --text-s:      #94A3B8;
-  --radius:      12px;
-  --radius-sm:   8px;
-  --shadow-xs:   0 1px 3px rgba(15,23,42,0.05);
-  --shadow-sm:   0 1px 6px rgba(15,23,42,0.07);
-  --shadow-md:   0 4px 20px rgba(15,23,42,0.09);
-  --shadow-blue: 0 6px 24px rgba(21,89,181,0.16);
+  /* Updated Core Theme Variables from Header */
+  --blue:          #1a6eff;
+  --blue-dark:     #1252cc;
+  --blue-light:    rgba(26, 110, 255, 0.12);
+  --blue-xlight:   rgba(26, 110, 255, 0.05);
+  --body-bg:       #F0F4FA;
+  --text-primary:  #111827;
+  --text-secondary:#4B5563;
+  --text-muted:    #9CA3AF;
+  --border:        #E2E8F0;
+  --font:          'Source Sans 3', sans-serif;
+
+  /* Retained Semantic Colors for Dashboard Widgets */
+  --green:         #059669;
+  --green-bg:      #D1FAE5;
+  --amber:         #D97706;
+  --amber-bg:      #FEF3C7;
+  --red:           #DC2626;
+  --red-bg:        #FEE2E2;
+
+  /* Mapped Component Variables */
+  --surface:       var(--body-bg);
+  --card:          #ffffff;
+  --text-h:        var(--text-primary);
+  --text-b:        var(--text-secondary);
+  --text-m:        #6B7280;
+  --text-s:        var(--text-muted);
+  
+  --radius:        12px;
+  --radius-sm:     8px;
+  --shadow-xs:     0 1px 3px rgba(17, 24, 39, 0.05);
+  --shadow-sm:     0 1px 6px rgba(17, 24, 39, 0.07);
+  --shadow-md:     0 4px 20px rgba(17, 24, 39, 0.09);
+  --shadow-blue:   0 6px 24px rgba(26, 110, 255, 0.2);
 }
 
 /* ── Outer wrapper ── */
-.dash { display: flex; flex-direction: column; gap: 28px; }
+.dash { display: flex; flex-direction: column; gap: 28px; font-family: var(--font); }
 
 /* ── Welcome Banner ── */
 .dash-welcome {
-  background: linear-gradient(125deg, #1248A0 0%, #1559B5 40%, #1E6FD9 75%, #2B87F0 100%);
+  /* Updated to match header's gradient aesthetic */
+  background: linear-gradient(135deg, #0f1c2e 0%, #1252cc 60%, #1a6eff 100%);
   border-radius: var(--radius);
   padding: 28px 32px;
   display: flex; align-items: center; justify-content: space-between;
@@ -74,44 +84,44 @@ if (!isset($_SESSION['email'])) {
 .dash-welcome::before {
   content: ''; position: absolute;
   width: 320px; height: 320px; border-radius: 50%;
-  background: rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.04);
   top: -120px; right: -80px; pointer-events: none;
 }
 .dash-welcome::after {
   content: ''; position: absolute;
   width: 180px; height: 180px; border-radius: 50%;
-  background: rgba(255,255,255,0.04);
+  background: rgba(255,255,255,0.03);
   bottom: -60px; right: 120px; pointer-events: none;
 }
 .dash-welcome-text { position: relative; z-index: 1; }
 .dash-welcome-text h1 {
-  font-family: 'Nunito', sans-serif;
-  font-size: 22px; font-weight: 900; color: #fff; margin: 0 0 5px;
+  font-family: var(--font);
+  font-size: 24px; font-weight: 700; color: #fff; margin: 0 0 5px;
 }
-.dash-welcome-text p { font-size: 13.5px; color: rgba(255,255,255,0.78); margin: 0; }
+.dash-welcome-text p { font-size: 14px; color: rgba(255,255,255,0.7); margin: 0; }
 .dash-welcome-actions { display: flex; align-items: center; gap: 10px; position: relative; z-index: 1; flex-wrap: wrap; }
 
 .btn-wh {
   height: 38px; padding: 0 18px;
-  background: rgba(255,255,255,0.15); color: #fff;
-  border: 1.5px solid rgba(255,255,255,0.3); border-radius: 7px;
-  font-size: 13px; font-weight: 600;
-  font-family: 'Source Sans 3', sans-serif;
+  background: rgba(255,255,255,0.1); color: #fff;
+  border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;
+  font-size: 13.5px; font-weight: 600;
+  font-family: var(--font);
   cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
   text-decoration: none; white-space: nowrap;
   backdrop-filter: blur(6px);
-  transition: background .18s;
+  transition: background .18s, border-color .18s;
 }
-.btn-wh:hover { background: rgba(255,255,255,0.25); }
+.btn-wh:hover { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.4); }
 .btn-wh-solid {
   background: #fff; color: var(--blue-dark);
   border-color: #fff;
 }
-.btn-wh-solid:hover { background: #f0f6ff; }
+.btn-wh-solid:hover { background: #f0f4fa; color: var(--blue); }
 
 /* ── Section label ── */
 .dash-section-label {
-  font-size: 11px; font-weight: 800;
+  font-size: 11.5px; font-weight: 700;
   color: var(--text-s); text-transform: uppercase; letter-spacing: 0.8px;
   margin-bottom: 14px;
   display: flex; align-items: center; gap: 8px;
@@ -131,15 +141,19 @@ if (!isset($_SESSION['email'])) {
 
 .stat-card {
   background: var(--card);
-  border: 1.5px solid var(--border);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 22px 22px 18px;
   display: flex; flex-direction: column; gap: 14px;
   position: relative; overflow: hidden;
-  transition: box-shadow .2s, transform .2s;
+  transition: box-shadow .2s, transform .2s, border-color .2s;
   box-shadow: var(--shadow-xs);
 }
-.stat-card:hover { box-shadow: var(--shadow-blue); transform: translateY(-2px); }
+.stat-card:hover { 
+  box-shadow: var(--shadow-md); 
+  transform: translateY(-2px);
+  border-color: var(--blue-light);
+}
 .stat-card::after {
   content: ''; position: absolute;
   bottom: 0; left: 0; right: 0; height: 3px;
@@ -150,8 +164,8 @@ if (!isset($_SESSION['email'])) {
 
 .stat-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .stat-label {
-  font-size: 12px; font-weight: 700; color: var(--text-m);
-  text-transform: uppercase; letter-spacing: 0.55px; margin: 0;
+  font-size: 12.5px; font-weight: 600; color: var(--text-m);
+  text-transform: uppercase; letter-spacing: 0.5px; margin: 0;
 }
 .stat-icon-wrap {
   width: 42px; height: 42px; border-radius: 10px;
@@ -160,18 +174,18 @@ if (!isset($_SESSION['email'])) {
   flex-shrink: 0;
 }
 .stat-icon-wrap.revenue { background: #FEF3C7; color: #D97706; }
-.stat-icon-wrap.payroll { background: #EDE9FE; color: #7C3AED; }
+.stat-icon-wrap.payroll { background: #F3E8FF; color: #7E22CE; }
 
 .stat-value {
-  font-family: 'Nunito', sans-serif;
-  font-size: 30px; font-weight: 900;
+  font-family: var(--font);
+  font-size: 30px; font-weight: 700;
   color: var(--text-h); line-height: 1;
   letter-spacing: -0.5px; margin: 0;
 }
 .stat-footer { display: flex; align-items: center; justify-content: space-between; }
-.stat-sub { font-size: 12px; color: var(--text-s); }
+.stat-sub { font-size: 12.5px; color: var(--text-s); }
 .stat-trend {
-  font-size: 11.5px; font-weight: 700;
+  font-size: 11.5px; font-weight: 600;
   padding: 3px 8px; border-radius: 20px;
   background: var(--green-bg); color: var(--green);
   white-space: nowrap;
@@ -189,7 +203,7 @@ if (!isset($_SESSION['email'])) {
 
 .ql-card {
   background: var(--card);
-  border: 1.5px solid var(--border);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 18px 16px;
   display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
@@ -203,11 +217,11 @@ if (!isset($_SESSION['email'])) {
   display: flex; align-items: center; justify-content: center;
 }
 .ql-icon.emp  { background: var(--blue-light);  color: var(--blue); }
-.ql-icon.pay  { background: #EDE9FE;             color: #7C3AED; }
-.ql-icon.att  { background: var(--green-bg);     color: var(--green); }
-.ql-icon.rep  { background: var(--amber-bg);     color: var(--amber); }
-.ql-label { font-size: 13px; font-weight: 700; color: var(--text-h); }
-.ql-desc  { font-size: 12px; color: var(--text-s); margin-top: -4px; }
+.ql-icon.pay  { background: #F3E8FF;            color: #7E22CE; }
+.ql-icon.att  { background: var(--green-bg);    color: var(--green); }
+.ql-icon.rep  { background: var(--amber-bg);    color: var(--amber); }
+.ql-label { font-size: 14px; font-weight: 600; color: var(--text-h); }
+.ql-desc  { font-size: 12.5px; color: var(--text-s); margin-top: -4px; }
 
 /* ── Bottom grid: table + activity ── */
 .dash-bottom {
@@ -221,34 +235,34 @@ if (!isset($_SESSION['email'])) {
 /* ── Table card ── */
 .dash-card {
   background: var(--card);
-  border: 1.5px solid var(--border);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-xs);
   overflow: hidden;
 }
 .dash-card-head {
   padding: 16px 22px;
-  border-bottom: 1.5px solid var(--border);
-  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  background: #ffffff;
   display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
 }
 .dash-card-title {
-  font-family: 'Nunito', sans-serif;
-  font-size: 14.5px; font-weight: 800; color: var(--text-h);
+  font-family: var(--font);
+  font-size: 15.5px; font-weight: 600; color: var(--text-h);
   display: flex; align-items: center; gap: 8px; margin: 0;
 }
 .dash-card-title .dot {
   width: 8px; height: 8px; border-radius: 50%;
   background: linear-gradient(135deg, var(--blue-dark), var(--blue));
 }
-.dash-card-sub { font-size: 12px; color: var(--text-s); margin-top: 1px; }
+.dash-card-sub { font-size: 13px; color: var(--text-s); margin-top: 2px; }
 
 .btn-sm-outline {
   height: 32px; padding: 0 14px;
   background: transparent; color: var(--blue);
-  border: 1.5px solid var(--blue-light); border-radius: 6px;
-  font-size: 12.5px; font-weight: 700;
-  font-family: 'Source Sans 3', sans-serif;
+  border: 1px solid var(--blue-light); border-radius: 6px;
+  font-size: 13px; font-weight: 600;
+  font-family: var(--font);
   text-decoration: none; cursor: pointer;
   display: inline-flex; align-items: center; gap: 5px;
   transition: background .15s, border-color .15s;
@@ -257,37 +271,37 @@ if (!isset($_SESSION['email'])) {
 
 /* Table */
 .dash-table-wrap { overflow-x: auto; }
-.dash-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 560px; }
-.dash-table thead tr { background: var(--surface); border-bottom: 2px solid var(--border); }
+.dash-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 560px; }
+.dash-table thead tr { background: var(--surface); border-bottom: 1px solid var(--border); }
 .dash-table thead th {
   padding: 11px 18px; text-align: left;
-  font-size: 11px; font-weight: 700; color: var(--text-m);
-  text-transform: uppercase; letter-spacing: 0.55px; white-space: nowrap;
+  font-size: 11.5px; font-weight: 600; color: var(--text-m);
+  text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
 }
-.dash-table tbody tr { border-bottom: 1px solid #F1F5F9; transition: background .12s; }
+.dash-table tbody tr { border-bottom: 1px solid #F3F4F6; transition: background .12s; }
 .dash-table tbody tr:last-child { border-bottom: none; }
-.dash-table tbody tr:hover { background: #F8FAFD; }
+.dash-table tbody tr:hover { background: var(--surface); }
 .dash-table td { padding: 14px 18px; color: var(--text-b); vertical-align: middle; }
 
 .emp-cell { display: flex; align-items: center; gap: 11px; }
 .emp-av {
   width: 36px; height: 36px; border-radius: 9px; flex-shrink: 0;
   background: linear-gradient(135deg, var(--blue-dark), var(--blue));
-  color: #fff; font-family: 'Nunito', sans-serif;
-  font-size: 14px; font-weight: 800;
+  color: #fff; font-family: var(--font);
+  font-size: 14px; font-weight: 600;
   display: flex; align-items: center; justify-content: center;
 }
-.emp-name-txt { font-weight: 700; color: var(--text-h); font-size: 13.5px; }
-.emp-role-txt { font-size: 12px; color: var(--text-s); margin-top: 1px; }
+.emp-name-txt { font-weight: 600; color: var(--text-h); font-size: 14px; }
+.emp-role-txt { font-size: 12.5px; color: var(--text-s); margin-top: 1px; }
 
-.sal-amt  { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 13.5px; color: var(--text-h); }
-.sal-per  { font-size: 11px; color: var(--text-s); margin-left: 1px; }
+.sal-amt  { font-family: var(--font); font-weight: 600; font-size: 14px; color: var(--text-h); }
+.sal-per  { font-size: 12px; color: var(--text-s); margin-left: 1px; }
 
 /* Status badges */
 .st-badge {
   display: inline-flex; align-items: center; gap: 5px;
   padding: 4px 10px; border-radius: 20px;
-  font-size: 12px; font-weight: 700; white-space: nowrap;
+  font-size: 12px; font-weight: 600; white-space: nowrap;
 }
 .st-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .badge-active     { background: var(--green-bg); color: var(--green); }
@@ -296,10 +310,10 @@ if (!isset($_SESSION['email'])) {
 /* Action btn */
 .btn-manage {
   height: 30px; padding: 0 13px;
-  border: 1.5px solid var(--border); border-radius: 6px;
+  border: 1px solid var(--border); border-radius: 6px;
   background: #fff; color: var(--text-m);
-  font-size: 12px; font-weight: 600;
-  font-family: 'Source Sans 3', sans-serif;
+  font-size: 13px; font-weight: 500;
+  font-family: var(--font);
   cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
   text-decoration: none;
   transition: border-color .14s, color .14s, background .14s;
@@ -310,7 +324,7 @@ if (!isset($_SESSION['email'])) {
 .act-list { padding: 6px 0; }
 .act-item {
   display: flex; gap: 13px; align-items: flex-start;
-  padding: 13px 20px; border-bottom: 1px solid #F1F5F9;
+  padding: 13px 20px; border-bottom: 1px solid #F3F4F6;
   transition: background .12s;
 }
 .act-item:last-child { border-bottom: none; }
@@ -320,18 +334,18 @@ if (!isset($_SESSION['email'])) {
   display: flex; align-items: center; justify-content: center;
 }
 .act-dot.join  { background: var(--green-bg);  color: var(--green); }
-.act-dot.pay   { background: #EDE9FE;           color: #7C3AED; }
-.act-dot.alert { background: var(--amber-bg);   color: var(--amber); }
+.act-dot.pay   { background: #F3E8FF;          color: #7E22CE; }
+.act-dot.alert { background: var(--amber-bg);  color: var(--amber); }
 .act-dot.edit  { background: var(--blue-light); color: var(--blue); }
-.act-text  { font-size: 13px; color: var(--text-b); line-height: 1.45; }
-.act-text strong { color: var(--text-h); font-weight: 700; }
-.act-time  { font-size: 11.5px; color: var(--text-s); margin-top: 3px; }
+.act-text  { font-size: 13.5px; color: var(--text-b); line-height: 1.45; }
+.act-text strong { color: var(--text-h); font-weight: 600; }
+.act-time  { font-size: 12px; color: var(--text-s); margin-top: 3px; }
 
 /* Empty state */
 .dash-empty { text-align: center; padding: 48px 24px; color: var(--text-s); }
 .dash-empty svg { opacity: .35; margin-bottom: 12px; }
 .dash-empty strong { display: block; font-size: 15px; color: var(--text-m); margin-bottom: 4px; }
-.dash-empty p { font-size: 13px; }
+.dash-empty p { font-size: 13.5px; }
 
 /* Animations */
 @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }

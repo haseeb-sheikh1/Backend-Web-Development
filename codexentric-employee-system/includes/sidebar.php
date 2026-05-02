@@ -1,13 +1,80 @@
 <style>
-  /* ── SIDEBAR ── */
-  .sidebar { width: 220px; min-width: 220px; background: var(--sidebar-bg); border-right: 1px solid var(--border); padding: 20px 0; display: flex; flex-direction: column; gap: 2px; }
-  .sidebar-section-label { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); padding: 14px 20px 6px; }
-  .sidebar-link { display: flex; align-items: center; gap: 10px; padding: 9px 20px; font-size: 13.5px; font-weight: 500; color: var(--text-secondary); text-decoration: none; border-left: 3px solid transparent; transition: all 0.15s; }
-  .sidebar-link:hover, .sidebar-link.active { background: var(--blue-light); color: var(--blue); border-left-color: var(--blue); }
-  .sidebar-link.active { font-weight: 600; }
-  .sidebar-link svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.65; }
-  .sidebar-link.active svg, .sidebar-link:hover svg { opacity: 1; }
-  @media (max-width: 900px) { .sidebar { display: none; } }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: #0f1c2e;
+  border-right: none;
+  padding: 24px 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  box-shadow: 4px 0 20px rgba(0,0,0,0.18);
+}
+
+.sidebar-section-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  color: #4a6080;
+  padding: 18px 20px 6px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px 9px 18px;
+  margin: 0 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #8bacc8;
+  text-decoration: none;
+  border-left: none;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.sidebar-link:hover {
+  background: rgba(255,255,255,0.06);
+  color: #e0eaf4;
+}
+
+.sidebar-link.active {
+  background: linear-gradient(135deg, #1a6eff18, #1a6eff28);
+  color: #4d9fff;
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px #1a6eff30;
+}
+
+.sidebar-link.active::before {
+  content: '';
+  position: absolute;
+  left: -2px;
+  top: 20%;
+  height: 60%;
+  width: 3px;
+  background: #1a6eff;
+  border-radius: 0 3px 3px 0;
+}
+
+.sidebar-link svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  opacity: 0.5;
+  transition: opacity 0.15s;
+}
+
+.sidebar-link.active svg,
+.sidebar-link:hover svg {
+  opacity: 1;
+}
+
+@media (max-width: 900px) { .sidebar { display: none; } }
 </style>
 
 <?php
@@ -39,7 +106,7 @@ $role = $_SESSION['role_id'];
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             Attendance Record
         </a>
-        <a href="payroll.php" class="sidebar-link <?php echo ($current_page == 'payroll') ? 'active' : ''; ?>">
+        <a href="payroll_management.php" class="sidebar-link <?php echo ($current_page == 'payroll') ? 'active' : ''; ?>">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             Payroll
         </a>
