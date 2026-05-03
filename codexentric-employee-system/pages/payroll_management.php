@@ -6,14 +6,16 @@
         exit();
     }
 
-    require_once '../pages/database.php';
+    require_once '../pages/Database.php';
     require_once '../pages/Employee.php';
+    require_once '../pages/Payroll.php';
     $db = new Database();
     $connection = $db->getConnection();
     $employeeObj = new Employee($connection);
+    $payrollObj = new Payroll($connection);
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['process_salary'])) {
-        $emp_id = (int)$_POST['emp_id'];
+        $emp_id = (int)$_POST['emp_id']; // This is the user_id
         $payroll_month = $_POST['payroll_month'];
         
         $bonus_names   = $_POST['bonus_names'] ?? [];
@@ -25,27 +27,38 @@
         $deduction_names = $_POST['deduction_names'] ?? [];
         $deduction_amounts = $_POST['deduction_amounts'] ?? [];
         
-        // --- PRODUCTION DATABASE LOGIC HERE ---
-        // 1. array_sum($bonus_amounts), array_sum($allowance_amounts), array_sum($deduction_amounts)
-        // 2. Net = Base + Bonuses + Allowances - Deductions
-        // 3. INSERT into `salaries`, `salary_bonuses`, `salary_allowances`, `salary_deductions`
-        // --------------------------------------
-
-        $_SESSION['salary_given'][$emp_id] = true;
-        $_SESSION['just_paid'] = true;
+        // Fetch base salary dynamically for security
+        $empDetails = $employeeObj->getEmployeeDetailsById($emp_id);
+        $base_salary = $empDetails ? (float)$empDetails['base_salary_rs'] : 0;
+        
+        $result = $payrollObj->processSalary(
+            $emp_id, 
+            $payroll_month, 
+            $base_salary, 
+            $bonus_names, 
+            $bonus_amounts, 
+            $allowance_names, 
+            $allowance_amounts, 
+            $deduction_names, 
+            $deduction_amounts
+        );
+        
+        if ($result === true) {
+            $_SESSION['pr_success'] = "Salary processed successfully!";
+        } else {
+            $_SESSION['pr_error'] = $result;
+        }
         
         header("Location: payroll_management.php?emp_id=" . $emp_id);
         exit();
     }
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_demo'])) {
-        unset($_SESSION['salary_given']);
-        header("Location: payroll_management.php");
-        exit();
-    }
-
     $employeesFromDB = $employeeObj->getAllEmployeesPayrollDetails();
     $salary_components = $employeeObj->getSalaryComponents();
+    
+    // Get actual stats for current month
+    $current_month = date('Y-m-01');
+    $monthly_stats = $payrollObj->getMonthlyPayrollStats($current_month);
     
     $salary_breakdown = [];
     foreach ($employeesFromDB as $emp) {
@@ -338,10 +351,10 @@ select.dash-input {
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
                     </div>
                 </div>
-                <div class="stat-value">Rs 5,20,000</div>
+                <div class="stat-value">Rs <?php echo number_format($monthly_stats['gross_total']); ?></div>
                 <div class="stat-footer">
-                    <span class="stat-sub">Across all active employees</span>
-                    <span class="stat-trend neutral">3 Total</span>
+                    <span class="stat-sub">Across processed employees</span>
+                    <span class="stat-trend neutral"><?php echo $monthly_stats['processed_count']; ?> Total</span>
                 </div>
             </div>
             <div class="stat-card deduct">
@@ -351,10 +364,10 @@ select.dash-input {
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="8" y1="12" x2="16" y2="12"></line></svg>
                     </div>
                 </div>
-                <div class="stat-value">Rs 34,800</div>
+                <div class="stat-value">Rs <?php echo number_format($monthly_stats['total_deductions']); ?></div>
                 <div class="stat-footer">
                     <span class="stat-sub">Incl. Taxes & Adjustments</span>
-                    <span class="stat-trend warn">Pending check</span>
+                    <span class="stat-trend warn">Logged this month</span>
                 </div>
             </div>
             <div class="stat-card net">
@@ -364,7 +377,7 @@ select.dash-input {
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                     </div>
                 </div>
-                <div class="stat-value">Rs 4,85,200</div>
+                <div class="stat-value">Rs <?php echo number_format($monthly_stats['net_payable']); ?></div>
                 <div class="stat-footer">
                     <span class="stat-sub">Ready for Disbursement</span>
                     <span class="stat-trend good">Cleared</span>
@@ -386,7 +399,8 @@ select.dash-input {
                 <div class="sidebar-list">
                     <?php foreach ($salary_breakdown as $row):
                         $is_active = ($selected_emp_id == $row['id']) ? 'active' : '';
-                        $is_paid   = isset($_SESSION['salary_given'][$row['id']]);
+                        $real_row_emp_id = $payrollObj->getEmployeeIdByUserId($row['id']);
+                        $is_paid   = $payrollObj->isSalaryProcessed($real_row_emp_id, date('Y-m-01'));
                     ?>
                         <a href="payroll_management.php?emp_id=<?php echo $row['id']; ?>" class="emp-item <?php echo $is_active; ?>">
                             <div class="emp-cell">
@@ -409,7 +423,15 @@ select.dash-input {
             <!-- Detail Pane -->
             <div class="dash-card">
                 <?php if ($selected_employee_data):
-                    $already_paid = isset($_SESSION['salary_given'][$selected_employee_data['id']]);
+                    $real_emp_id = $payrollObj->getEmployeeIdByUserId($selected_employee_data['id']);
+                    // default month to current month 'Y-m-01'
+                    $current_payroll_month = date('Y-m-01');
+                    $already_paid = $payrollObj->isSalaryProcessed($real_emp_id, $current_payroll_month);
+                    
+                    $saved_breakdown = false;
+                    if ($already_paid) {
+                        $saved_breakdown = $payrollObj->getSavedSalaryBreakdown($real_emp_id, $current_payroll_month);
+                    }
                 ?>
                     <div class="dash-card-head">
                         <div>
@@ -424,6 +446,7 @@ select.dash-input {
                     <div class="detail-body">
                         <form method="POST" id="salaryForm">
                             <input type="hidden" name="emp_id" value="<?php echo $selected_employee_data['id']; ?>">
+                            <input type="hidden" name="payroll_month" value="<?php echo $current_payroll_month; ?>">
 
                             <!-- ── Base Salary ── -->
                             <div class="salary-component">
@@ -438,10 +461,21 @@ select.dash-input {
                             <div class="salary-component">
                                 <div class="form-section-divider"><span>Bonuses</span></div>
 
-                                <?php if ($already_paid): ?>
-                                    <div style="text-align:center;padding:16px;background:var(--surface);border-radius:var(--radius-sm);color:var(--text-s);font-size:13.5px;border:1.5px dashed var(--border);">
-                                        No bonuses recorded for this period.
-                                    </div>
+                                <?php if ($already_paid && $saved_breakdown): ?>
+                                    <?php if (empty($saved_breakdown['bonuses'])): ?>
+                                        <div style="text-align:center;padding:16px;background:var(--surface);border-radius:var(--radius-sm);color:var(--text-s);font-size:13.5px;border:1.5px dashed var(--border);">
+                                            No bonuses recorded for this period.
+                                        </div>
+                                    <?php else: ?>
+                                        <div style="display:flex;flex-direction:column;gap:12px;">
+                                            <?php foreach ($saved_breakdown['bonuses'] as $b): ?>
+                                                <div class="amt-box">
+                                                    <span><?php echo htmlspecialchars($b['name']); ?></span>
+                                                    <span class="green-text">+ Rs <?php echo number_format($b['amount']); ?></span>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
                                 <?php else: ?>
                                     <div id="bonuses-container" style="display:flex;flex-direction:column;gap:12px;">
                                         <!-- First bonus row with + button -->
@@ -468,19 +502,23 @@ select.dash-input {
                             <div class="salary-component">
                                 <div class="form-section-divider"><span>Allowances</span></div>
 
-                                <?php if ($already_paid): ?>
-                                    <?php if (empty($selected_employee_data['allowances_list'])): ?>
-                                        <div style="text-align:center;padding:16px;background:var(--surface);border-radius:var(--radius-sm);color:var(--text-s);font-size:13.5px;border:1.5px dashed var(--border);">
-                                            No allowances added for this period.
-                                        </div>
-                                    <?php else: ?>
-                                        <?php foreach ($selected_employee_data['allowances_list'] as $al): ?>
-                                            <div class="allowance-item">
-                                                <span class="allowance-name"><?php echo htmlspecialchars($al['name']); ?></span>
-                                                <span class="allowance-amt">+ Rs <?php echo number_format($al['amount']); ?></span>
+                                <?php if ($already_paid && $saved_breakdown): ?>
+                                    <div style="display:flex;flex-direction:column;gap:12px;">
+                                        <?php if (!empty($allowances_list)): ?>
+                                            <?php foreach ($allowances_list as $al): ?>
+                                                <div class="amt-box">
+                                                    <span><?php echo htmlspecialchars($al['name']); ?></span>
+                                                    <span class="green-text">+ Rs <?php echo number_format($al['amount']); ?></span>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                        <?php foreach ($saved_breakdown['allowances'] as $a): ?>
+                                            <div class="amt-box">
+                                                <span><?php echo htmlspecialchars($a['name']); ?></span>
+                                                <span class="green-text">+ Rs <?php echo number_format($a['amount']); ?></span>
                                             </div>
                                         <?php endforeach; ?>
-                                    <?php endif; ?>
+                                    </div>
                                 <?php else: ?>
                                     <div id="allowances-container" style="display:flex;flex-direction:column;gap:12px;">
                                         <!-- First allowance row with + button -->
@@ -507,10 +545,21 @@ select.dash-input {
                             <div class="salary-component">
                                 <div class="form-section-divider"><span>Deductions & Adjustments</span></div>
 
-                                <?php if ($already_paid): ?>
-                                    <div style="text-align:center;padding:16px;background:var(--surface);border-radius:var(--radius-sm);color:var(--text-s);font-size:13.5px;border:1.5px dashed var(--border);">
-                                        No deductions recorded for this period.
-                                    </div>
+                                <?php if ($already_paid && $saved_breakdown): ?>
+                                    <?php if (empty($saved_breakdown['deductions'])): ?>
+                                        <div style="text-align:center;padding:16px;background:var(--surface);border-radius:var(--radius-sm);color:var(--text-s);font-size:13.5px;border:1.5px dashed var(--border);">
+                                            No deductions recorded for this period.
+                                        </div>
+                                    <?php else: ?>
+                                        <div style="display:flex;flex-direction:column;gap:12px;">
+                                            <?php foreach ($saved_breakdown['deductions'] as $d): ?>
+                                                <div class="amt-box">
+                                                    <span><?php echo htmlspecialchars($d['name']); ?></span>
+                                                    <span class="red-text">- Rs <?php echo number_format($d['amount']); ?></span>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
                                 <?php else: ?>
                                     <div id="deductions-container" style="display:flex;flex-direction:column;gap:12px;">
                                         <!-- First deduction row with + button -->
@@ -534,8 +583,15 @@ select.dash-input {
                             </div>
 
                             <!-- ── Submit ── -->
-                            <?php if ($already_paid): ?>
-                                <div class="btn-locked-lg">
+                            <?php if ($already_paid && $saved_breakdown): ?>
+                                <div class="salary-component" style="margin-top:24px;">
+                                    <div class="form-section-divider"><span>Final Calculation</span></div>
+                                    <div class="amt-box" style="background:var(--indigo-bg);border:1px solid rgba(79, 70, 229, 0.2);">
+                                        <strong style="color:var(--indigo);font-size:16px;">Net Payable Salary</strong>
+                                        <strong style="color:var(--indigo);font-size:16px;">Rs <?php echo number_format($saved_breakdown['net_payable']); ?></strong>
+                                    </div>
+                                </div>
+                                <div class="btn-locked-lg" style="margin-top: 16px;">
                                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                                     Record Locked for Selected Month
                                 </div>
@@ -567,18 +623,35 @@ select.dash-input {
 <!-- Toast -->
 <div class="pr-toast" id="prToast">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-    <span>Salary Processed Successfully!</span>
+    <span id="toastMsg"></span>
 </div>
 
 <script>
-    <?php if (isset($_SESSION['just_paid'])): unset($_SESSION['just_paid']); ?>
-        document.addEventListener('DOMContentLoaded', function () {
-            const toast = document.getElementById('prToast');
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 4000);
-        });
-    <?php endif; ?>
+    function showToast(msg) {
+        const toast = document.getElementById('prToast');
+        document.getElementById('toastMsg').innerText = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+</script>
 
+<?php if (isset($_SESSION['pr_success'])): ?>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    showToast('<?php echo addslashes($_SESSION['pr_success']); ?>');
+});
+</script>
+<?php unset($_SESSION['pr_success']); endif; ?>
+
+<?php if (isset($_SESSION['pr_error'])): ?>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    showToast('<?php echo addslashes($_SESSION['pr_error']); ?>');
+});
+</script>
+<?php unset($_SESSION['pr_error']); endif; ?>
+
+<script>
     const salaryComponents = <?php echo json_encode($salary_components); ?>;
 
     const rowConfig = {
