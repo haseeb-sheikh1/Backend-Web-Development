@@ -228,7 +228,46 @@ public function updateProfileImage($fileArray) {
 }
 
   
+  public function updateProfile($user_id, $first_name, $last_name, $email) {
+    $query = "UPDATE users SET first_name = ?, last_name = ?, email = ? WHERE user_id = ?";
+    $stmt = $this->connection->prepare($query);
+    $stmt->bind_param("sssi", $first_name, $last_name, $email, $user_id);
+    if($stmt->execute()) {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $_SESSION['first_name'] = $first_name;
+        $_SESSION['last_name'] = $last_name;
+        $_SESSION['email'] = $email;
+        $this->email = $email; // update object property
+        return true;
+    }
+    return "Failed to update profile: " . $this->connection->error;
+  }
+
+  public function updatePassword($user_id, $current_password, $new_password) {
+    // First verify current password
+    $query = "SELECT password_hash FROM users WHERE user_id = ?";
+    $stmt = $this->connection->prepare($query);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        if (password_verify($current_password, $row['password_hash'])) {
+            $hashed = password_hash($new_password, PASSWORD_BCRYPT);
+            $updateQuery = "UPDATE users SET password_hash = ? WHERE user_id = ?";
+            $updateStmt = $this->connection->prepare($updateQuery);
+            $updateStmt->bind_param("si", $hashed, $user_id);
+            if ($updateStmt->execute()) {
+                return true;
+            } else {
+                return "Failed to update password.";
+            }
+        } else {
+            return "Current password is incorrect.";
+        }
+    }
+    return "User not found.";
+  }
 }
-
-
 ?>

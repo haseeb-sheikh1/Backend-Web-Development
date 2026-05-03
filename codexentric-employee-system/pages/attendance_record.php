@@ -82,32 +82,47 @@
    Attendance Record — CodeXentric Theme
 ══════════════════════════════════════════ */
 
-.att-page { display: flex; flex-direction: column; gap: 24px; }
+.dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    font-family: 'Inter', sans-serif;
+    box-sizing: border-box;
+}
 
-/* ── Page Title Bar ── */
-.att-title-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
+/* Welcome Banner */
+.dash-welcome {
+  background: linear-gradient(135deg, #0f1c2e 0%, #1252cc 60%, #1a6eff 100%);
+  border-radius: 12px;
+  padding: 32px 36px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: relative; overflow: hidden;
+  box-shadow: 0 6px 24px rgba(26, 110, 255, 0.15);
 }
-.att-title-bar h1 {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--text-primary, #111827);
-    margin: 0;
+@media (max-width: 760px) {
+  .dash-welcome { flex-direction: column; align-items: flex-start; gap: 20px; padding: 24px; }
 }
-.att-breadcrumb {
-    font-size: 13px;
-    color: var(--text-muted, #9CA3AF);
-    display: flex;
-    align-items: center;
-    gap: 6px;
+.dash-welcome::before {
+  content: ''; position: absolute;
+  width: 300px; height: 300px; border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+  top: -100px; right: -60px; pointer-events: none;
 }
-.att-breadcrumb a { color: var(--blue, #1E6FD9); text-decoration: none; }
-.att-breadcrumb a:hover { text-decoration: underline; }
-.att-breadcrumb span { color: var(--text-muted, #9CA3AF); }
+.dash-welcome::after {
+  content: ''; position: absolute;
+  width: 160px; height: 160px; border-radius: 50%;
+  background: rgba(255,255,255,0.03);
+  bottom: -50px; right: 200px; pointer-events: none;
+}
+.dash-welcome-text { position: relative; z-index: 1; }
+.dash-welcome-text h1 { font-family: 'Inter', sans-serif; font-size: 26px; font-weight: 800; color: #fff; margin: 0 0 6px 0; letter-spacing: -0.3px; }
+.dash-welcome-text p { font-size: 14.5px; color: rgba(255,255,255,0.8); margin: 0; display: flex; align-items: center; gap: 6px; }
+.dash-welcome-text p a { color: #fff; text-decoration: none; opacity: 0.9; }
+.dash-welcome-text p a:hover { opacity: 1; text-decoration: underline; }
+.dash-welcome-text p span { opacity: 0.5; }
 
 /* ── Card Shell ── */
 .att-card {
@@ -160,7 +175,7 @@
     border: 1.5px solid #D1D5DB;
     border-radius: 7px;
     font-size: 13.5px;
-    font-family: 'Source Sans 3', sans-serif;
+    font-family: 'Inter', sans-serif;
     color: #111827;
     background: #fff;
     outline: none;
@@ -200,7 +215,7 @@
     border-radius: 7px;
     font-size: 14px;
     font-weight: 600;
-    font-family: 'Source Sans 3', sans-serif;
+    font-family: 'Inter', sans-serif;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -223,7 +238,7 @@
     border-radius: 7px;
     font-size: 14px;
     font-weight: 600;
-    font-family: 'Source Sans 3', sans-serif;
+    font-family: 'Inter', sans-serif;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -358,7 +373,7 @@
     font-size: 18px;
     font-weight: 800;
     color: #111827;
-    font-family: 'Nunito', sans-serif;
+    font-family: 'Inter', sans-serif;
 }
 
 /* Fade-in animation */
@@ -370,18 +385,20 @@
 .att-card:nth-child(2) { animation-delay: 0.08s; }
 </style>
 
-<div class="att-page">
+<div class="dashboard-container">
 
     <!-- Title Bar -->
-    <div class="att-title-bar">
-        <h1>Attendance Record</h1>
-        <nav class="att-breadcrumb">
-            <a href="administrator_dashboard.php">Dashboard</a>
-            <span>›</span>
-            <span>Attendance</span>
-            <span>›</span>
-            <span>View Record</span>
-        </nav>
+    <div class="dash-welcome">
+        <div class="dash-welcome-text">
+            <h1>Attendance Record</h1>
+            <p>
+                <a href="administrator_dashboard.php">Dashboard</a>
+                <span>›</span>
+                <span>Attendance</span>
+                <span>›</span>
+                <span>View Record</span>
+            </p>
+        </div>
     </div>
 
     <!-- Search / Filter Card -->

@@ -1,5 +1,5 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
   --blue:        #1E6FD9;
@@ -29,7 +29,7 @@
 
 .main-content {
     flex: 1;
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    background: #f1f5f9;
     min-height: calc(100vh - 56px);
     overflow-y: auto;
 }
@@ -37,15 +37,19 @@
 .dashboard-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 28px 32px;
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    font-family: 'Inter', sans-serif;
+    box-sizing: border-box;
 }
 
-/* ── Page Header ── */
+/* ── Page Header (matches dash-welcome) ── */
 .page-header {
-    background: linear-gradient(125deg, #1248A0 0%, #1559B5 40%, #1E6FD9 75%, #2B87F0 100%);
-    border-radius: var(--radius);
-    padding: 28px 32px;
+    background: linear-gradient(135deg, #0f1c2e 0%, #1252cc 60%, #1a6eff 100%);
+    border-radius: var(--radius-lg, 12px);
+    padding: 32px 36px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -53,32 +57,21 @@
     gap: 20px;
     position: relative;
     overflow: hidden;
-    box-shadow: var(--shadow-blue);
-    margin-bottom: 28px;
+    box-shadow: 0 6px 24px rgba(26, 110, 255, 0.15);
 }
 
 .page-header::before {
-    content: '';
-    position: absolute;
-    width: 320px;
-    height: 320px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.06);
-    top: -120px;
-    right: -80px;
-    pointer-events: none;
+    content: ''; position: absolute;
+    width: 300px; height: 300px; border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+    top: -100px; right: -60px; pointer-events: none;
 }
 
 .page-header::after {
-    content: '';
-    position: absolute;
-    width: 180px;
-    height: 180px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.04);
-    bottom: -60px;
-    right: 120px;
-    pointer-events: none;
+    content: ''; position: absolute;
+    width: 160px; height: 160px; border-radius: 50%;
+    background: rgba(255,255,255,0.03);
+    bottom: -50px; right: 200px; pointer-events: none;
 }
 
 .header-content {
@@ -87,19 +80,15 @@
 }
 
 .page-title {
-    font-family: 'Nunito', sans-serif;
-    font-size: 22px;
-    font-weight: 900;
-    color: #fff;
-    margin: 0 0 5px 0;
-    line-height: 1.2;
+    font-family: 'Inter', sans-serif;
+    font-size: 26px; font-weight: 800;
+    color: #fff; margin: 0 0 6px 0; letter-spacing: -0.3px;
 }
 
 .page-subtitle {
-    font-size: 13.5px;
-    color: rgba(255,255,255,0.78);
+    font-size: 14.5px;
+    color: rgba(255,255,255,0.8);
     margin: 0;
-    font-weight: 400;
 }
 
 .header-actions {
@@ -115,33 +104,31 @@
 .action-button {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    border-radius: var(--radius-sm);
-    font-size: 13px;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13.5px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.18s;
     border: 1px solid transparent;
     white-space: nowrap;
     text-decoration: none;
+    font-family: 'Inter', sans-serif;
 }
 
 .action-button.primary {
     background: var(--green);
     color: white;
     border-color: var(--green);
-    box-shadow: 0 2px 8px rgba(5, 150, 105, 0.2);
-    padding: 12px 24px;
-    font-size: 14px;
-    min-width: 140px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     justify-content: center;
 }
 
 .action-button.primary:hover:not(:disabled) {
     background: #047857;
     border-color: #047857;
-    transform: translateY(-2px);
+    transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
 }
 
@@ -149,30 +136,28 @@
     background: var(--red);
     color: white;
     border-color: var(--red);
-    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
-    padding: 12px 24px;
-    font-size: 14px;
-    min-width: 140px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     justify-content: center;
 }
 
 .action-button.danger:hover:not(:disabled) {
     background: #b91c1c;
     border-color: #b91c1c;
-    transform: translateY(-2px);
+    transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
 }
 
 .action-button.secondary {
     background: rgba(255,255,255,0.15);
     color: #fff;
-    border: 1.5px solid rgba(255,255,255,0.3);
-    border-radius: 7px;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 8px;
     backdrop-filter: blur(6px);
 }
 
 .action-button.secondary:hover {
     background: rgba(255,255,255,0.25);
+    transform: translateY(-1px);
 }
 
 .action-button:disabled {
@@ -181,14 +166,12 @@
     transform: none;
 }
 
-/* ── Check In Section ── */
 .check-in-section {
-    background: var(--card);
-    border-radius: var(--radius);
+    background: #ffffff;
+    border-radius: var(--radius-lg, 12px);
     padding: 22px;
-    margin-bottom: 28px;
-    box-shadow: var(--shadow-xs);
-    border: 1.5px solid var(--border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border: 1px solid #e2e8f0;
 }
 
 .check-card {
@@ -202,8 +185,8 @@
     text-align: center;
     padding: 22px;
     background: linear-gradient(135deg, var(--blue-xlight) 0%, var(--blue-light) 100%);
-    border-radius: var(--radius);
-    border: 1.5px solid var(--border);
+    border-radius: var(--radius-lg, 12px);
+    border: 1px solid #e2e8f0;
 }
 
 .time-header {
@@ -248,9 +231,9 @@
     justify-content: space-between;
     align-items: center;
     padding: 14px;
-    background: var(--surface);
-    border-radius: var(--radius-sm);
-    border: 1.5px solid var(--border);
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
 }
 
 .status-label {
@@ -306,13 +289,12 @@
 
 /* ── Attendance History ── */
 .attendance-history {
-    margin-bottom: 28px;
 }
 
 .section-header {
     margin-bottom: 16px;
     padding-bottom: 14px;
-    border-bottom: 1.5px solid var(--border);
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .section-title {
@@ -323,11 +305,11 @@
 }
 
 .table-container {
-    background: var(--card);
-    border-radius: var(--radius);
+    background: #ffffff;
+    border-radius: var(--radius-lg, 12px);
     overflow: hidden;
-    box-shadow: var(--shadow-xs);
-    border: 1.5px solid var(--border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border: 1px solid #e2e8f0;
 }
 
 .attendance-table {
@@ -348,13 +330,14 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    border-bottom: 1.5px solid var(--border);
+    border-bottom: 1px solid #e2e8f0;
+    border-top: 1px solid #e2e8f0;
     text-align: left;
 }
 
 .attendance-table td {
     padding: 14px 16px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid #e2e8f0;
     color: var(--text-h);
     vertical-align: middle;
 }
@@ -401,7 +384,6 @@
 
 /* ── Monthly Summary ── */
 .monthly-summary {
-    margin-bottom: 28px;
 }
 
 .summary-header {
@@ -414,7 +396,7 @@
     color: var(--text-h);
     margin: 0 0 14px 0;
     padding-bottom: 14px;
-    border-bottom: 1.5px solid var(--border);
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .stats-grid {
@@ -424,11 +406,11 @@
 }
 
 .stat-card {
-    background: var(--card);
-    border-radius: var(--radius);
+    background: #ffffff;
+    border-radius: var(--radius-lg, 12px);
     padding: 22px 22px 18px;
-    box-shadow: var(--shadow-xs);
-    border: 1.5px solid var(--border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border: 1px solid #e2e8f0;
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -437,10 +419,7 @@
     transition: box-shadow 0.2s, transform 0.2s;
 }
 
-.stat-card:hover {
-    box-shadow: var(--shadow-blue);
-    transform: translateY(-2px);
-}
+.stat-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-2px); }
 
 .stat-card::after {
     content: '';
@@ -498,7 +477,7 @@
     color: var(--text-h);
     margin: 6px 0;
     line-height: 1.2;
-    font-family: 'Nunito', sans-serif;
+    font-family: 'Inter', sans-serif;
 }
 
 .stat-description {

@@ -16,8 +16,7 @@
 
 
 <style>
-  
- @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -26,14 +25,14 @@
   min-height: 100vh;
   display: flex;
   font-family: 'Inter', sans-serif;
-  background: #0d1117;
+  background: #ffffff;
 }
 
 /* ── LEFT PANEL ── */
 .login-left {
   width: 46%;
   min-height: 100vh;
-  background: #0d1117;
+  background: linear-gradient(135deg, #0f1c2e 0%, #1252cc 60%, #1a6eff 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -49,7 +48,7 @@
   width: 480px;
   height: 480px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(99,102,241,0.13) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
   top: -100px;
   left: -100px;
   pointer-events: none;
@@ -61,25 +60,10 @@
   width: 320px;
   height: 320px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(56,189,248,0.09) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
   bottom: -80px;
   right: -60px;
   pointer-events: none;
-}
-
-/* Glowing vertical divider */
-.login-left + .login-right {
-  border-left: 1px solid transparent;
-}
-.login-left {
-  border-right: 1px solid;
-  border-image: linear-gradient(
-    to bottom,
-    transparent,
-    rgba(99,102,241,0.25) 30%,
-    rgba(56,189,248,0.2) 70%,
-    transparent
-  ) 1;
 }
 
 .login-left-inner {
@@ -100,29 +84,21 @@
 }
 
 .login-brand-logo {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  background: #13182a;
-  border: 1px solid rgba(99,102,241,0.35);
-  box-shadow: 0 0 18px rgba(99,102,241,0.2);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .login-brand-logo img {
-  width: 22px;
-  height: 22px;
+  height: 48px;
+  width: auto;
   object-fit: contain;
-  filter: brightness(0) invert(1);
 }
 
 .login-brand-name {
-  font-family: 'Nunito', sans-serif;
-  font-size: 23px;
+  font-size: 24px;
   font-weight: 800;
-  color: #e2e8f0;
+  color: #ffffff;
   letter-spacing: 0.3px;
 }
 
@@ -138,48 +114,48 @@
 }
 
 .login-left-headline {
-  font-family: 'Nunito', sans-serif;
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 800;
-  color: #e2e8f0;
-  margin-bottom: 10px;
+  color: #ffffff;
+  margin-bottom: 12px;
   line-height: 1.35;
 }
 
 .login-left-sub {
-  font-size: 14px;
-  color: #475569;
+  font-size: 15px;
+  color: rgba(255,255,255,0.8);
   line-height: 1.65;
-  max-width: 250px;
+  max-width: 280px;
 }
 
 /* Feature pills */
 .stat-pills {
   display: flex;
-  gap: 8px;
-  margin-top: 28px;
+  gap: 10px;
+  margin-top: 32px;
   flex-wrap: wrap;
   justify-content: center;
 }
 
 .pill {
-  background: #13182a;
-  border: 1px solid rgba(99,102,241,0.2);
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
   border-radius: 20px;
-  padding: 5px 14px;
-  font-size: 12px;
-  color: #64748b;
+  padding: 6px 16px;
+  font-size: 13px;
+  color: #ffffff;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  backdrop-filter: blur(10px);
 }
 
 .pill-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #6366f1;
-  box-shadow: 0 0 6px rgba(99,102,241,0.6);
+  background: #10b981;
+  box-shadow: 0 0 8px rgba(16,185,129,0.8);
   flex-shrink: 0;
 }
 
@@ -190,19 +166,16 @@
   align-items: center;
   justify-content: center;
   padding: 40px 32px;
-  background: #0d1117;
+  background: #F0F4FA;
 }
 
 .login-card {
-  background: #111827;
-  border: 1px solid rgba(99,102,241,0.18);
+  background: #fff;
   border-radius: 16px;
-  padding: 44px 40px;
+  box-shadow: 0 4px 32px rgba(21,89,181,0.10);
+  padding: 48px 44px;
   width: 100%;
-  max-width: 400px;
-  box-shadow:
-    0 0 40px rgba(99,102,241,0.08),
-    0 20px 40px rgba(0,0,0,0.4);
+  max-width: 420px;
 }
 
 /* Secure login badge */
@@ -210,183 +183,162 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #1a1f35;
-  border: 1px solid rgba(99,102,241,0.25);
+  background: #f0f6ff;
+  border: 1px solid #dbeafe;
   border-radius: 20px;
-  padding: 4px 12px;
-  margin-bottom: 18px;
+  padding: 5px 14px;
+  margin-bottom: 24px;
 }
 .login-card-badge-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #6366f1;
-  box-shadow: 0 0 6px rgba(99,102,241,0.7);
+  background: #1a6eff;
+  box-shadow: 0 0 6px rgba(26,110,255,0.5);
 }
 .login-card-badge span {
-  font-size: 11px;
-  color: #818cf8;
-  font-weight: 600;
+  font-size: 11.5px;
+  color: #1a6eff;
+  font-weight: 700;
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
 
 .login-card-header {
-  margin-bottom: 32px;
+  margin-bottom: 36px;
 }
 .login-card-header h1 {
-  font-family: 'Nunito', sans-serif;
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 800;
-  color: #e2e8f0;
-  margin-bottom: 6px;
+  color: #111827;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
 }
 .login-card-header p {
-  font-size: 13.5px;
-  color: #475569;
+  font-size: 15px;
+  color: #4b5563;
   line-height: 1.55;
 }
 
 /* ── FORM ── */
 .login-form .form-group {
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 
 .login-form label {
   display: block;
-  font-size: 11.5px;
+  font-size: 13px;
   font-weight: 600;
-  color: #64748b;
-  margin-bottom: 7px;
-  text-transform: uppercase;
-  letter-spacing: 0.7px;
+  color: #374151;
+  margin-bottom: 8px;
 }
 
 .login-form input[type="email"],
 .login-form input[type="password"],
 .login-form select {
   width: 100%;
-  height: 44px;
-  padding: 0 14px;
-  background: #0d1117;
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 9px;
-  font-size: 14px;
+  height: 48px;
+  padding: 0 16px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 15px;
   font-family: 'Inter', sans-serif;
-  color: #e2e8f0;
+  color: #111827;
   outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: all 0.2s ease;
   appearance: none;
   -webkit-appearance: none;
 }
 
 .login-form input:focus,
 .login-form select:focus {
-  border-color: rgba(99,102,241,0.6);
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+  background: #ffffff;
+  border-color: #1a6eff;
+  box-shadow: 0 0 0 4px rgba(26,110,255,0.15);
 }
 
-.login-form input::placeholder { color: #1e293b; }
-
-.select-wrapper { position: relative; }
-.select-wrapper::after {
-  content: '';
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 0; height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 6px solid #475569;
-  pointer-events: none;
-}
-.select-wrapper select { cursor: pointer; padding-right: 36px; }
+.login-form input::placeholder { color: #9ca3af; }
 
 .label-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 7px;
+  margin-bottom: 8px;
 }
 .label-row label { margin-bottom: 0; }
 
 .forgot-link {
-  font-size: 12.5px;
-  color: #818cf8;
+  font-size: 13px;
+  color: #1a6eff;
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 600;
   transition: color 0.15s;
 }
-.forgot-link:hover { color: #a5b4fc; }
+.forgot-link:hover { color: #1252cc; text-decoration: underline; }
 
 .btn-primary {
   width: 100%;
-  height: 46px;
-  background: #4f46e5;
+  height: 50px;
+  background: #1a6eff;
   color: #fff;
   border: none;
-  border-radius: 9px;
-  font-size: 14.5px;
-  font-weight: 600;
-  font-family: 'Inter', sans-serif;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin-top: 26px;
-  transition: background 0.18s, box-shadow 0.18s, transform 0.12s;
-  box-shadow:
-    0 0 20px rgba(99,102,241,0.3),
-    0 4px 12px rgba(0,0,0,0.3);
-  letter-spacing: 0.2px;
+  gap: 10px;
+  margin-top: 30px;
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+  box-shadow: 0 4px 14px rgba(26,110,255,0.25);
 }
 .btn-primary:hover {
-  background: #4338ca;
-  box-shadow:
-    0 0 28px rgba(99,102,241,0.45),
-    0 4px 16px rgba(0,0,0,0.4);
+  background: #1252cc;
+  box-shadow: 0 6px 20px rgba(26,110,255,0.3);
   transform: translateY(-1px);
 }
-.btn-primary:active { transform: translateY(0); }
+.btn-primary:active { transform: translateY(0); box-shadow: none; }
 
 /* Register area */
 .login-register-divider {
   height: 1px;
-  background: rgba(255,255,255,0.06);
-  margin: 24px 0 20px;
+  background: #e5e7eb;
+  margin: 32px 0 24px;
 }
 
 .login-register-text {
   text-align: center;
-  font-size: 13.5px;
-  color: #334155;
+  font-size: 14px;
+  color: #6b7280;
 }
 .login-register-text a {
-  color: #818cf8;
+  color: #1a6eff;
   font-weight: 600;
   text-decoration: none;
   transition: color 0.15s;
 }
-.login-register-text a:hover { color: #a5b4fc; }
+.login-register-text a:hover { color: #1252cc; text-decoration: underline; }
 
 /* Error messages */
 .error-messages {
-  background: rgba(239,68,68,0.08);
-  border: 1px solid rgba(239,68,68,0.2);
-  border-radius: 8px;
-  padding: 12px 14px;
-  margin-bottom: 20px;
-  color: #fca5a5;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 24px;
+  color: #b91c1c;
   font-weight: 600;
-  font-size: 13.5px;
+  font-size: 14px;
 }
 
 /* ── RESPONSIVE ── */
 @media (max-width: 860px) {
   .login-left { display: none; }
-  .login-right { padding: 24px 16px; }
+  .login-right { padding: 32px 24px; background: #f9fafb; }
+  .login-card { background: #ffffff; padding: 40px 32px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; }
 }
 @media (max-width: 480px) {
   .login-card { padding: 32px 24px; }
@@ -401,7 +353,7 @@
 
       <div class="login-brand">
         <div class="login-brand-logo">
-          <img src="/codexentric/employee-system/assets/logo.png" alt="CodeXentric Logo">
+          <img src="../assets/logo.png" alt="CodeXentric Logo">
         </div>
         <span class="login-brand-name">CodeXentric</span>
       </div>

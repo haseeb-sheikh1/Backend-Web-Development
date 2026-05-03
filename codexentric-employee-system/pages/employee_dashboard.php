@@ -22,9 +22,7 @@
     include_once "../includes/sidebar.php";
 
 ?>
-
-<main class="main-content" role="main">
-    <div class="dashboard-container">
+<div class="dashboard-container">
         <!-- Page Header -->
         <header class="page-header" role="banner">
             <div class="header-content">
@@ -160,7 +158,5 @@
             </table>
         </section>
     
-</div>
-</main>
 </div>
 <?php include_once "../includes/footer.php"; ?>

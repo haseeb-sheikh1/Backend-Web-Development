@@ -15,14 +15,14 @@
 
 <style>
   
-  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Source+Sans+3:wght@300;400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   .login-page {
     min-height: 100vh;
     display: flex;
-    font-family: 'Source Sans 3', sans-serif;
+    font-family: 'Inter', sans-serif;
     background: #F0F4FA;
   }
 
@@ -30,7 +30,7 @@
   .login-left {
     width: 45%;
     min-height: 100vh;
-    background: linear-gradient(160deg, #1559B5 0%, #1E6FD9 55%, #2B87F0 100%);
+    background: linear-gradient(135deg, #0f1c2e 0%, #1252cc 60%, #1a6eff 100%);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -78,23 +78,17 @@
     margin-bottom: 56px;
   }
   .login-brand-logo {
-    width: 48px;
-    height: 48px;
-    background: rgba(255,255,255,0.15);
-    border: 2px solid rgba(255,255,255,0.3);
-    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    backdrop-filter: blur(8px);
   }
   .login-brand-logo img {
-    width: 32px;
-    height: 32px;
+    height: 48px;
+    width: auto;
     object-fit: contain;
   }
   .login-brand-name {
-    font-family: 'Nunito', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 26px;
     font-weight: 800;
     color: #fff;
@@ -114,7 +108,7 @@
   }
 
   .login-left-headline {
-    font-family: 'Nunito', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 24px;
     font-weight: 800;
     color: #fff;
@@ -151,7 +145,7 @@
     margin-bottom: 36px;
   }
   .login-card-header h1 {
-    font-family: 'Nunito', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 26px;
     font-weight: 800;
     color: #111827;
@@ -184,7 +178,7 @@
     border: 1.5px solid #D1D5DB;
     border-radius: 8px;
     font-size: 14px;
-    font-family: 'Source Sans 3', sans-serif;
+    font-family: 'Inter', sans-serif;
     color: #111827;
     background: #fff;
     transition: border-color 0.18s, box-shadow 0.18s;
@@ -232,13 +226,13 @@
   .btn-primary {
     width: 100%;
     height: 46px;
-    background: linear-gradient(135deg, #1559B5 0%, #1E6FD9 100%);
+    background: #1a6eff;
     color: #fff;
     border: none;
     border-radius: 8px;
     font-size: 15px;
     font-weight: 700;
-    font-family: 'Source Sans 3', sans-serif;
+    font-family: 'Inter', sans-serif;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -250,8 +244,8 @@
     letter-spacing: 0.2px;
   }
   .btn-primary:hover {
-    background: linear-gradient(135deg, #1248A0 0%, #1559B5 100%);
-    box-shadow: 0 6px 20px rgba(21,89,181,0.40);
+    background: #1252cc;
+    box-shadow: 0 6px 20px rgba(26,110,255,0.30);
     transform: translateY(-1px);
   }
   .btn-primary:active { transform: translateY(0); }
@@ -263,12 +257,12 @@
     color: #6B7280;
   }
   .login-footer-link a {
-    color: #1E6FD9;
+    color: #1a6eff;
     font-weight: 600;
     text-decoration: none;
     transition: color 0.15s;
   }
-  .login-footer-link a:hover { color: #1559B5; text-decoration: underline; }
+  .login-footer-link a:hover { color: #1252cc; text-decoration: underline; }
 
   /* ── RESPONSIVE ── */
   @media (max-width: 860px) {

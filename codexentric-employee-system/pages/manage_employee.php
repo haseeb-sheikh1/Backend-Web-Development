@@ -47,13 +47,13 @@ session_start();
   --blue-dark:     #1252cc;
   --blue-light:    rgba(26, 110, 255, 0.12);
   --blue-xl:       rgba(26, 110, 255, 0.05);
-  --body-bg:       #F0F4FA;
-  --text-h:        #111827;
-  --text-b:        #4B5563;
-  --text-m:        #6B7280;
-  --text-s:        #9CA3AF;
-  --border:        #E2E8F0;
-  --font:          'Source Sans 3', sans-serif;
+  --body-bg:       #f8fafc; /* Crisp light background */
+  --text-h:        #0f1c2e; /* Matches your sidebar exactly for strong contrast */
+  --text-b:        #475569;
+  --text-m:        #64748b;
+  --text-s:        #94a3b8;
+  --border:        #e2e8f0;
+  --font:          'Inter', sans-serif;
 
   /* Retained Semantic Colors */
   --green:         #059669;
@@ -64,18 +64,17 @@ session_start();
   --red-bg:        #FEE2E2;
 
   /* Component Mappings */
-  --surface:       var(--body-bg);
+  --surface:       #f1f5f9;
   --card:          #ffffff;
   
   --radius:        12px;
-  --shadow-xs:     0 1px 3px rgba(17, 24, 39, 0.05);
-  --shadow-sm:     0 1px 8px rgba(17, 24, 39, 0.07);
-  --shadow-md:     0 4px 20px rgba(17, 24, 39, 0.09);
-  --shadow-bl:     0 6px 24px rgba(26, 110, 255, 0.2);
+  --shadow-xs:     0 1px 3px rgba(15, 28, 46, 0.05);
+  --shadow-sm:     0 4px 6px -1px rgba(15, 28, 46, 0.05), 0 2px 4px -1px rgba(15, 28, 46, 0.03);
+  --shadow-md:     0 10px 25px -5px rgba(15, 28, 46, 0.08), 0 8px 10px -6px rgba(15, 28, 46, 0.04);
+  --shadow-bl:     0 6px 24px rgba(26, 110, 255, 0.15);
 }
 
-/* ── Page wrapper ── */
-.emp-page { display: flex; flex-direction: column; gap: 24px; font-family: var(--font); }
+
 
 /* ── Breadcrumb ── */
 .emp-breadcrumb {
@@ -89,8 +88,8 @@ session_start();
 .emp-hero {
   /* Updated to match header's gradient aesthetic */
   background: linear-gradient(135deg, #0f1c2e 0%, #1252cc 60%, #1a6eff 100%);
-  border-radius: var(--radius);
-  padding: 28px 32px;
+  border-radius: var(--radius-lg, 12px);
+  padding: 32px 36px;
   display: flex; align-items: center; justify-content: space-between;
   flex-wrap: wrap; gap: 20px;
   position: relative; overflow: hidden;
@@ -175,10 +174,10 @@ session_start();
 }
 .btn-hero-warn:hover { background: rgba(239,68,68,0.2); }
 .btn-hero-primary {
-  background: #fff; color: var(--blue-dark);
-  border: 1px solid #fff;
+  background: #ffffff; color: #0f1c2e;
+  border: 1px solid #ffffff;
 }
-.btn-hero-primary:hover { background: #f0f4fa; color: var(--blue); border-color: #f0f4fa; }
+.btn-hero-primary:hover { background: #f8fafc; color: var(--blue); border-color: #f8fafc; }
 
 /* ════ STATS ROW ════ */
 .emp-stats {
@@ -275,7 +274,7 @@ session_start();
 .emp-info-row {
   display: flex; align-items: flex-start;
   padding: 13px 22px;
-  border-bottom: 1px solid #F3F4F6;
+  border-bottom: 1px solid #f1f5f9;
   gap: 16px;
   transition: background .12s;
 }
@@ -366,7 +365,7 @@ session_start();
 .emp-card  { animation: fadeUp .32s .12s ease both; }
 </style>
 
-<div class="emp-page">
+<div class="dashboard-container">
 
   <!-- ══ Hero Banner ══ -->
   <div class="emp-hero">
@@ -588,6 +587,6 @@ session_start();
     </div>
   </div>
 
-</div><!-- /.emp-page -->
+</div><!-- /.dashboard-container -->
 
 <?php include_once "../includes/footer.php"; ?>

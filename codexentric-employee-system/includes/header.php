@@ -10,18 +10,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($title) ? $title : "CodeXentric HRM"; ?></title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../styles/global.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/global.css?v=<?php echo time(); ?>">
 
     <?php if (isset($extra_css) && !empty($extra_css)): ?>
-        <link rel="stylesheet" href="../styles/<?php echo htmlspecialchars($extra_css); ?>.css">
+        <link rel="stylesheet" href="../styles/<?php echo htmlspecialchars($extra_css); ?>.css?v=<?php echo time(); ?>">
     <?php endif; ?>
    <?php 
 // Place this at the top of your header.php file
-$baseURL = 'http://' . $_SERVER['HTTP_HOST'] . '/codexentric-employee-system'; 
+$baseURL = 'http://' . $_SERVER['HTTP_HOST'] . '/codeXentric/codexentric-employee-system'; 
 ?>
     <style>
-      <style>
   :root {
     --blue:          #1a6eff;
     --blue-dark:     #1252cc;
@@ -33,7 +32,7 @@ $baseURL = 'http://' . $_SERVER['HTTP_HOST'] . '/codexentric-employee-system';
     --text-secondary:#4B5563;
     --text-muted:    #9CA3AF;
     --border:        #E2E8F0;
-    --font:          'Source Sans 3', sans-serif;
+    --font:          'Inter', sans-serif;
   }
 
   body {
@@ -69,21 +68,15 @@ $baseURL = 'http://' . $_SERVER['HTTP_HOST'] . '/codexentric-employee-system';
   }
 
   .topbar-logo {
-    width: 36px;
-    height: 36px;
-    background: linear-gradient(135deg, #1a6eff, #0a4fcf);
-    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 0 0 1px #1a6eff40;
   }
 
   .topbar-logo img {
-    width: 22px;
-    height: 22px;
+    height: 36px;
+    width: auto;
     object-fit: contain;
-    filter: brightness(0) invert(1);
   }
 
   .topbar-title {

@@ -9,18 +9,21 @@ if (!isset($_SESSION['email'])) {
     $current_page = "administrator_dashboard";
     $extra_css    = "admin_dashboard";
     $title        = "Admin Dashboard";  
+    require_once '../pages/database.php';
+    require_once '../pages/Employee.php';
+    $db = new Database();
+    $connection = $db->getConnection();
+    $employeeObj = new Employee($connection);
+
+    $dashboardData = $employeeObj->getDashboardData();
     
     $stats = [
-        ["label" => "Total Headcount", "value" => "14",        "sub" => "Across all departments", "trend" => "+2 this month"],
+        ["label" => "Total Headcount", "value" => (string)$dashboardData['total_headcount'], "sub" => "Across all departments", "trend" => "Active"],
         ["label" => "Current Revenue", "value" => "Rs 1.2M",   "sub" => "Monthly recurring",      "trend" => "+12.4% vs last"],
-        ["label" => "Monthly Payroll", "value" => "Rs 485k",   "sub" => "Net disbursement",        "trend" => "3 pending"]
+        ["label" => "Monthly Payroll", "value" => "Rs " . number_format($dashboardData['monthly_payroll']), "sub" => "Base salary disbursement", "trend" => "Pending run"]
     ];
 
-    $team_members = [
-        ["name" => "Hammad Ali", "role" => "Senior Backend Developer", "salary" => "Rs 85,000", "status" => "Active",     "badge" => "badge-active"],
-        ["name" => "Abdullah",   "role" => "Backend Developer",        "salary" => "Rs 65,000", "status" => "Active",     "badge" => "badge-active"],
-        ["name" => "Khurum",     "role" => "Frontend Developer",       "salary" => "Rs 55,000", "status" => "Onboarding", "badge" => "badge-onboarding"]
-    ];
+    $team_members = $dashboardData['team_members'];
 
     include_once "../includes/header.php";
     include_once "../includes/sidebar.php";
@@ -41,7 +44,7 @@ if (!isset($_SESSION['email'])) {
   --text-secondary:#4B5563;
   --text-muted:    #9CA3AF;
   --border:        #E2E8F0;
-  --font:          'Source Sans 3', sans-serif;
+  --font:          'Inter', sans-serif;
 
   /* Retained Semantic Colors for Dashboard Widgets */
   --green:         #059669;
@@ -67,15 +70,14 @@ if (!isset($_SESSION['email'])) {
   --shadow-blue:   0 6px 24px rgba(26, 110, 255, 0.2);
 }
 
-/* ── Outer wrapper ── */
-.dash { display: flex; flex-direction: column; gap: 28px; font-family: var(--font); }
+
 
 /* ── Welcome Banner ── */
 .dash-welcome {
   /* Updated to match header's gradient aesthetic */
   background: linear-gradient(135deg, #0f1c2e 0%, #1252cc 60%, #1a6eff 100%);
-  border-radius: var(--radius);
-  padding: 28px 32px;
+  border-radius: var(--radius-lg, 12px);
+  padding: 32px 36px;
   display: flex; align-items: center; justify-content: space-between;
   flex-wrap: wrap; gap: 20px;
   position: relative; overflow: hidden;
@@ -362,7 +364,7 @@ if (!isset($_SESSION['email'])) {
 .dash-card      { animation: fadeUp .35s .32s ease both; }
 </style>
 
-<div class="dash">
+<div class="dashboard-container">
 
   <!-- ══ Welcome Banner ══ -->
   <div class="dash-welcome">
@@ -584,6 +586,6 @@ if (!isset($_SESSION['email'])) {
 
   </div><!-- /.dash-bottom -->
 
-</div><!-- /.dash -->
+</div><!-- /.dashboard-container -->
 
 <?php include_once "../includes/footer.php"; ?>

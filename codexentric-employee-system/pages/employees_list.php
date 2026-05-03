@@ -42,15 +42,15 @@ $totalPages = ceil($total_employees / $limit);
 ?>
 
 <main class="main-content" role="main">
-    <div class="dashboard-container">
+    <div class="emp-list-page">
         <!-- Page Header -->
-        <header class="page-header" role="banner">
-            <div class="header-content">
-                <h1 class="page-title">Select Employee</h1>
-                <p class="page-subtitle">Search or select an employee to view and manage their details.</p>
+        <header class="dash-welcome" role="banner">
+            <div class="dash-welcome-text">
+                <h1>Select Employee</h1>
+                <p>Search or select an employee to view and manage their details.</p>
             </div>
-            <div class="header-actions">
-                <a href="administrator_dashboard.php" class="action-button secondary" aria-label="Return to admin dashboard">
+            <div class="dash-welcome-actions">
+                <a href="administrator_dashboard.php" class="btn-wh" aria-label="Return to admin dashboard">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                         <path d="M19 12H5M12 19l-7-7 7-7"/>
                     </svg>
@@ -240,7 +240,7 @@ $totalPages = ceil($total_employees / $limit);
 
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
   --blue:        #1E6FD9;
@@ -268,110 +268,45 @@ $totalPages = ceil($total_employees / $limit);
   --shadow-blue: 0 6px 24px rgba(21,89,181,0.16);
 }
 
-.main-content {
-    flex: 1;
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-    min-height: calc(100vh - 56px);
-    overflow-y: auto;
-}
+.emp-list-page { display: flex; flex-direction: column; width: 100%; box-sizing: border-box; }
 
-.dashboard-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 28px 32px;
-    width: 100%;
+/* Welcome Banner */
+.dash-welcome {
+  background: linear-gradient(135deg, #0f1c2e 0%, #1252cc 60%, #1a6eff 100%);
+  border-radius: var(--radius);
+  padding: 32px 36px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: relative; overflow: hidden;
+  box-shadow: 0 6px 24px rgba(26, 110, 255, 0.15);
+  margin-bottom: 24px;
 }
+@media (max-width: 760px) {
+  .dash-welcome { flex-direction: column; align-items: flex-start; gap: 20px; padding: 24px; }
+}
+.dash-welcome::before {
+  content: ''; position: absolute;
+  width: 300px; height: 300px; border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+  top: -100px; right: -60px; pointer-events: none;
+}
+.dash-welcome::after {
+  content: ''; position: absolute;
+  width: 160px; height: 160px; border-radius: 50%;
+  background: rgba(255,255,255,0.03);
+  bottom: -50px; right: 200px; pointer-events: none;
+}
+.dash-welcome-text { position: relative; z-index: 1; }
+.dash-welcome-text h1 { font-family: 'Inter', sans-serif; font-size: 26px; font-weight: 800; color: #fff; margin: 0 0 6px 0; letter-spacing: -0.3px; }
+.dash-welcome-text p { font-size: 14.5px; color: rgba(255,255,255,0.8); margin: 0; }
 
-/* ── Page Header ── */
-.page-header {
-    background: linear-gradient(125deg, #1248A0 0%, #1559B5 40%, #1E6FD9 75%, #2B87F0 100%);
-    border-radius: var(--radius);
-    padding: 28px 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 20px;
-    position: relative;
-    overflow: hidden;
-    box-shadow: var(--shadow-blue);
-    margin-bottom: 28px;
+.dash-welcome-actions { position: relative; z-index: 1; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.btn-wh {
+  background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 7px; padding: 8px 16px; font-size: 13px; font-weight: 600; font-family: 'Inter', sans-serif;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 6px; backdrop-filter: blur(6px);
+  transition: all 0.18s; cursor: pointer;
 }
-
-.page-header::before {
-    content: '';
-    position: absolute;
-    width: 320px;
-    height: 320px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.06);
-    top: -120px;
-    right: -80px;
-    pointer-events: none;
-}
-
-.page-header::after {
-    content: '';
-    position: absolute;
-    width: 180px;
-    height: 180px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.04);
-    bottom: -60px;
-    right: 120px;
-    pointer-events: none;
-}
-
-.header-content {
-    position: relative;
-    z-index: 1;
-}
-
-.page-title {
-    font-family: 'Nunito', sans-serif;
-    font-size: 22px;
-    font-weight: 900;
-    color: #fff;
-    margin: 0 0 5px 0;
-    line-height: 1.2;
-}
-
-.page-subtitle {
-    font-size: 13.5px;
-    color: rgba(255,255,255,0.78);
-    margin: 0;
-    font-weight: 400;
-}
-
-.header-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    position: relative;
-    z-index: 1;
-    flex-wrap: wrap;
-}
-
-.action-button.secondary {
-    background: rgba(255,255,255,0.15);
-    color: #fff;
-    border: 1.5px solid rgba(255,255,255,0.3);
-    border-radius: 7px;
-    padding: 8px 16px;
-    font-size: 13px;
-    font-weight: 600;
-    backdrop-filter: blur(6px);
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all 0.18s;
-}
-
-.action-button.secondary:hover {
-    background: rgba(255,255,255,0.25);
-}
+.btn-wh:hover { background: rgba(255,255,255,0.25); transform: translateY(-1px); }
 
 /* ── Search Section ── */
 .search-section {
@@ -383,7 +318,7 @@ $totalPages = ceil($total_employees / $limit);
     border-radius: var(--radius);
     padding: 22px;
     box-shadow: var(--shadow-xs);
-    border: 1.5px solid var(--border);
+    border: 1px solid var(--border);
     display: flex;
     align-items: flex-end;
     gap: 16px;
@@ -398,7 +333,7 @@ $totalPages = ceil($total_employees / $limit);
     align-items: center;
     gap: 10px;
     padding: 10px 12px;
-    border: 1.5px solid var(--border);
+    border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     background: white;
     transition: all 0.15s;
@@ -458,7 +393,7 @@ $totalPages = ceil($total_employees / $limit);
 
 .filter-select {
     padding: 10px 12px;
-    border: 1.5px solid var(--border);
+    border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     font-size: 13px;
     background: white;
@@ -593,7 +528,7 @@ $totalPages = ceil($total_employees / $limit);
     border-radius: var(--radius);
     overflow: hidden;
     box-shadow: var(--shadow-xs);
-    border: 1.5px solid var(--border);
+    border: 1px solid var(--border);
 }
 
 .employees-table {
@@ -758,10 +693,6 @@ $totalPages = ceil($total_employees / $limit);
 }
 
 /* ── Responsive Design ── */
-@media (max-width: 900px) {
-    .dashboard-container {
-        padding: 20px 16px;
-    }
 
     .page-header {
         padding: 20px 24px;

@@ -35,7 +35,8 @@ class Employee
       $this->homeAddress = trim($_POST['home_address'] ?? '');
       $this->positionTitle = trim($_POST['position_title'] ?? '');
       $this->department = trim($_POST['department'] ?? '');
-      $this->employeeType = trim($_POST['employee_type'] ?? '');
+      $this->status = trim($_POST['status'] ?? 'Active');
+      $this->date_of_joining = trim($_POST['date_of_joining'] ?? date('Y-m-d'));
       $this->baseSalary = trim($_POST['base_salary'] ?? 0);
 
       // empty string trying to insert into an INT/DECIMAL column
@@ -68,7 +69,7 @@ class Employee
       $stmtUser->close();
 
       // Inserting into Employees Table using Prepared Statements
-      $stmtEmp = $this->connection->prepare("INSERT INTO employees (user_id, home_address, position_title, department, employment_type, base_salary_rs, allowances_rs, bank_name, bank_account_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+      $stmtEmp = $this->connection->prepare("INSERT INTO employees (user_id, home_address, position_title, department, date_of_joining, status, base_salary_rs, allowances_rs, bank_name, bank_account_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
       if (!$stmtEmp) {
         $this->errors['general'] = "Prepare failed for employee: " . $this->connection->error;
@@ -78,7 +79,7 @@ class Employee
       }
 
 
-      $stmtEmp->bind_param("isssssdss", $newuserId, $this->homeAddress, $this->positionTitle, $this->department, $this->employeeType, $this->baseSalary, $this->allowances, $this->bankName, $this->bankAccountNumber);
+      $stmtEmp->bind_param("isssssddss", $newuserId, $this->homeAddress, $this->positionTitle, $this->department, $this->date_of_joining, $this->status, $this->baseSalary, $this->allowances, $this->bankName, $this->bankAccountNumber);
 
       if (!$stmtEmp->execute()) {
         $this->errors['general'] = "Error creating employee record: " . $stmtEmp->error;
@@ -108,6 +109,95 @@ class Employee
       $employeesList[] = $row;
     }
     return $employeesList;
+  }
+
+  public function getAllEmployeesPayrollDetails()
+  {
+    $query = "SELECT u.user_id, u.first_name, u.last_name, e.bank_name, e.bank_account_number, e.base_salary_rs, e.allowances_rs
+          FROM users u
+          JOIN employees e ON u.user_id = e.user_id";
+
+    $result = $this->connection->query($query);
+    $employeesList = [];
+    if ($result) {
+      while ($row = $result->fetch_assoc()) {
+        $employeesList[] = $row;
+      }
+    }
+    return $employeesList;
+  }
+
+  public function getSalaryComponents()
+  {
+    $components = [
+      'bonuses' => [],
+      'allowances' => [],
+      'deductions' => []
+    ];
+
+    $res1 = $this->connection->query("SELECT id, name FROM bonus ORDER BY name");
+    if ($res1) {
+      while ($row = $res1->fetch_assoc()) {
+        $components['bonuses'][] = $row;
+      }
+    }
+
+    $res2 = $this->connection->query("SELECT id, name FROM allowances ORDER BY name");
+    if ($res2) {
+      while ($row = $res2->fetch_assoc()) {
+        $components['allowances'][] = $row;
+      }
+    }
+
+    $res3 = $this->connection->query("SELECT id, name FROM deductions ORDER BY name");
+    if ($res3) {
+      while ($row = $res3->fetch_assoc()) {
+        $components['deductions'][] = $row;
+      }
+    }
+
+    return $components;
+  }
+
+  public function getDashboardData()
+  {
+      $data = [
+          'total_headcount' => 0,
+          'monthly_payroll' => 0,
+          'team_members' => []
+      ];
+
+      $query = "SELECT u.first_name, u.last_name, e.position_title, e.base_salary_rs, e.status
+                FROM users u
+                JOIN employees e ON u.user_id = e.user_id
+                ORDER BY e.date_of_joining DESC";
+      $result = $this->connection->query($query);
+      if ($result) {
+          while ($row = $result->fetch_assoc()) {
+              $data['total_headcount']++;
+              $data['monthly_payroll'] += (float)$row['base_salary_rs'];
+              
+              if (count($data['team_members']) < 5) {
+                  $badge = 'badge-active';
+                  $status = strtolower($row['status'] ?? 'active');
+                  if ($status === 'onboarding' || $status === 'pending') {
+                      $badge = 'badge-onboarding';
+                  } else if ($status === 'inactive' || $status === 'terminated') {
+                      $badge = 'badge-inactive';
+                  }
+                  
+                  $data['team_members'][] = [
+                      'name' => trim($row['first_name'] . ' ' . $row['last_name']),
+                      'role' => $row['position_title'] ?: 'Employee',
+                      'salary' => 'Rs ' . number_format($row['base_salary_rs']),
+                      'status' => ucfirst($row['status'] ?: 'Active'),
+                      'badge' => $badge
+                  ];
+              }
+          }
+      }
+
+      return $data;
   }
 
   public function getEmployeeDetailsById($user_id)

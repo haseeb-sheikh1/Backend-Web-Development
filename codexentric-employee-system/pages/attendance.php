@@ -16,9 +16,7 @@
     $title = "Attendance Tracker - CodeXentric";
     include_once "../includes/header.php";
 ?>
-
-<main class="main-content" role="main">
-    <div class="dashboard-container">
+<div class="dashboard-container">
         <!-- Page Header -->
         <header class="page-header" role="banner">
             <div class="header-content">
@@ -214,8 +212,6 @@
                 </article>
             </div>
         </section>
-    </div>
-</main>
 
 <?php include_once "../includes/footer.php"; ?>
 
