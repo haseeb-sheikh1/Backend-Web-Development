@@ -10,16 +10,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($title) ? $title : "CodeXentric HRM"; ?></title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../styles/global.css?v=<?php echo time(); ?>">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/global.css">
 
     <?php if (isset($extra_css) && !empty($extra_css)): ?>
-        <link rel="stylesheet" href="../styles/<?php echo htmlspecialchars($extra_css); ?>.css?v=<?php echo time(); ?>">
+        <link rel="stylesheet" href="../styles/<?php echo htmlspecialchars($extra_css); ?>.css">
     <?php endif; ?>
-   <?php 
-// Place this at the top of your header.php file
-$baseURL = 'http://' . $_SERVER['HTTP_HOST'] . '/codeXentric/codexentric-employee-system'; 
-?>
+
     <style>
   :root {
     --blue:          #1a6eff;
@@ -32,7 +30,7 @@ $baseURL = 'http://' . $_SERVER['HTTP_HOST'] . '/codeXentric/codexentric-employe
     --text-secondary:#4B5563;
     --text-muted:    #9CA3AF;
     --border:        #E2E8F0;
-    --font:          'Inter', sans-serif;
+    --font:          'Source Sans 3', sans-serif;
   }
 
   body {
@@ -68,15 +66,21 @@ $baseURL = 'http://' . $_SERVER['HTTP_HOST'] . '/codeXentric/codexentric-employe
   }
 
   .topbar-logo {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #1a6eff, #0a4fcf);
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 0 0 1px #1a6eff40;
   }
 
   .topbar-logo img {
-    height: 36px;
-    width: auto;
+    width: 22px;
+    height: 22px;
     object-fit: contain;
+    filter: brightness(0) invert(1);
   }
 
   .topbar-title {
@@ -233,16 +237,16 @@ $baseURL = 'http://' . $_SERVER['HTTP_HOST'] . '/codeXentric/codexentric-employe
   .main-content { flex: 1; padding: 28px 32px; overflow-y: auto; }
   @media (max-width: 900px) { .main-content { padding: 20px 16px; } }
 </style>
-    </style>
+    </>
 </head>
 <body>
 
     <header class="topbar" role="banner">
         <a href="../pages/administrator_dashboard.php" class="topbar-brand">
             <div class="topbar-logo">
-                <img src="<?php echo $baseURL; ?>/assets/logo.png" alt="CodeXentric Logo">
+                <img src="../assets/logo.png" alt="CodeXentric Logo">
             </div>
-            <span class="topbar-title">CodeXentric</span>
+            <span class="topbar-title">EMS</span>
         </a>
 
         <?php

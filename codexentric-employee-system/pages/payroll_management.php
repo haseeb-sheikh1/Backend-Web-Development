@@ -504,8 +504,8 @@ select.dash-input {
 
                                 <?php if ($already_paid && $saved_breakdown): ?>
                                     <div style="display:flex;flex-direction:column;gap:12px;">
-                                        <?php if (!empty($allowances_list)): ?>
-                                            <?php foreach ($allowances_list as $al): ?>
+                                        <?php if (!empty($selected_employee_data['allowances_list'])): ?>
+                                            <?php foreach ($selected_employee_data['allowances_list'] as $al): ?>
                                                 <div class="amt-box">
                                                     <span><?php echo htmlspecialchars($al['name']); ?></span>
                                                     <span class="green-text">+ Rs <?php echo number_format($al['amount']); ?></span>

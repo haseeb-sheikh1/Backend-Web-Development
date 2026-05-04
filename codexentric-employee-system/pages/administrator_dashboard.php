@@ -133,10 +133,11 @@ if (!isset($_SESSION['email'])) {
 }
 
 /* ── Stats Grid ── */
+/* ── Stats Grid ── */
 .dash-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
+  gap: 16px;
 }
 @media (max-width: 860px) { .dash-stats { grid-template-columns: repeat(2,1fr); } }
 @media (max-width: 520px)  { .dash-stats { grid-template-columns: 1fr; } }
@@ -146,54 +147,61 @@ if (!isset($_SESSION['email'])) {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 22px 22px 18px;
-  display: flex; flex-direction: column; gap: 14px;
+  display: flex; flex-direction: column; gap: 0;
   position: relative; overflow: hidden;
-  transition: box-shadow .2s, transform .2s, border-color .2s;
+  transition: box-shadow .2s, transform .2s;
   box-shadow: var(--shadow-xs);
 }
-.stat-card:hover { 
-  box-shadow: var(--shadow-md); 
-  transform: translateY(-2px);
-  border-color: var(--blue-light);
-}
-.stat-card::after {
+/* Per-card top accent stripe */
+.stat-card:nth-child(1)::before { background: var(--blue); }
+.stat-card:nth-child(2)::before { background: #C27803; }
+.stat-card:nth-child(3)::before { background: #6D28D9; }
+.stat-card::before {
   content: ''; position: absolute;
-  bottom: 0; left: 0; right: 0; height: 3px;
-  background: linear-gradient(90deg, var(--blue-dark), var(--blue));
-  opacity: 0; transition: opacity .2s;
+  top: 0; left: 0; right: 0; height: 3px;
 }
-.stat-card:hover::after { opacity: 1; }
-
-.stat-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.stat-card:hover {
+  box-shadow: 0 8px 28px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}
+.stat-card-top {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 12px;
+  margin-bottom: 18px;
+}
 .stat-label {
-  font-size: 12.5px; font-weight: 600; color: var(--text-m);
-  text-transform: uppercase; letter-spacing: 0.5px; margin: 0;
+  font-size: 12px; font-weight: 600; color: var(--text-s);
+  text-transform: uppercase; letter-spacing: .6px; margin: 0;
 }
 .stat-icon-wrap {
-  width: 42px; height: 42px; border-radius: 10px;
+  width: 38px; height: 38px; border-radius: 8px;
   background: var(--blue-light); color: var(--blue);
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
-.stat-icon-wrap.revenue { background: #FEF3C7; color: #D97706; }
-.stat-icon-wrap.payroll { background: #F3E8FF; color: #7E22CE; }
+.stat-icon-wrap.revenue { background: #FEF3C7; color: #C27803; }
+.stat-icon-wrap.payroll { background: #EDE9FE; color: #6D28D9; }
 
 .stat-value {
-  font-family: var(--font);
-  font-size: 30px; font-weight: 700;
+  font-family: 'DM Mono', 'Courier New', monospace;
+  font-size: 28px; font-weight: 500;
   color: var(--text-h); line-height: 1;
-  letter-spacing: -0.5px; margin: 0;
+  letter-spacing: -1px; margin: 0 0 16px;
 }
-.stat-footer { display: flex; align-items: center; justify-content: space-between; }
-.stat-sub { font-size: 12.5px; color: var(--text-s); }
+.stat-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  border-top: 1px solid var(--border); padding-top: 12px;
+}
+.stat-sub { font-size: 12px; color: var(--text-s); }
 .stat-trend {
-  font-size: 11.5px; font-weight: 600;
-  padding: 3px 8px; border-radius: 20px;
+  font-size: 11px; font-weight: 600;
+  padding: 3px 9px; border-radius: 20px;
   background: var(--green-bg); color: var(--green);
   white-space: nowrap;
 }
 .stat-trend.warn { background: var(--amber-bg); color: var(--amber); }
 
+/* ── Quick Links ── */
 /* ── Quick Links ── */
 .dash-quicklinks {
   display: grid;
@@ -207,23 +215,31 @@ if (!isset($_SESSION['email'])) {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 18px 16px;
-  display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
+  padding: 18px 16px 14px;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
   text-decoration: none;
   transition: box-shadow .18s, border-color .18s, transform .18s;
   box-shadow: var(--shadow-xs);
 }
-.ql-card:hover { box-shadow: var(--shadow-md); border-color: var(--blue); transform: translateY(-2px); }
-.ql-icon {
-  width: 40px; height: 40px; border-radius: 9px;
-  display: flex; align-items: center; justify-content: center;
+.ql-card:hover {
+  box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+  border-color: rgba(0,0,0,0.13);
+  transform: translateY(-2px);
 }
+.ql-icon { width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
 .ql-icon.emp  { background: var(--blue-light);  color: var(--blue); }
-.ql-icon.pay  { background: #F3E8FF;            color: #7E22CE; }
-.ql-icon.att  { background: var(--green-bg);    color: var(--green); }
-.ql-icon.rep  { background: var(--amber-bg);    color: var(--amber); }
+.ql-icon.pay  { background: #EDE9FE;             color: #6D28D9; }
+.ql-icon.att  { background: var(--green-bg);     color: var(--green); }
+.ql-icon.rep  { background: var(--amber-bg);     color: var(--amber); }
 .ql-label { font-size: 14px; font-weight: 600; color: var(--text-h); }
-.ql-desc  { font-size: 12.5px; color: var(--text-s); margin-top: -4px; }
+.ql-desc  { font-size: 12px; color: var(--text-s); }
+/* "View →" affordance row */
+.ql-card::after {
+  content: 'View \2192';
+  font-size: 11px; font-weight: 600;
+  color: var(--text-s); margin-top: 6px;
+  letter-spacing: .3px;
+}
 
 /* ── Bottom grid: table + activity ── */
 .dash-bottom {
@@ -379,11 +395,11 @@ if (!isset($_SESSION['email'])) {
       <p>Here's what's happening at CodeXentric today — <?php echo date('l, d F Y'); ?></p>
     </div>
     <div class="dash-welcome-actions">
-      <a href="manage_employee.php" class="btn-wh">
+      <a href="add_employee.php" class="btn-wh">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
         Add Employee
       </a>
-      <a href="payroll.php" class="btn-wh btn-wh-solid">
+      <a href="payroll_management.php" class="btn-wh btn-wh-solid">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
         Run Payroll
       </a>
