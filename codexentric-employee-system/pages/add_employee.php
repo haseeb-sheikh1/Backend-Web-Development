@@ -24,19 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_employee'])) {
 
   <div class="dashboard-container">
     
-    <!-- Welcome Header -->
-    <div class="dash-header">
-      <div class="dash-header-left">
-        <h1>Add New Employee</h1>
-        <p class="dash-subtitle">Register a new team member to the system</p>
-      </div>
-      <div class="header-actions">
-        <a href="administrator_dashboard.php" class="btn-minimal">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-          Back to Dashboard
-        </a>
-      </div>
-    </div>
+
 
     <?php if (isset($employee->errors['general'])): ?>
       <div class="alert alert-danger">

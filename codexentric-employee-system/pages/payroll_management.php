@@ -50,6 +50,8 @@
     $employeesFromDB = $employeeObj->getAllEmployeesPayrollDetails();
     $salary_components = $employeeObj->getSalaryComponents();
     
+
+    
     $current_month = date('Y-m-01');
     $monthly_stats = $payrollObj->getMonthlyPayrollStats($current_month);
     
@@ -169,42 +171,45 @@ body, .payroll-root * {
     gap: 20px;
 }
 
-/* ── Stat row ── */
 .pr-stats {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
 }
-@media (max-width: 768px) { .pr-stats { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 1024px) { .pr-stats { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .pr-stats { grid-template-columns: 1fr; } }
 
 .pr-stat {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
     padding: 20px 24px;
-    box-shadow: var(--shadow);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
     display: flex;
     align-items: center;
     gap: 16px;
+    transition: all 0.2s ease;
+}
+.pr-stat:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 .pr-stat-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 10px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #f0f4f8;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
 }
-.pr-stat-icon.brand  { background: var(--ox-light); }
-.pr-stat-icon.green  { background: var(--ox-light); }
-.pr-stat-icon.gray   { background: #F3F4F6; }
-.pr-stat-icon svg    { width: 22px; height: 22px; }
+.pr-stat-icon svg    { width: 22px; height: 22px; stroke: #475569 !important; }
 
 .pr-stat-info {}
-.pr-stat-label { font-size: 11.5px; font-weight: 600; color: var(--text-m); text-transform: uppercase; letter-spacing: 0.6px; }
-.pr-stat-value { font-size: 22px; font-weight: 700; color: var(--text-h); margin-top: 2px; line-height: 1; }
-.pr-stat-sub   { font-size: 11.5px; color: var(--text-s); margin-top: 3px; }
+.pr-stat-label { font-size: 11.5px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.6px; }
+.pr-stat-value { font-size: 22px; font-weight: 700; color: #1e293b; margin-top: 2px; line-height: 1; }
+.pr-stat-sub   { font-size: 11.5px; color: #94a3b8; margin-top: 3px; }
 
 /* ── Main two-column split ── */
 .pr-split {

@@ -59,6 +59,12 @@ body {
   margin: 0 auto;
 }
 
+@media (max-width: 600px) {
+  .cx-dash {
+    padding: 0 15px 15px 15px;
+  }
+}
+
 /* ── Top Header & Actions ── */
 .dash-header {
   display: flex;
@@ -391,14 +397,7 @@ body {
 
 <div class="cx-dash">
 
-  <!-- Header -->
-  <div class="dash-header">
-    <h1>Dashboard</h1>
-    <div class="header-actions">
-      <a href="add_employee.php" class="btn-minimal">Add Employee</a>
-      <a href="payroll_management.php" class="btn-primary">Run Payroll</a>
-    </div>
-  </div>
+
 
   <!-- Top Cards Row -->
   <div class="dashboard-grid">
@@ -510,9 +509,10 @@ body {
               <td>
                 <?php 
                   $raw_status = strtolower($employee['status'] ?? 'active');
-                  $status_class = $raw_status;
-                  $display_label = $raw_status;
+                  $status_class = str_replace('_', '-', $raw_status);
+                  $display_label = str_replace('_', ' ', $raw_status);
                   if ($raw_status === 'onboarding') { $status_class = 'on-leave'; $display_label = 'on leave'; }
+                  elseif ($raw_status === 'terminated') { $status_class = 'deactivated'; $display_label = 'terminated'; }
                 ?>
                 <div class="status-indicator <?php echo $status_class; ?>">
                   <span class="status-dot"></span>

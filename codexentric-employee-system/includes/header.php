@@ -82,6 +82,12 @@
         height: 100vh;
         overflow: hidden;
         min-width: 0;
+        transition: margin-left 0.25s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* ── Adjust for Collapsed Sidebar sibling ── */
+    .sidebar.collapsed + .app-right {
+        margin-left: 64px;
     }
 
     /* ── Topbar ── */
@@ -376,7 +382,8 @@
     @media (max-width: 900px) {
         .sidebar { transform: translateX(-100%); transition: transform .25s; }
         .sidebar.open { transform: translateX(0); }
-        .app-right { margin-left: 0; }
+        .app-right { margin-left: 0 !important; }
+        .sidebar.collapsed + .app-right { margin-left: 0 !important; }
         .main-content { padding: 20px 16px; }
     }
 
@@ -388,6 +395,27 @@
         .app-right { margin-left: 0; }
         .main-content { padding: 0; overflow: visible; }
         .app-shell { height: auto; overflow: visible; }
+    }
+    .mobile-toggle-btn {
+        display: none;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #475569;
+        padding: 4px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        transition: background 0.2s;
+        margin-right: 8px;
+    }
+    .mobile-toggle-btn:hover {
+        background: #e2e8f0;
+    }
+    @media (max-width: 900px) {
+        .mobile-toggle-btn {
+            display: inline-flex;
+        }
     }
     </style>
 </head>
@@ -422,7 +450,10 @@
 
         <header class="topbar">
             <div class="topbar-left">
-                <!-- Mobile hamburger (optional — wired via JS below) -->
+                <!-- Mobile hamburger -->
+                <button id="mobileSidebarToggle" class="mobile-toggle-btn" aria-label="Toggle sidebar">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
                 <span class="topbar-page-title">
                     <?php echo isset($title) ? htmlspecialchars($title) : 'Dashboard'; ?>
                 </span>
@@ -492,6 +523,21 @@
             document.addEventListener('click', function () {
                 toggle.setAttribute('aria-expanded', 'false');
                 dropdown.classList.remove('show');
+            });
+        }
+
+        // Mobile sidebar toggling
+        const mobileToggle = document.getElementById('mobileSidebarToggle');
+        const sidebar = document.getElementById('appSidebar');
+        if (mobileToggle && sidebar) {
+            mobileToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                sidebar.classList.toggle('open');
+            });
+            document.addEventListener('click', function(e) {
+                if (!sidebar.contains(e.target) && e.target !== mobileToggle) {
+                    sidebar.classList.remove('open');
+                }
             });
         }
     });

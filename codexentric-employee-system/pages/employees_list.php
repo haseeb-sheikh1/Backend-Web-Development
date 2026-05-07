@@ -136,13 +136,13 @@ $totalPages = ceil($total_employees / $limit);
                                 <td>
                                     <?php 
                                         $raw_status = strtolower($emp['status'] ?? 'active');
-                                        $status_class = $raw_status;
-                                        $display_label = $raw_status;
+                                        $status_class = str_replace('_', '-', $raw_status);
+                                        $display_label = str_replace('_', ' ', $raw_status);
                                         
                                         if ($raw_status === 'onboarding') {
                                             $status_class = 'on-leave';
                                             $display_label = 'on leave';
-                                        } elseif ($raw_status === 'cancelled') {
+                                        } elseif ($raw_status === 'cancelled' || $raw_status === 'terminated') {
                                             $status_class = 'deactivated';
                                             $display_label = 'deactivated';
                                         }
@@ -644,6 +644,168 @@ $totalPages = ceil($total_employees / $limit);
   font-size: 13px;
   color: #94a3b8;
   font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  /* Hide the desktop table layout */
+  .table-wrapper {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  
+  .employees-table,
+  .employees-table thead,
+  .employees-table tbody,
+  .employees-table th,
+  .employees-table td,
+  .employees-table tr {
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  
+  .employees-table thead {
+    display: none !important;
+  }
+  
+  .employees-table tbody {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+  
+  /* Each row becomes a premium card */
+  .employees-table tr {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 16px !important;
+    padding: 18px 20px !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02) !important;
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    margin-bottom: 0 !important;
+  }
+  
+  /* Disable hover cells backgrounds */
+  .employees-table tbody tr:hover td {
+    background: transparent !important;
+  }
+  
+  /* Reset all individual cell styling */
+  .employees-table td {
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    text-align: left !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    box-shadow: none !important;
+    background: none !important;
+  }
+  
+  /* First Cell (Employee Name) */
+  .employees-table td:nth-child(1) {
+    border-bottom: 1px solid #f1f5f9 !important;
+    padding-bottom: 12px !important;
+    margin-bottom: 4px !important;
+  }
+  
+  /* Dynamic labels matching screenshot exactly */
+  .employees-table td:nth-child(1)::before {
+    content: "Employee Name" !important;
+  }
+  
+  .employees-table td:nth-child(2)::before {
+    content: "Username" !important;
+  }
+  
+  .employees-table td:nth-child(3)::before {
+    content: "User Role" !important;
+  }
+  
+  .employees-table td:nth-child(5)::before {
+    content: "Status" !important;
+  }
+  
+  /* Hidden columns (like Department) on mobile for a clean look */
+  .employees-table td:nth-child(4) {
+    display: none !important;
+  }
+  
+  /* Common label styles */
+  .employees-table td:nth-child(1)::before,
+  .employees-table td:nth-child(2)::before,
+  .employees-table td:nth-child(3)::before,
+  .employees-table td:nth-child(5)::before {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: #94a3b8 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    display: block !important;
+    margin-bottom: 2px !important;
+  }
+  
+  /* Value styles */
+  .employees-table .emp-name-text {
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+  }
+  
+  .employees-table td:nth-child(2),
+  .employees-table td:nth-child(3) {
+    font-size: 14px !important;
+    color: #475569 !important;
+    font-weight: 600 !important;
+  }
+  
+  /* Action column floating on top right exactly like screenshot */
+  .employees-table td:last-child {
+    position: absolute !important;
+    top: 18px !important;
+    right: 20px !important;
+    width: auto !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  .employees-table .action-trigger-group {
+    display: flex !important;
+    gap: 8px !important;
+    align-items: center !important;
+  }
+  
+  /* Match screenshot action icons */
+  .employees-table .action-icon-btn {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 50% !important;
+    background: #f1f5f9 !important;
+    color: #64748b !important;
+    border: 1px solid #e2e8f0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s !important;
+  }
+  
+  .employees-table .action-icon-btn:hover {
+    background: #e2e8f0 !important;
+    color: #1e293b !important;
+    transform: scale(1.05) !important;
+  }
+  
+  .employees-table .action-icon-btn.delete:hover {
+    background: #fef2f2 !important;
+    color: #ef4444 !important;
+    border-color: #fee2e2 !important;
+  }
 }
 </style>
 <?php include_once "../includes/footer.php"; ?>

@@ -55,18 +55,35 @@ session_start();
 
 
 
-/* ── Breadcrumb ── */
+/* ── Breadcrumb Pills ── */
 .emp-breadcrumb {
-  font-size: 13px; 
-  color: var(--text-muted); 
-  font-weight: 500;
   display: flex; 
   align-items: center; 
-  gap: 5px; 
-  margin-bottom: 20px;
+  gap: 8px; 
+  margin-bottom: 24px;
 }
-.emp-breadcrumb a { color: var(--brand-orange); text-decoration: none; font-weight: 700; }
-.emp-breadcrumb a:hover { text-decoration: underline; }
+.emp-breadcrumb a {
+  background: #f1f5f9;
+  color: #64748b;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.emp-breadcrumb a:hover {
+  background: #e2e8f0;
+  color: #334155;
+}
+.emp-breadcrumb span {
+  background: #e8f3f0;
+  color: #186D55;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
 
 .dashboard-container {
   max-width: 1200px;
@@ -75,103 +92,157 @@ session_start();
   font-family: var(--font-body);
 }
 
-/* ── Minimal Header ── */
-.emp-hero {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 24px 30px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+/* ── Settings Theme Layout ── */
+.profile-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 30px;
+    padding: 0;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-.emp-hero-left {
-  display: flex;
-  align-items: center;
-  gap: 20px;
+.profile-sidebar {
+    width: 280px;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-self: flex-start;
+    position: sticky;
+    top: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
 }
 
-.emp-avatar-xl {
-  width: 56px;
-  height: 56px;
-  border-radius: 12px;
-  background: var(--bg);
-  color: var(--brand-green);
-  font-size: 20px;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--border);
+.profile-avatar-wrapper {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: #186D55;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    font-weight: 700;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 20px;
 }
 
-.emp-hero-info h1 {
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--text-main);
-  margin: 0 0 4px;
-  letter-spacing: -0.5px;
+.profile-sidebar h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+    text-align: center;
+    margin: 0 0 5px 0;
 }
 
-.emp-hero-info p {
-  font-size: 14px;
-  color: var(--text-muted);
-  margin: 0 0 10px;
+.profile-sidebar p {
+    font-size: 11px;
+    color: #64748b;
+    margin-bottom: 24px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
 }
 
-.emp-hero-meta {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.profile-nav {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 
-.hero-badge {
-  font-size: 12px;
-  font-weight: 700;
-  padding: 4px 12px;
-  border-radius: 20px;
-  background: #f0fdf4;
-  color: #166534;
-  border: 1px solid #dcfce7;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.profile-nav-link {
+    display: block;
+    padding: 12px 16px;
+    border-radius: 8px;
+    color: #475569;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
 }
 
-.hero-badge.onb {
-  background: #fffbeb;
-  color: #92400e;
-  border-color: #fef3c7;
+.profile-nav-link:hover {
+    background: #f8fafc;
+    color: var(--brand-green);
 }
 
-.hero-badge::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: currentColor;
+.profile-nav-link.active {
+    background: #f1f5f9;
+    color: #1e293b;
 }
 
-.hero-meta-chip {
-  font-size: 13px;
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 600;
+.profile-main {
+    flex: 1;
 }
 
-.hero-meta-chip svg {
-  color: #94a3b8;
+.section-card {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 24px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+    scroll-margin-top: 20px;
 }
 
-/* ── Action Buttons ── */
-.emp-hero-actions {
-  display: flex;
-  gap: 10px;
+.section-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.section-header h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #334155;
+    margin: 0;
+}
+
+.section-body {
+    padding: 24px;
+}
+
+/* ── Modern Grid & Forms ── */
+.modern-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.form-field {
+    margin-bottom: 20px;
+}
+
+.form-field.full {
+    grid-column: span 2;
+}
+
+.form-field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 8px;
+}
+
+.modern-input {
+    width: 100%;
+    height: 44px;
+    padding: 0 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #1e293b;
+    background: #f8fafc;
+    transition: all 0.2s;
+    font-family: inherit;
+    cursor: not-allowed;
+    border-style: dashed;
 }
 
 .btn-hero {
@@ -210,145 +281,6 @@ session_start();
   background: #fef2f2;
   border-color: #fca5a5;
 }
-
-/* ── Stats Row ── */
-.emp-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.emp-stat {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 18px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
-}
-
-.emp-stat-label {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.emp-stat-value {
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--text-main);
-  letter-spacing: -0.3px;
-}
-
-.emp-stat-value.green {
-  color: var(--brand-green);
-}
-
-.emp-stat-sub {
-  font-size: 12px;
-  color: #94a3b8;
-  font-weight: 500;
-}
-
-/* ── Detail Cards ── */
-.emp-section-label {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 12px;
-  padding-left: 5px;
-}
-
-.emp-info-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
-}
-
-.emp-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.emp-card-head {
-  padding: 14px 20px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: #fcfcfd;
-}
-
-.emp-card-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: var(--bg);
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.emp-card-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-main);
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.emp-card-title .dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--brand-orange);
-}
-
-.emp-card-body { padding: 6px 0; }
-
-/* ── Info rows (dl) ── */
-.emp-info-list { margin: 0; padding: 0; }
-.emp-info-row {
-  display: flex; align-items: flex-start;
-  padding: 13px 22px;
-  border-bottom: 1px solid #f1f5f9;
-  gap: 16px;
-  transition: background .12s;
-}
-.emp-info-row:last-child { border-bottom: none; }
-.emp-info-row:hover { background: var(--surface); }
-
-.emp-info-dt {
-  width: 130px; flex-shrink: 0;
-  font-size: 12px; font-weight: 600;
-  color: var(--text-s); text-transform: uppercase; letter-spacing: 0.5px;
-  padding-top: 1px;
-}
-.emp-info-dd {
-  font-size: 14px; font-weight: 600; color: var(--text-b);
-  margin: 0; word-break: break-word;
-}
-.emp-info-link {
-  color: var(--blue); text-decoration: none;
-  transition: color .14s;
-}
-.emp-info-link:hover { color: var(--blue-dark); text-decoration: underline; }
-
-.sal-val { font-family: var(--font); font-size: 16px; font-weight: 700; color: var(--text-h); }
-.sal-per { font-size: 12.5px; color: var(--text-s); margin-left: 2px; font-weight: 500; }
 
 .mono {
   font-family: 'Courier New', monospace;
@@ -417,6 +349,74 @@ session_start();
 .emp-hero  { animation: fadeUp .3s ease both; }
 .emp-stats { animation: fadeUp .3s .06s ease both; }
 .emp-card  { animation: fadeUp .32s .12s ease both; }
+/* ── Stats Row ── */
+.emp-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.emp-stat {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+}
+
+.emp-stat-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.emp-stat-value {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -0.3px;
+}
+
+.emp-stat-value.green {
+  color: var(--brand-green);
+}
+
+.emp-stat-sub {
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+/* ── Responsiveness ── */
+@media (max-width: 900px) {
+    .profile-container {
+        flex-direction: column;
+        gap: 24px;
+    }
+    .profile-sidebar {
+        width: 100%;
+        position: relative;
+        top: 0;
+    }
+}
+
+@media (max-width: 600px) {
+    .modern-grid {
+        grid-template-columns: 1fr;
+    }
+    .form-field.full {
+        grid-column: span 1;
+    }
+    .emp-stats {
+        grid-template-columns: 1fr;
+    }
+    .dashboard-container {
+        padding: 15px;
+    }
+}
 </style>
 
 <div class="dashboard-container">
@@ -424,231 +424,223 @@ session_start();
   <!-- ── Breadcrumb ── -->
   <nav class="emp-breadcrumb" aria-label="Breadcrumb">
     <a href="administrator_dashboard.php">Dashboard</a>
-    <span>/</span>
     <a href="employees_list.php">Employees</a>
-    <span>/</span>
     <span><?php echo htmlspecialchars($employee['first_name']); ?></span>
   </nav>
 
-  <!-- ══ Hero Banner ══ -->
-  <div class="emp-hero">
-    <div class="emp-hero-left">
-      <div class="emp-avatar-xl" aria-hidden="true">
-        <?php echo strtoupper(substr($employee['first_name'], 0, 1)); ?>
-      </div>
-      <div class="emp-hero-info">
-        <h1><?php echo htmlspecialchars($employee['first_name'] . ' ' . $employee['last_name']); ?></h1>
-        <p><?php echo htmlspecialchars($employee['position_title']); ?></p>
-        <div class="emp-hero-meta">
-          <span class="hero-badge <?php echo strtolower($employee['status']) !== 'active' ? 'onb' : ''; ?>">
-            <?php echo htmlspecialchars($employee['status']); ?>
-          </span>
-          <span class="hero-meta-chip">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            Joined <?php echo htmlspecialchars($employee['date_of_joining']); ?>
-          </span>
-          <span class="hero-meta-chip">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            <?php echo htmlspecialchars($employee['base_salary_rs']); ?>/mo
-          </span>
-        </div>
-      </div>
-    </div>
-    <div class="emp-hero-actions">
-      <form action="" method="POST">
-        <button type="submit" class="btn-hero btn-hero-warn" name="deactivate" aria-label="Deactivate employee account">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-          Deactivate
-        </button>
-      </form>
-      <a href="update_profile.php?id=<?php echo $employee['user_id']; ?>" class="btn-hero btn-hero-primary" aria-label="Update employee profile">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        Update Profile
-      </a>
-    </div>
+  <div class="profile-container" style="margin-top: 20px;">
+      
+      <!-- Sidebar (Left) -->
+      <aside class="profile-sidebar">
+          <div class="profile-avatar-wrapper">
+              <?php 
+                  $initials = strtoupper(substr($employee['first_name'], 0, 1) . substr($employee['last_name'], 0, 1));
+                  echo $initials;
+              ?>
+          </div>
+          <h2><?php echo htmlspecialchars($employee['first_name'] . ' ' . $employee['last_name']); ?></h2>
+          <p><?php echo htmlspecialchars($employee['position_title']); ?></p>
+          
+          <nav class="profile-nav">
+              <a href="#personal-section" class="profile-nav-link active">Personal Details</a>
+              <a href="#financial-section" class="profile-nav-link">Financial & Banking</a>
+              <a href="#history-section" class="profile-nav-link">Employment History</a>
+              <a href="#actions-section" class="profile-nav-link">Quick Actions</a>
+          </nav>
+
+          <div style="width: 100%; border-top: 1px solid var(--border); margin-top: 20px; padding-top: 20px; display: flex; flex-direction: column; gap: 10px;">
+              <a href="update_profile.php?id=<?php echo $employee['user_id']; ?>" class="btn-hero btn-hero-primary" style="justify-content: center; width: 100%;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  Update Profile
+              </a>
+              <form action="" method="POST" style="width: 100%; margin: 0;">
+                  <button type="submit" class="btn-hero btn-hero-warn" name="deactivate" style="justify-content: center; width: 100%;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                      Deactivate Account
+                  </button>
+              </form>
+          </div>
+      </aside>
+
+      <!-- Main Content (Right) -->
+      <main class="profile-main">
+          
+          <!-- ══ Quick Stats ══ -->
+          <div class="emp-stats">
+              <div class="emp-stat">
+                  <span class="emp-stat-label">Base Salary</span>
+                  <span class="emp-stat-value"><?php echo htmlspecialchars($employee['base_salary_rs']); ?></span>
+                  <span class="emp-stat-sub">Per month</span>
+              </div>
+              <div class="emp-stat">
+                  <span class="emp-stat-label">Employment</span>
+                  <span class="emp-stat-value green">
+                      <?php
+                          $joined_ts = strtotime($employee['date_of_joining']);
+                          $diff = (new DateTime('@'.$joined_ts))->diff(new DateTime());
+                          echo $diff->y > 0 ? $diff->y . 'y ' . $diff->m . 'm' : $diff->m . ' months';
+                      ?>
+                  </span>
+                  <span class="emp-stat-sub">Since <?php echo htmlspecialchars($employee['date_of_joining']); ?></span>
+              </div>
+              <div class="emp-stat">
+                  <span class="emp-stat-label">Bank</span>
+                  <span class="emp-stat-value" style="font-size:18px; line-height: 1.2; padding-top: 2px;"><?php echo htmlspecialchars($employee['bank_name']); ?></span>
+                  <span class="emp-stat-sub">Primary account</span>
+              </div>
+          </div>
+
+          <!-- SECTION 1: PERSONAL DETAILS -->
+          <div class="section-card" id="personal-section">
+              <div class="section-header">
+                  <h3>Personal Details</h3>
+              </div>
+              <div class="section-body">
+                  <div class="modern-grid">
+                      <div class="form-field">
+                          <label>Email Address</label>
+                          <input type="text" class="modern-input" value="<?php echo htmlspecialchars($employee['email']); ?>" disabled>
+                      </div>
+                      <div class="form-field">
+                          <label>Department</label>
+                          <input type="text" class="modern-input" value="<?php echo htmlspecialchars($employee['department']); ?>" disabled>
+                      </div>
+                      <div class="form-field full">
+                          <label>Date Joined</label>
+                          <input type="text" class="modern-input" value="<?php echo htmlspecialchars($employee['date_of_joining']); ?>" disabled>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <!-- SECTION 2: FINANCIAL & BANKING -->
+          <div class="section-card" id="financial-section">
+              <div class="section-header">
+                  <h3>Financial & Banking</h3>
+              </div>
+              <div class="section-body">
+                  <div class="modern-grid">
+                      <div class="form-field">
+                          <label>Base Salary (Rs)</label>
+                          <input type="text" class="modern-input" value="<?php echo htmlspecialchars($employee['base_salary_rs']); ?> / month" disabled>
+                      </div>
+                      <div class="form-field">
+                          <label>Bank Name</label>
+                          <input type="text" class="modern-input" value="<?php echo htmlspecialchars($employee['bank_name']); ?>" disabled>
+                      </div>
+                      <div class="form-field full">
+                          <label>Account Number (IBAN)</label>
+                          <input type="text" class="modern-input" value="<?php echo htmlspecialchars($employee['bank_account_number']); ?>" disabled>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <!-- SECTION 3: EMPLOYMENT HISTORY -->
+          <div class="section-card" id="history-section">
+              <div class="section-header">
+                  <h3>Employment History</h3>
+              </div>
+              <div class="section-body">
+                  <div class="emp-timeline">
+                      <div class="tl-item">
+                          <div class="tl-dot">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                          </div>
+                          <div class="tl-content">
+                              <div class="tl-title">Joined Company</div>
+                              <div class="tl-date">
+                                  <time datetime="<?php echo date('Y-m-d', strtotime($employee['date_of_joining'])); ?>">
+                                      <?php echo htmlspecialchars($employee['date_of_joining']); ?>
+                                  </time>
+                              </div>
+                              <div class="tl-desc">Started as <?php echo htmlspecialchars($employee['position_title']); ?></div>
+                          </div>
+                      </div>
+                      <div class="tl-item">
+                          <div class="tl-dot" style="background: #f0fdf4; border-color: var(--brand-green); color: var(--brand-green);">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg>
+                          </div>
+                          <div class="tl-content">
+                              <div class="tl-title">Currently Active</div>
+                              <div class="tl-date">Present</div>
+                              <div class="tl-desc">Status: <strong><?php echo htmlspecialchars($employee['status']); ?></strong></div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <!-- SECTION 4: QUICK ACTIONS -->
+          <div class="section-card" id="actions-section">
+              <div class="section-header">
+                  <h3>Quick Actions</h3>
+              </div>
+              <div class="section-body">
+                  <div class="emp-actions-list" style="padding: 0;">
+                      <a href="#" class="emp-qa" aria-label="Generate payslip for <?php echo htmlspecialchars($employee['first_name']); ?>">
+                          <div class="emp-qa-icon payslip">
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                          </div>
+                          <div class="emp-qa-text-wrap">
+                              <div class="emp-qa-label">Generate Payslip</div>
+                              <div class="emp-qa-desc">Download this month's payslip</div>
+                          </div>
+                          <svg class="emp-qa-arr" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                      </a>
+
+                      <a href="attendance_record.php" class="emp-qa" aria-label="View attendance records">
+                          <div class="emp-qa-icon attend">
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                          </div>
+                          <div class="emp-qa-text-wrap">
+                              <div class="emp-qa-label">View Attendance</div>
+                              <div class="emp-qa-desc">Check check-in / check-out logs</div>
+                          </div>
+                          <svg class="emp-qa-arr" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                      </a>
+
+                      <a href="#" class="emp-qa" aria-label="Send performance review">
+                          <div class="emp-qa-icon review">
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>
+                          </div>
+                          <div class="emp-qa-text-wrap">
+                              <div class="emp-qa-label">Performance Review</div>
+                              <div class="emp-qa-desc">Send review request via email</div>
+                          </div>
+                          <svg class="emp-qa-arr" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                      </a>
+                  </div>
+              </div>
+          </div>
+
+      </main>
   </div>
 
-  <!-- ══ Quick Stats ══ -->
-  <div class="emp-stats">
-    <div class="emp-stat">
-      <span class="emp-stat-label">Base Salary</span>
-      <span class="emp-stat-value"><?php echo htmlspecialchars($employee['base_salary_rs']); ?></span>
-      <span class="emp-stat-sub">Per month</span>
-    </div>
-    <div class="emp-stat">
-      <span class="emp-stat-label">Employment</span>
-      <span class="emp-stat-value green">
-        <?php
-          $joined_ts = strtotime($employee['date_of_joining']);
-          $diff = (new DateTime('@'.$joined_ts))->diff(new DateTime());
-          echo $diff->y > 0 ? $diff->y . 'y ' . $diff->m . 'm' : $diff->m . ' months';
-        ?>
-      </span>
-      <span class="emp-stat-sub">Since <?php echo htmlspecialchars($employee['date_of_joining']); ?></span>
-    </div>
-    <div class="emp-stat">
-      <span class="emp-stat-label">Bank</span>
-      <span class="emp-stat-value" style="font-size:18px; line-height: 1.2; padding-top: 2px;"><?php echo htmlspecialchars($employee['bank_name']); ?></span>
-      <span class="emp-stat-sub">Primary account</span>
-    </div>
-  </div>
+  <script>
+      // Scroll handling for active sidebar state
+      document.addEventListener('DOMContentLoaded', function() {
+          const links = document.querySelectorAll('.profile-nav-link');
+          const sections = document.querySelectorAll('.section-card');
 
-  <!-- ══ Detail Cards ══ -->
-  <div>
-    <div class="emp-section-label">Employee Details</div>
-    <div class="emp-info-grid">
+          window.addEventListener('scroll', function() {
+              let current = '';
+              sections.forEach(section => {
+                  const sectionTop = section.offsetTop;
+                  if (pageYOffset >= sectionTop - 120) {
+                      current = section.getAttribute('id');
+                  }
+              });
 
-      <!-- Personal Information -->
-      <div class="emp-card">
-        <div class="emp-card-head">
-          <div class="emp-card-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          </div>
-          <h3 class="emp-card-title"><span class="dot"></span>Personal Information</h3>
-        </div>
-        <div class="emp-card-body">
-          <dl class="emp-info-list">
-            <div class="emp-info-row">
-              <dt class="emp-info-dt">Email</dt>
-              <dd class="emp-info-dd">
-                <a href="mailto:<?php echo htmlspecialchars($employee['email']); ?>" class="emp-info-link">
-                  <?php echo htmlspecialchars($employee['email']); ?>
-                </a>
-              </dd>
-            </div>
-            <div class="emp-info-row">
-              <dt class="emp-info-dt">Department</dt>
-              <dd class="emp-info-dd"><span class="mono"><?php echo htmlspecialchars($employee['department']); ?></span></dd>
-            </div>
-            <div class="emp-info-row">
-              <dt class="emp-info-dt">Date Joined</dt>
-              <dd class="emp-info-dd">
-                <time datetime="<?php echo date('Y-m-d', strtotime($employee['date_of_joining'])); ?>">
-                  <?php echo htmlspecialchars($employee['date_of_joining']); ?>
-                </time>
-              </dd>
-            </div>
-          </dl>
-        </div>
-      </div>
-
-      <!-- Financial & Banking -->
-      <div class="emp-card">
-        <div class="emp-card-head">
-          <div class="emp-card-icon fin">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-          </div>
-          <h3 class="emp-card-title"><span class="dot" style="background:linear-gradient(135deg,#7E22CE,#9333EA)"></span>Financial &amp; Banking</h3>
-        </div>
-        <div class="emp-card-body">
-          <dl class="emp-info-list">
-            <div class="emp-info-row">
-              <dt class="emp-info-dt">Base Salary</dt>
-              <dd class="emp-info-dd">
-                <span class="sal-val"><?php echo htmlspecialchars($employee['base_salary_rs']); ?></span>
-                <span class="sal-per">/month</span>
-              </dd>
-            </div>
-            <div class="emp-info-row">
-              <dt class="emp-info-dt">Bank</dt>
-              <dd class="emp-info-dd"><?php echo htmlspecialchars($employee['bank_name']); ?></dd>
-            </div>
-            <div class="emp-info-row">
-              <dt class="emp-info-dt">Account No.</dt>
-              <dd class="emp-info-dd"><span class="mono"><?php echo htmlspecialchars($employee['bank_account_number']); ?></span></dd>
-            </div>
-          </dl>
-        </div>
-      </div>
-
-      <!-- Employment History -->
-      <div class="emp-card">
-        <div class="emp-card-head">
-          <div class="emp-card-icon hist">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          </div>
-          <h3 class="emp-card-title"><span class="dot" style="background:linear-gradient(135deg,#059669,#10b981)"></span>Employment History</h3>
-        </div>
-        <div class="emp-card-body">
-          <div class="emp-timeline">
-            <div class="tl-item">
-              <div class="tl-dot">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              </div>
-              <div class="tl-content">
-                <div class="tl-title">Joined Company</div>
-                <div class="tl-date">
-                  <time datetime="<?php echo date('Y-m-d', strtotime($employee['date_of_joining'])); ?>">
-                    <?php echo htmlspecialchars($employee['date_of_joining']); ?>
-                  </time>
-                </div>
-                <div class="tl-desc">Started as <?php echo htmlspecialchars($employee['position_title']); ?></div>
-              </div>
-            </div>
-            <div class="tl-item">
-              <div class="tl-dot" style="background:var(--blue-light);border-color:var(--blue);color:var(--blue);">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/></svg>
-              </div>
-              <div class="tl-content">
-                <div class="tl-title">Currently Active</div>
-                <div class="tl-date">Present</div>
-                <div class="tl-desc">Status: <strong><?php echo htmlspecialchars($employee['status']); ?></strong></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Actions -->
-      <div class="emp-card">
-        <div class="emp-card-head">
-          <div class="emp-card-icon act">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
-          </div>
-          <h3 class="emp-card-title"><span class="dot" style="background:linear-gradient(135deg,#D97706,#F59E0B)"></span>Quick Actions</h3>
-        </div>
-        <div class="emp-card-body">
-          <div class="emp-actions-list">
-
-            <a href="#" class="emp-qa" aria-label="Generate payslip for <?php echo htmlspecialchars($employee['first_name']); ?>">
-              <div class="emp-qa-icon payslip">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-              </div>
-              <div class="emp-qa-text-wrap">
-                <div class="emp-qa-label">Generate Payslip</div>
-                <div class="emp-qa-desc">Download this month's payslip</div>
-              </div>
-              <svg class="emp-qa-arr" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-            </a>
-
-            <a href="attendance_record.php" class="emp-qa" aria-label="View attendance records">
-              <div class="emp-qa-icon attend">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              </div>
-              <div class="emp-qa-text-wrap">
-                <div class="emp-qa-label">View Attendance</div>
-                <div class="emp-qa-desc">Check check-in / check-out logs</div>
-              </div>
-              <svg class="emp-qa-arr" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-            </a>
-
-            <a href="#" class="emp-qa" aria-label="Send performance review">
-              <div class="emp-qa-icon review">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22 6 12 13 2 6"/></svg>
-              </div>
-              <div class="emp-qa-text-wrap">
-                <div class="emp-qa-label">Performance Review</div>
-                <div class="emp-qa-desc">Send review request via email</div>
-              </div>
-              <svg class="emp-qa-arr" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-            </a>
-
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
+              links.forEach(link => {
+                  link.classList.remove('active');
+                  if (link.getAttribute('href').substring(1) === current) {
+                      link.classList.add('active');
+                  }
+              });
+          });
+      });
+  </script>
 
 </div><!-- /.dashboard-container -->
 

@@ -285,9 +285,126 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
 .modern-btn-secondary:hover {
     background: #f8fafc;
 }
+
+/* ── Breadcrumb Pills ── */
+.emp-breadcrumb {
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  margin-bottom: 24px;
+}
+.emp-breadcrumb a {
+  background: #f1f5f9;
+  color: #64748b;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.emp-breadcrumb a:hover {
+  background: #e2e8f0;
+  color: #334155;
+}
+.emp-breadcrumb span {
+  background: #e8f3f0;
+  color: #186D55;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ── Responsiveness (Mobile View tabs & side-by-side avatar) ── */
+@media (max-width: 768px) {
+    .profile-container {
+        flex-direction: column;
+        gap: 20px;
+        padding: 0;
+    }
+    .profile-sidebar {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        align-items: center;
+        gap: 20px;
+        padding: 20px;
+        width: 100%;
+        position: relative;
+        top: 0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    }
+    .profile-avatar-wrapper {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 0;
+    }
+    .profile-meta-info {
+        display: flex;
+        flex-direction: column;
+        text-align: left;
+    }
+    .profile-sidebar h2 {
+        text-align: left;
+        margin: 0;
+        font-size: 18px;
+    }
+    .profile-sidebar p {
+        text-align: left;
+        margin: 4px 0 0 0;
+    }
+    .profile-nav {
+        grid-column: span 2;
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+        overflow-x: auto;
+        padding: 8px 0;
+        margin-top: 15px;
+        border-top: 1px solid #f1f5f9;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    .profile-nav::-webkit-scrollbar {
+        display: none;
+    }
+    .profile-nav-link {
+        white-space: nowrap;
+        flex-shrink: 0;
+        padding: 8px 16px !important;
+        border-radius: 20px !important;
+        background: #f1f5f9 !important;
+        color: #475569 !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        border: none !important;
+        transition: all 0.2s;
+    }
+    .profile-nav-link.active {
+        background: var(--brand-green) !important;
+        color: #ffffff !important;
+    }
+    .profile-main {
+        width: 100%;
+    }
+    .modern-grid {
+        grid-template-columns: 1fr;
+    }
+    .form-field.full {
+        grid-column: span 1;
+    }
+}
 </style>
 
 <div class="dashboard-container">
+    <!-- ── Breadcrumb ── -->
+    <nav class="emp-breadcrumb" aria-label="Breadcrumb">
+        <a href="administrator_dashboard.php">Dashboard</a>
+        <a href="employees_list.php">Employees</a>
+        <a href="manage_employee.php?id=<?php echo htmlspecialchars($employee['user_id']); ?>"><?php echo htmlspecialchars($employee['first_name']); ?></a>
+        <span>Update Profile</span>
+    </nav>
+
     <div class="profile-container">
         
         <!-- Sidebar -->
@@ -298,15 +415,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
                     echo "<div style='width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#186D55; color:#fff; font-size:40px; font-weight:700;'>$initials</div>";
                 ?>
             </div>
-            <h2><?php echo htmlspecialchars($employee['first_name'] . ' ' . $employee['last_name']); ?></h2>
-            <p><?php echo htmlspecialchars($employee['position_title']); ?></p>
+            <div class="profile-meta-info">
+                <h2><?php echo htmlspecialchars($employee['first_name'] . ' ' . $employee['last_name']); ?></h2>
+                <p><?php echo htmlspecialchars($employee['position_title']); ?></p>
+            </div>
             
             <nav class="profile-nav">
-                <a href="#" class="profile-nav-link active">Personal Details</a>
-                <a href="#" class="profile-nav-link">Contact Details</a>
-                <a href="#" class="profile-nav-link">Job</a>
-                <a href="#" class="profile-nav-link">Salary</a>
-                <a href="#" class="profile-nav-link">Banking</a>
+                <a href="#personal-section" class="profile-nav-link active">Personal Details</a>
+                <a href="#job-section" class="profile-nav-link">Job Information</a>
+                <a href="#compensation-section" class="profile-nav-link">Compensation & Banking</a>
             </nav>
         </aside>
 
@@ -316,7 +433,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
                 <input type="hidden" name="user_id" value="<?php echo htmlspecialchars($employee['user_id']); ?>">
 
                 <!-- Personal Details Section -->
-                <div class="section-card">
+                <div class="section-card" id="personal-section">
                     <div class="section-header">
                         <h3>Personal Details</h3>
                     </div>
@@ -343,7 +460,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
                 </div>
 
                 <!-- Job Information Section -->
-                <div class="section-card">
+                <div class="section-card" id="job-section">
                     <div class="section-header">
                         <h3>Job Information</h3>
                     </div>
@@ -385,7 +502,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
                 </div>
 
                 <!-- Compensation & Banking Section -->
-                <div class="section-card">
+                <div class="section-card" id="compensation-section">
                     <div class="section-header">
                         <h3>Compensation & Banking</h3>
                     </div>
@@ -424,5 +541,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     </div>
 </div>
 
+
+<script>
+    // Scroll handling and mobile tabs switcher for update profile
+    document.addEventListener('DOMContentLoaded', function() {
+        const links = document.querySelectorAll('.profile-nav-link');
+        const sections = document.querySelectorAll('.section-card');
+
+        // Click handler for mobile tab switching & smooth scrolling on desktop
+        links.forEach(link => {
+            link.addEventListener('click', function(e) {
+                const targetId = link.getAttribute('href').substring(1);
+                
+                if (window.innerWidth <= 768) {
+                    e.preventDefault();
+                    
+                    // Toggle active pill
+                    links.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    
+                    // Show only target section
+                    sections.forEach(section => {
+                        if (section.getAttribute('id') === targetId) {
+                            section.style.display = 'block';
+                        } else {
+                            section.style.display = 'none';
+                        }
+                    });
+                }
+            });
+        });
+
+        // Initialize display states based on screen width
+        function initLayout() {
+            if (window.innerWidth <= 768) {
+                const activeLink = document.querySelector('.profile-nav-link.active') || links[0];
+                if (activeLink) {
+                    const targetId = activeLink.getAttribute('href').substring(1);
+                    sections.forEach(section => {
+                        if (section.getAttribute('id') === targetId) {
+                            section.style.display = 'block';
+                        } else {
+                            section.style.display = 'none';
+                        }
+                    });
+                }
+            } else {
+                // Ensure all sections are visible on desktop
+                sections.forEach(section => {
+                    section.style.display = 'block';
+                });
+            }
+        }
+
+        window.addEventListener('resize', initLayout);
+        initLayout();
+    });
+</script>
 
 <?php include_once "../includes/footer.php" ; ?>

@@ -361,6 +361,85 @@ input:checked + .slider:before {
 .app-right {
     background: #f6f8fb;
 }
+
+/* ── Responsiveness (Mobile View tabs & side-by-side avatar) ── */
+@media (max-width: 768px) {
+    .profile-container {
+        flex-direction: column;
+        gap: 20px;
+        padding: 0 15px;
+    }
+    .profile-sidebar {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        align-items: center;
+        gap: 20px;
+        padding: 20px;
+        width: 100%;
+        position: relative;
+        top: 0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    }
+    .profile-avatar-wrapper {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 0;
+    }
+    .profile-meta-info {
+        display: flex;
+        flex-direction: column;
+        text-align: left;
+    }
+    .profile-sidebar h2 {
+        text-align: left;
+        margin: 0;
+        font-size: 18px;
+    }
+    .profile-sidebar p {
+        text-align: left;
+        margin: 4px 0 0 0;
+    }
+    .profile-nav {
+        grid-column: span 2;
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+        overflow-x: auto;
+        padding: 8px 0;
+        margin-top: 15px;
+        border-top: 1px solid #f1f5f9;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    .profile-nav::-webkit-scrollbar {
+        display: none;
+    }
+    .profile-nav-link {
+        white-space: nowrap;
+        flex-shrink: 0;
+        padding: 8px 16px !important;
+        border-radius: 20px !important;
+        background: #f1f5f9 !important;
+        color: #475569 !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        border: none !important;
+        transition: all 0.2s;
+    }
+    .profile-nav-link.active {
+        background: var(--brand-green) !important;
+        color: #ffffff !important;
+    }
+    .profile-main {
+        width: 100%;
+    }
+    .modern-grid {
+        grid-template-columns: 1fr;
+    }
+    .form-field.full {
+        grid-column: span 1;
+    }
+}
 </style>
 
 <div class="dashboard-container">
@@ -392,8 +471,10 @@ input:checked + .slider:before {
                 ?>
                 <img id="profile-preview" src="<?php echo $profile_img; ?>" alt="Profile Picture">
             </div>
-            <h2><?php echo htmlspecialchars($_SESSION['first_name'] . ' ' . $_SESSION['last_name']); ?></h2>
-            <p><?php echo $is_admin ? "Administrator" : htmlspecialchars($employee_data['position_title'] ?? "Employee"); ?></p>
+            <div class="profile-meta-info">
+                <h2><?php echo htmlspecialchars($_SESSION['first_name'] . ' ' . $_SESSION['last_name']); ?></h2>
+                <p><?php echo $is_admin ? "Administrator" : htmlspecialchars($employee_data['position_title'] ?? "Employee"); ?></p>
+            </div>
             
             <nav class="profile-nav">
                 <a href="#profile-section" class="profile-nav-link active">Personal Settings</a>
@@ -545,27 +626,79 @@ input:checked + .slider:before {
         reader.readAsDataURL(event.target.files[0]);
     }
 
-    // Scroll handling for active state
+    // Scroll handling and mobile tabs switcher
     document.addEventListener('DOMContentLoaded', function() {
         const links = document.querySelectorAll('.profile-nav-link');
         const sections = document.querySelectorAll('.section-card');
 
+        // Scroll listener for Desktop Scroll-Spy
         window.addEventListener('scroll', function() {
-            let current = '';
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop;
-                if (pageYOffset >= sectionTop - 60) {
-                    current = section.getAttribute('id');
-                }
-            });
+            if (window.innerWidth > 768) {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 120) {
+                        current = section.getAttribute('id');
+                    }
+                });
 
-            links.forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('href').substring(1) === current) {
+                links.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').substring(1) === current) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+        });
+
+        // Click handler for mobile tab switching & smooth scrolling on desktop
+        links.forEach(link => {
+            link.addEventListener('click', function(e) {
+                const targetId = link.getAttribute('href').substring(1);
+                
+                if (window.innerWidth <= 768) {
+                    e.preventDefault();
+                    
+                    // Toggle active pill
+                    links.forEach(l => l.classList.remove('active'));
                     link.classList.add('active');
+                    
+                    // Show only target section
+                    sections.forEach(section => {
+                        if (section.getAttribute('id') === targetId) {
+                            section.style.display = 'block';
+                        } else {
+                            section.style.display = 'none';
+                        }
+                    });
                 }
             });
         });
+
+        // Initialize display states based on screen width
+        function initLayout() {
+            if (window.innerWidth <= 768) {
+                const activeLink = document.querySelector('.profile-nav-link.active') || links[0];
+                if (activeLink) {
+                    const targetId = activeLink.getAttribute('href').substring(1);
+                    sections.forEach(section => {
+                        if (section.getAttribute('id') === targetId) {
+                            section.style.display = 'block';
+                        } else {
+                            section.style.display = 'none';
+                        }
+                    });
+                }
+            } else {
+                // Ensure all sections are visible on desktop
+                sections.forEach(section => {
+                    section.style.display = 'block';
+                });
+            }
+        }
+
+        window.addEventListener('resize', initLayout);
+        initLayout();
     });
 </script>
 
