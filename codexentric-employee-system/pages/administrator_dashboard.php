@@ -1,4 +1,4 @@
-<?php 
+<?php
 session_start();
 
 if (!isset($_SESSION['email'])) {
@@ -6,528 +6,528 @@ if (!isset($_SESSION['email'])) {
     exit();
 }
 
-    $current_page = "administrator_dashboard";
-    $extra_css    = "admin_dashboard";
-    $title        = "Admin Dashboard";  
-    require_once '../pages/database.php';
-    require_once '../pages/Employee.php';
-    $db = new Database();
-    $connection = $db->getConnection();
-    $employeeObj = new Employee($connection);
+$current_page = "administrator_dashboard";
+$extra_css    = "admin_dashboard";
+$title        = "Admin Dashboard";
+require_once '../pages/database.php';
+require_once '../pages/Employee.php';
+$db = new Database();
+$connection = $db->getConnection();
+$employeeObj = new Employee($connection);
 
-    $dashboardData = $employeeObj->getDashboardData();
-    
-    $stats = [
-        ["label" => "Total Headcount", "value" => (string)$dashboardData['total_headcount'], "sub" => "Across all departments", "trend" => "Active"],
-        ["label" => "Current Revenue", "value" => "Rs 1.2M",   "sub" => "Monthly recurring",      "trend" => "+12.4% vs last"],
-        ["label" => "Monthly Payroll", "value" => "Rs " . number_format($dashboardData['monthly_payroll']), "sub" => "Base salary disbursement", "trend" => "Pending run"]
-    ];
+$dashboardData = $employeeObj->getDashboardData();
 
-    $team_members = $dashboardData['team_members'];
+$stats = [
+    ["label" => "Total Employees",  "value" => (string)$dashboardData['total_headcount']],
+    ["label" => "Monthly Payroll",  "value" => "Rs " . number_format($dashboardData['monthly_payroll'])],
+    ["label" => "Recent Hires",     "value" => count($dashboardData['team_members'])]
+];
 
-    include_once "../includes/header.php";
-    include_once "../includes/sidebar.php";
+$team_members = $dashboardData['team_members'];
 
+include_once "../includes/header.php";
+include_once "../includes/sidebar.php";
 ?>
 
 <style>
-/* Removed Nunito import; relying on Source Sans 3 from the header */
-
+/* ── OrangeHRM Style Token System ── */
 :root {
-  /* Updated Core Theme Variables from Header */
-  --blue:          #1a6eff;
-  --blue-dark:     #1252cc;
-  --blue-light:    rgba(26, 110, 255, 0.12);
-  --blue-xlight:   rgba(26, 110, 255, 0.05);
-  --body-bg:       #F0F4FA;
-  --text-primary:  #111827;
-  --text-secondary:#4B5563;
-  --text-muted:    #9CA3AF;
-  --border:        #E2E8F0;
-  --font:          'Inter', sans-serif;
-
-  /* Retained Semantic Colors for Dashboard Widgets */
-  --green:         #059669;
-  --green-bg:      #D1FAE5;
-  --amber:         #D97706;
-  --amber-bg:      #FEF3C7;
-  --red:           #DC2626;
-  --red-bg:        #FEE2E2;
-
-  /* Mapped Component Variables */
-  --surface:       var(--body-bg);
-  --card:          #ffffff;
-  --text-h:        var(--text-primary);
-  --text-b:        var(--text-secondary);
-  --text-m:        #6B7280;
-  --text-s:        var(--text-muted);
-  
-  --radius:        12px;
-  --radius-sm:     8px;
-  --shadow-xs:     0 1px 3px rgba(17, 24, 39, 0.05);
-  --shadow-sm:     0 1px 6px rgba(17, 24, 39, 0.07);
-  --shadow-md:     0 4px 20px rgba(17, 24, 39, 0.09);
-  --shadow-blue:   0 6px 24px rgba(26, 110, 255, 0.2);
+  --bg: #f1f5f9; /* Slightly different neutral shade */
+  --card-bg: #ffffff;
+  --border: #e2e8f0;
+  --text-main: #334155;
+  --text-muted: #64748b;
+  --brand-orange: #ff7b1d;
+  --brand-orange-hover: #e66a15;
+  --brand-green: #186D55;
+  --icon-bg: #f1f5f9;
+  --font-body: 'Nunito Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
-
-
-/* ── Welcome Banner ── */
-.dash-welcome {
-  /* Updated to match header's gradient aesthetic */
-  background: linear-gradient(135deg, #0f1c2e 0%, #1252cc 60%, #1a6eff 100%);
-  border-radius: var(--radius-lg, 12px);
-  padding: 32px 36px;
-  display: flex; align-items: center; justify-content: space-between;
-  flex-wrap: wrap; gap: 20px;
-  position: relative; overflow: hidden;
-  box-shadow: var(--shadow-blue);
-}
-.dash-welcome::before {
-  content: ''; position: absolute;
-  width: 320px; height: 320px; border-radius: 50%;
-  background: rgba(255,255,255,0.04);
-  top: -120px; right: -80px; pointer-events: none;
-}
-.dash-welcome::after {
-  content: ''; position: absolute;
-  width: 180px; height: 180px; border-radius: 50%;
-  background: rgba(255,255,255,0.03);
-  bottom: -60px; right: 120px; pointer-events: none;
-}
-.dash-welcome-text { position: relative; z-index: 1; }
-.dash-welcome-text h1 {
-  font-family: var(--font);
-  font-size: 24px; font-weight: 700; color: #fff; margin: 0 0 5px;
-}
-.dash-welcome-text p { font-size: 14px; color: rgba(255,255,255,0.7); margin: 0; }
-.dash-welcome-actions { display: flex; align-items: center; gap: 10px; position: relative; z-index: 1; flex-wrap: wrap; }
-
-.btn-wh {
-  height: 38px; padding: 0 18px;
-  background: rgba(255,255,255,0.1); color: #fff;
-  border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;
-  font-size: 13.5px; font-weight: 600;
-  font-family: var(--font);
-  cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
-  text-decoration: none; white-space: nowrap;
-  backdrop-filter: blur(6px);
-  transition: background .18s, border-color .18s;
-}
-.btn-wh:hover { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.4); }
-.btn-wh-solid {
-  background: #fff; color: var(--blue-dark);
-  border-color: #fff;
-}
-.btn-wh-solid:hover { background: #f0f4fa; color: var(--blue); }
-
-/* ── Section label ── */
-.dash-section-label {
-  font-size: 11.5px; font-weight: 700;
-  color: var(--text-s); text-transform: uppercase; letter-spacing: 0.8px;
-  margin-bottom: 14px;
-  display: flex; align-items: center; gap: 8px;
-}
-.dash-section-label::after {
-  content: ''; flex: 1; height: 1px; background: var(--border);
+body {
+  background-color: var(--bg);
+  font-family: var(--font-body);
+  color: var(--text-main);
+  margin: 0;
 }
 
-/* ── Stats Grid ── */
-/* ── Stats Grid ── */
-.dash-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+.cx-dash {
+  padding: 0 30px 30px 30px;
+  min-height: 100vh;
+  box-sizing: border-box;
+  max-width: 1200px;
+  margin: 0 auto;
 }
-@media (max-width: 860px) { .dash-stats { grid-template-columns: repeat(2,1fr); } }
-@media (max-width: 520px)  { .dash-stats { grid-template-columns: 1fr; } }
 
-.stat-card {
-  background: var(--card);
+/* ── Top Header & Actions ── */
+.dash-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.dash-header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-main);
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-minimal {
+  display: inline-block;
+  padding: 8px 16px;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 22px 22px 18px;
-  display: flex; flex-direction: column; gap: 0;
-  position: relative; overflow: hidden;
-  transition: box-shadow .2s, transform .2s;
-  box-shadow: var(--shadow-xs);
-}
-/* Per-card top accent stripe */
-.stat-card:nth-child(1)::before { background: var(--blue); }
-.stat-card:nth-child(2)::before { background: #C27803; }
-.stat-card:nth-child(3)::before { background: #6D28D9; }
-.stat-card::before {
-  content: ''; position: absolute;
-  top: 0; left: 0; right: 0; height: 3px;
-}
-.stat-card:hover {
-  box-shadow: 0 8px 28px rgba(0,0,0,0.08);
-  transform: translateY(-2px);
-}
-.stat-card-top {
-  display: flex; align-items: flex-start;
-  justify-content: space-between; gap: 12px;
-  margin-bottom: 18px;
-}
-.stat-label {
-  font-size: 12px; font-weight: 600; color: var(--text-s);
-  text-transform: uppercase; letter-spacing: .6px; margin: 0;
-}
-.stat-icon-wrap {
-  width: 38px; height: 38px; border-radius: 8px;
-  background: var(--blue-light); color: var(--blue);
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.stat-icon-wrap.revenue { background: #FEF3C7; color: #C27803; }
-.stat-icon-wrap.payroll { background: #EDE9FE; color: #6D28D9; }
-
-.stat-value {
-  font-family: 'DM Mono', 'Courier New', monospace;
-  font-size: 28px; font-weight: 500;
-  color: var(--text-h); line-height: 1;
-  letter-spacing: -1px; margin: 0 0 16px;
-}
-.stat-footer {
-  display: flex; align-items: center; justify-content: space-between;
-  border-top: 1px solid var(--border); padding-top: 12px;
-}
-.stat-sub { font-size: 12px; color: var(--text-s); }
-.stat-trend {
-  font-size: 11px; font-weight: 600;
-  padding: 3px 9px; border-radius: 20px;
-  background: var(--green-bg); color: var(--green);
-  white-space: nowrap;
-}
-.stat-trend.warn { background: var(--amber-bg); color: var(--amber); }
-
-/* ── Quick Links ── */
-/* ── Quick Links ── */
-.dash-quicklinks {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-}
-@media (max-width: 760px) { .dash-quicklinks { grid-template-columns: repeat(2,1fr); } }
-@media (max-width: 400px) { .dash-quicklinks { grid-template-columns: 1fr; } }
-
-.ql-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 18px 16px 14px;
-  display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
+  background: var(--card-bg);
+  color: var(--text-main);
+  border-radius: 6px;
   text-decoration: none;
-  transition: box-shadow .18s, border-color .18s, transform .18s;
-  box-shadow: var(--shadow-xs);
-}
-.ql-card:hover {
-  box-shadow: 0 6px 24px rgba(0,0,0,0.08);
-  border-color: rgba(0,0,0,0.13);
-  transform: translateY(-2px);
-}
-.ql-icon { width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
-.ql-icon.emp  { background: var(--blue-light);  color: var(--blue); }
-.ql-icon.pay  { background: #EDE9FE;             color: #6D28D9; }
-.ql-icon.att  { background: var(--green-bg);     color: var(--green); }
-.ql-icon.rep  { background: var(--amber-bg);     color: var(--amber); }
-.ql-label { font-size: 14px; font-weight: 600; color: var(--text-h); }
-.ql-desc  { font-size: 12px; color: var(--text-s); }
-/* "View →" affordance row */
-.ql-card::after {
-  content: 'View \2192';
-  font-size: 11px; font-weight: 600;
-  color: var(--text-s); margin-top: 6px;
-  letter-spacing: .3px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-/* ── Bottom grid: table + activity ── */
-.dash-bottom {
+.btn-minimal:hover {
+  background: var(--icon-bg);
+}
+
+.btn-primary {
+  display: inline-block;
+  padding: 8px 16px;
+  border: 1px solid var(--brand-orange);
+  background: var(--brand-orange);
+  color: #ffffff;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: var(--brand-orange-hover);
+  border-color: var(--brand-orange-hover);
+}
+
+/* ── Dashboard Grid ── */
+.dashboard-grid {
   display: grid;
-  grid-template-columns: 1fr 320px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 20px;
-  align-items: start;
+  margin-bottom: 20px;
 }
-@media (max-width: 980px) { .dash-bottom { grid-template-columns: 1fr; } }
 
-/* ── Table card ── */
-.dash-card {
-  background: var(--card);
+/* ── Widget Cards ── */
+.widget-card {
+  background: var(--card-bg);
+  border-radius: 12px;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-xs);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 }
-.dash-card-head {
-  padding: 16px 22px;
+
+.widget-card.roster-card {
+  background: #f8fafc; /* Subtle gray to make white pills pop */
+  border: none;
+  box-shadow: none;
+}
+
+.widget-header {
+  padding: 16px 20px;
   border-bottom: 1px solid var(--border);
-  background: #ffffff;
-  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a5568;
 }
-.dash-card-title {
-  font-family: var(--font);
-  font-size: 15.5px; font-weight: 600; color: var(--text-h);
-  display: flex; align-items: center; gap: 8px; margin: 0;
-}
-.dash-card-title .dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--blue-dark), var(--blue));
-}
-.dash-card-sub { font-size: 13px; color: var(--text-s); margin-top: 2px; }
 
-.btn-sm-outline {
-  height: 32px; padding: 0 14px;
-  background: transparent; color: var(--blue);
-  border: 1px solid var(--blue-light); border-radius: 6px;
-  font-size: 13px; font-weight: 600;
-  font-family: var(--font);
-  text-decoration: none; cursor: pointer;
-  display: inline-flex; align-items: center; gap: 5px;
-  transition: background .15s, border-color .15s;
+.widget-header svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--text-muted);
+  stroke-width: 2;
+  fill: none;
 }
-.btn-sm-outline:hover { background: var(--blue-light); border-color: var(--blue); }
 
-/* Table */
-.dash-table-wrap { overflow-x: auto; }
-.dash-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 560px; }
-.dash-table thead tr { background: var(--surface); border-bottom: 1px solid var(--border); }
-.dash-table thead th {
-  padding: 11px 18px; text-align: left;
-  font-size: 11.5px; font-weight: 600; color: var(--text-m);
-  text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+.widget-body {
+  padding: 20px;
+  flex: 1;
 }
-.dash-table tbody tr { border-bottom: 1px solid #F3F4F6; transition: background .12s; }
-.dash-table tbody tr:last-child { border-bottom: none; }
-.dash-table tbody tr:hover { background: var(--surface); }
-.dash-table td { padding: 14px 18px; color: var(--text-b); vertical-align: middle; }
 
-.emp-cell { display: flex; align-items: center; gap: 11px; }
-.emp-av {
-  width: 36px; height: 36px; border-radius: 9px; flex-shrink: 0;
-  background: linear-gradient(135deg, var(--blue-dark), var(--blue));
-  color: #fff; font-family: var(--font);
-  font-size: 14px; font-weight: 600;
-  display: flex; align-items: center; justify-content: center;
+/* ── Stats List (Inside Overview Card) ── */
+.stat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
-.emp-name-txt { font-weight: 600; color: var(--text-h); font-size: 14px; }
-.emp-role-txt { font-size: 12.5px; color: var(--text-s); margin-top: 1px; }
 
-.sal-amt  { font-family: var(--font); font-weight: 600; font-size: 14px; color: var(--text-h); }
-.sal-per  { font-size: 12px; color: var(--text-s); margin-left: 1px; }
-
-/* Status badges */
-.st-badge {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 4px 10px; border-radius: 20px;
-  font-size: 12px; font-weight: 600; white-space: nowrap;
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px dashed var(--border);
 }
-.st-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-.badge-active     { background: var(--green-bg); color: var(--green); }
-.badge-onboarding { background: var(--amber-bg); color: var(--amber); }
 
-/* Action btn */
-.btn-manage {
-  height: 30px; padding: 0 13px;
-  border: 1px solid var(--border); border-radius: 6px;
-  background: #fff; color: var(--text-m);
-  font-size: 13px; font-weight: 500;
-  font-family: var(--font);
-  cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+.stat-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.stat-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+/* ── Quick Launch Icons ── */
+.quick-launch-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px 10px;
+}
+
+.ql-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
   text-decoration: none;
-  transition: border-color .14s, color .14s, background .14s;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
-.btn-manage:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-xlight); }
 
-/* ── Activity sidebar ── */
-.act-list { padding: 6px 0; }
-.act-item {
-  display: flex; gap: 13px; align-items: flex-start;
-  padding: 13px 20px; border-bottom: 1px solid #F3F4F6;
-  transition: background .12s;
+.ql-icon-wrapper {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #f0f4f8; /* Muted gray-blue circle */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
 }
-.act-item:last-child { border-bottom: none; }
-.act-item:hover { background: var(--surface); }
-.act-dot {
-  width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
+
+.ql-icon-wrapper svg {
+  width: 24px;
+  height: 24px;
+  stroke: #475569;
+  stroke-width: 1.5;
+  fill: none;
 }
-.act-dot.join  { background: var(--green-bg);  color: var(--green); }
-.act-dot.pay   { background: #F3E8FF;          color: #7E22CE; }
-.act-dot.alert { background: var(--amber-bg);  color: var(--amber); }
-.act-dot.edit  { background: var(--blue-light); color: var(--blue); }
-.act-text  { font-size: 13.5px; color: var(--text-b); line-height: 1.45; }
-.act-text strong { color: var(--text-h); font-weight: 600; }
-.act-time  { font-size: 12px; color: var(--text-s); margin-top: 3px; }
 
-/* Empty state */
-.dash-empty { text-align: center; padding: 48px 24px; color: var(--text-s); }
-.dash-empty svg { opacity: .35; margin-bottom: 12px; }
-.dash-empty strong { display: block; font-size: 15px; color: var(--text-m); margin-bottom: 4px; }
-.dash-empty p { font-size: 13.5px; }
+.ql-item:hover .ql-icon-wrapper {
+  background: var(--brand-green);
+}
+.ql-item:hover .ql-icon-wrapper svg {
+  stroke: #ffffff;
+}
+.ql-item:hover {
+  color: var(--brand-green);
+}
 
-/* Animations */
-@keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
-.dash-welcome   { animation: fadeUp .35s ease both; }
-.stat-card      { animation: fadeUp .35s ease both; }
-.stat-card:nth-child(1) { animation-delay: .05s; }
-.stat-card:nth-child(2) { animation-delay: .10s; }
-.stat-card:nth-child(3) { animation-delay: .15s; }
-.ql-card        { animation: fadeUp .35s ease both; }
-.ql-card:nth-child(1) { animation-delay: .18s; }
-.ql-card:nth-child(2) { animation-delay: .22s; }
-.ql-card:nth-child(3) { animation-delay: .26s; }
-.ql-card:nth-child(4) { animation-delay: .30s; }
-.dash-card      { animation: fadeUp .35s .32s ease both; }
+/* ── Directory Table ── */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.minimal-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+  font-size: 14px;
+  text-align: left;
+  margin-top: -10px; /* Offset the first row spacing */
+}
+
+.minimal-table thead th {
+  background: transparent;
+  padding: 12px 24px;
+  font-weight: 700;
+  color: #475569;
+  font-size: 13px;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+.minimal-table td {
+  padding: 14px 20px;
+  color: #64748b;
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: middle;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.minimal-table td:first-child {
+  border-left: 1px solid #e2e8f0;
+  border-top-left-radius: 50px;
+  border-bottom-left-radius: 50px;
+  padding-left: 30px;
+}
+
+.minimal-table td:last-child {
+  border-right: 1px solid #e2e8f0;
+  border-top-right-radius: 50px;
+  border-bottom-right-radius: 50px;
+  padding-right: 30px;
+}
+
+.minimal-table tr:hover td {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  text-transform: lowercase;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-indicator.active .status-dot { background: var(--brand-green); }
+.status-indicator.on-leave .status-dot { background: #ff7b1d; }
+.status-indicator.deactivated .status-dot { background: #ef4444; }
+
+.action-trigger-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.action-icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.action-icon-btn:hover {
+  background: var(--brand-green);
+  color: #fff;
+}
+
+.action-icon-btn.delete:hover {
+  background: #ef4444;
+}
+
+.emp-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.emp-avatar-sm {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.role-tag {
+  font-size: 12px;
+  color: #475569;
+}
+
+.salary-text {
+  font-weight: 700;
+  color: #334155;
+  font-size: 13px;
+}
+
+.empty-state {
+  padding: 40px 0;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+}
 </style>
 
-<div class="dashboard-container">
+<div class="cx-dash">
 
-  <!-- ══ Welcome Banner ══ -->
-  <div class="dash-welcome">
-    <div class="dash-welcome-text">
-      <h1>
-        <?php
-          $hour = (int)date('H');
-          echo $hour < 12 ? 'Good Morning' : ($hour < 17 ? 'Good Afternoon' : 'Good Evening');
-          echo ', ' . (isset($_SESSION['user_name']) ? htmlspecialchars(explode(' ', $_SESSION['user_name'])[0]) : 'Admin');
-        ?>
-      </h1>
-      <p>Here's what's happening at CodeXentric today — <?php echo date('l, d F Y'); ?></p>
-    </div>
-    <div class="dash-welcome-actions">
-      <a href="add_employee.php" class="btn-wh">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
-        Add Employee
-      </a>
-      <a href="payroll_management.php" class="btn-wh btn-wh-solid">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-        Run Payroll
-      </a>
+  <!-- Header -->
+  <div class="dash-header">
+    <h1>Dashboard</h1>
+    <div class="header-actions">
+      <a href="add_employee.php" class="btn-minimal">Add Employee</a>
+      <a href="payroll_management.php" class="btn-primary">Run Payroll</a>
     </div>
   </div>
 
-  <!-- ══ Stats ══ -->
-  <div>
-    <div class="dash-section-label">Overview</div>
-    <div class="dash-stats">
-      <?php foreach ($stats as $s): ?>
-      <div class="stat-card">
-        <div class="stat-card-top">
-          <p class="stat-label"><?php echo htmlspecialchars($s['label']); ?></p>
-          <div class="stat-icon-wrap <?php echo $s['label'] === 'Current Revenue' ? 'revenue' : ($s['label'] === 'Monthly Payroll' ? 'payroll' : ''); ?>">
-            <?php if ($s['label'] === 'Total Headcount'): ?>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            <?php elseif ($s['label'] === 'Current Revenue'): ?>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            <?php else: ?>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-            <?php endif; ?>
+  <!-- Top Cards Row -->
+  <div class="dashboard-grid">
+    
+    <!-- Overview Card -->
+    <div class="widget-card">
+      <div class="widget-header">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Overview Stats
+      </div>
+      <div class="widget-body">
+        <div class="stat-list">
+          <?php foreach ($stats as $s): ?>
+          <div class="stat-item">
+            <span class="stat-label"><?php echo htmlspecialchars($s['label']); ?></span>
+            <span class="stat-value"><?php echo htmlspecialchars($s['value']); ?></span>
           </div>
-        </div>
-        <div class="stat-value"><?php echo htmlspecialchars($s['value']); ?></div>
-        <div class="stat-footer">
-          <span class="stat-sub"><?php echo htmlspecialchars($s['sub']); ?></span>
-          <span class="stat-trend <?php echo strpos($s['trend'], 'pending') !== false ? 'warn' : ''; ?>">
-            <?php echo htmlspecialchars($s['trend']); ?>
-          </span>
+          <?php endforeach; ?>
         </div>
       </div>
-      <?php endforeach; ?>
     </div>
-  </div>
 
-  <!-- ══ Quick Links ══ -->
-  <div>
-    <div class="dash-section-label">Quick Access</div>
-    <div class="dash-quicklinks">
-      <a href="manage_employee.php" class="ql-card">
-        <div class="ql-icon emp">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        </div>
-        <span class="ql-label">Employees</span>
-        <span class="ql-desc">Manage team members</span>
-      </a>
-      <a href="payroll.php" class="ql-card">
-        <div class="ql-icon pay">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-        </div>
-        <span class="ql-label">Payroll</span>
-        <span class="ql-desc">Process & disburse</span>
-      </a>
-      <a href="attendance_record.php" class="ql-card">
-        <div class="ql-icon att">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        </div>
-        <span class="ql-label">Attendance</span>
-        <span class="ql-desc">View records</span>
-      </a>
-      <a href="settings.php" class="ql-card">
-        <div class="ql-icon rep">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        </div>
-        <span class="ql-label">Settings</span>
-        <span class="ql-desc">System preferences</span>
-      </a>
-    </div>
-  </div>
-
-  <!-- ══ Bottom: Table + Activity ══ -->
-  <div class="dash-bottom">
-
-    <!-- Team Directory -->
-    <div class="dash-card">
-      <div class="dash-card-head">
-        <div>
-          <h2 class="dash-card-title"><span class="dot"></span>Team Directory</h2>
-          <p class="dash-card-sub">Manage and monitor your team members</p>
-        </div>
-        <a href="manage_employee.php" class="btn-sm-outline">
-          View All
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </a>
+    <!-- Quick Launch Card -->
+    <div class="widget-card">
+      <div class="widget-header">
+        <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        Quick Launch
       </div>
+      <div class="widget-body" style="display: flex; align-items: center; justify-content: center;">
+        <div class="quick-launch-grid">
+          
+          <a href="manage_employee.php" class="ql-item">
+            <div class="ql-icon-wrapper">
+              <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <span>Directory</span>
+          </a>
 
+          <a href="payroll_management.php" class="ql-item">
+            <div class="ql-icon-wrapper">
+              <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+            </div>
+            <span>Payroll</span>
+          </a>
+
+          <a href="attendance_record.php" class="ql-item">
+            <div class="ql-icon-wrapper">
+              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            </div>
+            <span>Attendance</span>
+          </a>
+
+          <a href="settings.php" class="ql-item">
+            <div class="ql-icon-wrapper">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M20 12h2M2 12h2M19.07 19.07l-1.41-1.41M4.93 19.07l1.41-1.41"/></svg>
+            </div>
+            <span>Settings</span>
+          </a>
+
+          <a href="add_employee.php" class="ql-item">
+            <div class="ql-icon-wrapper">
+              <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="16" y1="11" x2="22" y2="11"/></svg>
+            </div>
+            <span>Add User</span>
+          </a>
+
+        </div>
+      </div>
+    </div>
+
+  </div> <!-- End Top Row -->
+
+  <!-- Full Width Table Row -->
+  <div class="widget-card roster-card">
+    <div class="widget-header" style="background: transparent; border-bottom: none; padding-bottom: 0;">
+      <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      Team Roster
+    </div>
+    <div class="widget-body" style="padding-top: 10px;">
       <?php if (!empty($team_members)): ?>
-      <div class="dash-table-wrap">
-        <table class="dash-table" aria-label="Team members directory">
+      <div class="table-container">
+        <table class="minimal-table">
           <thead>
             <tr>
-              <th>Employee</th>
+              <th>Personnel</th>
+              <th>Role</th>
               <th>Salary</th>
               <th>Status</th>
-              <th>Action</th>
+              <th style="text-align: right;">Action</th>
             </tr>
           </thead>
           <tbody>
-            <?php foreach ($team_members as $employee): ?>
-            <tr class="employee-row">
+            <?php foreach ($team_members as $employee): 
+                $statusClass = strtolower($employee['status']) == 'active' ? 'active' : '';
+                $initials = strtoupper(substr($employee['name'], 0, 1));
+                if (strpos($employee['name'], ' ') !== false) {
+                    $parts = explode(' ', $employee['name']);
+                    $initials = strtoupper(substr($parts[0], 0, 1) . substr($parts[count($parts)-1], 0, 1));
+                }
+            ?>
+            <tr>
               <td>
-                <div class="emp-cell">
-                  <div class="emp-av" aria-hidden="true"><?php echo strtoupper(substr($employee['name'], 0, 1)); ?></div>
-                  <div>
-                    <div class="emp-name-txt"><?php echo htmlspecialchars($employee['name']); ?></div>
-                    <div class="emp-role-txt"><?php echo htmlspecialchars($employee['role']); ?></div>
-                  </div>
+                <div class="emp-name-cell">
+                  <span style="font-weight: 700; color: #1e293b;"><?php echo htmlspecialchars($employee['name']); ?></span>
                 </div>
               </td>
+              <td><span class="role-tag"><?php echo htmlspecialchars($employee['role']); ?></span></td>
+              <td><span class="salary-text"><?php echo htmlspecialchars($employee['salary']); ?> <span style="font-size: 10px; color: #94a3b8;">/mo</span></span></td>
               <td>
-                <span class="sal-amt"><?php echo htmlspecialchars($employee['salary']); ?></span>
-                <span class="sal-per">/mo</span>
+                <?php 
+                  $raw_status = strtolower($employee['status'] ?? 'active');
+                  $status_class = $raw_status;
+                  $display_label = $raw_status;
+                  if ($raw_status === 'onboarding') { $status_class = 'on-leave'; $display_label = 'on leave'; }
+                ?>
+                <div class="status-indicator <?php echo $status_class; ?>">
+                  <span class="status-dot"></span>
+                  <span class="status-text"><?php echo htmlspecialchars($display_label); ?></span>
+                </div>
               </td>
-              <td>
-                <span class="st-badge <?php echo htmlspecialchars($employee['badge']); ?>"
-                      role="status"
-                      aria-label="Status: <?php echo htmlspecialchars($employee['status']); ?>">
-                  <?php echo htmlspecialchars($employee['status']); ?>
-                </span>
-              </td>
-              <td>
-                <a href="manage_employee.php"
-                   class="btn-manage"
-                   aria-label="Manage <?php echo htmlspecialchars($employee['name']); ?>">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                  Manage
-                </a>
+              <td style="text-align: right;">
+                <div class="action-trigger-group">
+                  <a href="manage_employee.php?id=<?php echo $employee['user_id']; ?>" class="action-icon-btn" title="Edit">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                  </a>
+                  <a href="#" class="action-icon-btn delete" title="Delete">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                  </a>
+                </div>
               </td>
             </tr>
             <?php endforeach; ?>
@@ -535,73 +535,13 @@ if (!isset($_SESSION['email'])) {
         </table>
       </div>
       <?php else: ?>
-      <div class="dash-empty">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-        <strong>No Team Members</strong>
-        <p>There are currently no team members to display.</p>
+      <div class="empty-state">
+        No team members to display at the moment.
       </div>
       <?php endif; ?>
     </div>
+  </div>
 
-    <!-- Recent Activity -->
-    <div class="dash-card">
-      <div class="dash-card-head">
-        <div>
-          <h2 class="dash-card-title"><span class="dot"></span>Recent Activity</h2>
-          <p class="dash-card-sub">Latest system events</p>
-        </div>
-      </div>
-      <div class="act-list">
-        <div class="act-item">
-          <div class="act-dot join">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
-          </div>
-          <div>
-            <div class="act-text"><strong>Khurum</strong> joined as Frontend Developer</div>
-            <div class="act-time">Today, 09:14 AM</div>
-          </div>
-        </div>
-        <div class="act-item">
-          <div class="act-dot pay">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-          </div>
-          <div>
-            <div class="act-text">March payroll <strong>processed</strong> — Rs 4,85,200</div>
-            <div class="act-time">Yesterday, 06:30 PM</div>
-          </div>
-        </div>
-        <div class="act-item">
-          <div class="act-dot edit">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          </div>
-          <div>
-            <div class="act-text"><strong>Hammad Ali</strong>'s allowance updated</div>
-            <div class="act-time">22 Apr, 03:45 PM</div>
-          </div>
-        </div>
-        <div class="act-item">
-          <div class="act-dot alert">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          </div>
-          <div>
-            <div class="act-text"><strong>3 salaries</strong> pending disbursement</div>
-            <div class="act-time">22 Apr, 10:00 AM</div>
-          </div>
-        </div>
-        <div class="act-item">
-          <div class="act-dot join">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          </div>
-          <div>
-            <div class="act-text"><strong>Abdullah</strong> checked in at 08:52 AM</div>
-            <div class="act-time">Today, 08:52 AM</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /.dash-bottom -->
-
-</div><!-- /.dashboard-container -->
+</div>
 
 <?php include_once "../includes/footer.php"; ?>

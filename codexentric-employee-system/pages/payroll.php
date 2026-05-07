@@ -62,6 +62,87 @@ class Payroll {
         return false;
     }
 
+    public function getFullSalaryRecord($employee_id, $payroll_month) {
+        $stmt = $this->db->prepare("SELECT id, base_salary_rs, net_payable_rs, status, payroll_month FROM payroll WHERE employee_id = ? AND payroll_month = ?");
+        $stmt->bind_param("is", $employee_id, $payroll_month);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        if ($row = $res->fetch_assoc()) {
+            $payroll_id = $row['id'];
+            $breakdown = [
+                'id' => $row['id'],
+                'base_salary' => $row['base_salary_rs'],
+                'net_payable' => $row['net_payable_rs'],
+                'status' => $row['status'],
+                'payroll_month' => $row['payroll_month'],
+                'bonuses' => [],
+                'allowances' => [],
+                'deductions' => []
+            ];
+
+            $b_stmt = $this->db->prepare("SELECT b.name, ba.amount FROM bonus_allowance ba JOIN bonus b ON ba.bonus_id = b.id WHERE ba.payroll_id = ?");
+            $b_stmt->bind_param("i", $payroll_id);
+            $b_stmt->execute();
+            $b_res = $b_stmt->get_result();
+            while ($b_row = $b_res->fetch_assoc()) { $breakdown['bonuses'][] = $b_row; }
+
+            $a_stmt = $this->db->prepare("SELECT a.name, pa.amount_rs as amount FROM payroll_allowances pa JOIN allowances a ON pa.allowance_id = a.id WHERE pa.payroll_id = ?");
+            $a_stmt->bind_param("i", $payroll_id);
+            $a_stmt->execute();
+            $a_res = $a_stmt->get_result();
+            while ($a_row = $a_res->fetch_assoc()) { $breakdown['allowances'][] = $a_row; }
+
+            $d_stmt = $this->db->prepare("SELECT d.name, pd.amount_rs as amount FROM payroll_deductions pd JOIN deductions d ON pd.deduction_id = d.id WHERE pd.payroll_id = ?");
+            $d_stmt->bind_param("i", $payroll_id);
+            $d_stmt->execute();
+            $d_res = $d_stmt->get_result();
+            while ($d_row = $d_res->fetch_assoc()) { $breakdown['deductions'][] = $d_row; }
+
+            return $breakdown;
+        }
+        return false;
+    }
+
+    public function getYearlySalaryRecord($employee_id, $year) {
+        $like_year = $year . "-%";
+        $stmt = $this->db->prepare("SELECT id, payroll_month, base_salary_rs, net_payable_rs, status FROM payroll WHERE employee_id = ? AND payroll_month LIKE ? ORDER BY payroll_month ASC");
+        $stmt->bind_param("is", $employee_id, $like_year);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        
+        $yearly_data = [];
+        while ($row = $res->fetch_assoc()) {
+            $payroll_id = $row['id'];
+            $month_data = [
+                'payroll_month' => $row['payroll_month'],
+                'base_salary' => (float)$row['base_salary_rs'],
+                'net_payable' => (float)$row['net_payable_rs'],
+                'status' => $row['status'],
+                'total_bonuses' => 0,
+                'total_allowances' => 0,
+                'total_deductions' => 0
+            ];
+
+            $b_stmt = $this->db->prepare("SELECT SUM(amount) as t FROM bonus_allowance WHERE payroll_id = ?");
+            $b_stmt->bind_param("i", $payroll_id);
+            $b_stmt->execute();
+            if ($b_row = $b_stmt->get_result()->fetch_assoc()) { $month_data['total_bonuses'] = (float)$b_row['t']; }
+
+            $a_stmt = $this->db->prepare("SELECT SUM(amount_rs) as t FROM payroll_allowances WHERE payroll_id = ?");
+            $a_stmt->bind_param("i", $payroll_id);
+            $a_stmt->execute();
+            if ($a_row = $a_stmt->get_result()->fetch_assoc()) { $month_data['total_allowances'] = (float)$a_row['t']; }
+
+            $d_stmt = $this->db->prepare("SELECT SUM(amount_rs) as t FROM payroll_deductions WHERE payroll_id = ?");
+            $d_stmt->bind_param("i", $payroll_id);
+            $d_stmt->execute();
+            if ($d_row = $d_stmt->get_result()->fetch_assoc()) { $month_data['total_deductions'] = (float)$d_row['t']; }
+
+            $yearly_data[] = $month_data;
+        }
+        return $yearly_data;
+    }
+
     public function getMonthlyPayrollStats($month) {
         $stats = [
             'gross_total' => 0,

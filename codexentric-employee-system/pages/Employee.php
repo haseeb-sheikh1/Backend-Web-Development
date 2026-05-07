@@ -26,8 +26,48 @@ class Employee
   public function createEmployee()
   {
     if (isset($_POST['create_employee'])) {
+      
+      $this->errors = []; // Reset errors
 
-      // form data
+      // Only strictly require Name, Email, and Password as per request
+      if (empty($_POST['first_name'])) {
+        $this->errors['first_name'] = "First name is required.";
+      }
+      if (empty($_POST['last_name'])) {
+        $this->errors['last_name'] = "Last name is required.";
+      }
+      if (empty($_POST['email'])) {
+        $this->errors['email'] = "Email is required.";
+      } elseif (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
+        $this->errors['email'] = "Invalid email format.";
+      } else {
+        // Check if email already exists
+        $email = trim($_POST['email']);
+        $stmt = $this->connection->prepare("SELECT user_id FROM users WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        if ($stmt->get_result()->num_rows > 0) {
+            $this->errors['email'] = "Email already exists.";
+        }
+        $stmt->close();
+      }
+      
+      if (empty($_POST['password'])) {
+        $this->errors['password'] = "Password is required.";
+      } elseif (strlen($_POST['password']) < 6) {
+        $this->errors['password'] = "Password must be at least 6 characters.";
+      }
+
+      // Other fields can be optional to avoid blocking the user
+      // but we still capture them below.
+      if (isset($_POST['base_salary']) && !empty($_POST['base_salary']) && (!is_numeric($_POST['base_salary']) || $_POST['base_salary'] < 0)) {
+        $this->errors['base_salary'] = "Base salary must be a positive number.";
+      }
+
+      if (!empty($this->errors)) {
+          return false; // Return early if there are validation errors
+      }
+
       $this->Fname = trim($_POST['first_name'] ?? '');
       $this->Lname = trim($_POST['last_name'] ?? '');
       $this->email = trim($_POST['email'] ?? '');
@@ -48,7 +88,7 @@ class Employee
 
       $hashedPassword = password_hash($this->password, PASSWORD_DEFAULT);
 
-      $role_id = 2;
+      $role_id = isset($_POST['role_id']) ? (int)$_POST['role_id'] : 2;
 
       // inserting into users table using prepared statement
       $stmtUser = $this->connection->prepare("INSERT INTO users (first_name, last_name, email, password_hash, role_id) VALUES (?, ?, ?, ?, ?)");
@@ -64,7 +104,7 @@ class Employee
         $this->errors['general'] = "Error creating user: " . $stmtUser->error;
         return false;
       }
-
+      
       $newuserId = $stmtUser->insert_id;
       $stmtUser->close();
 
@@ -77,7 +117,6 @@ class Employee
         $this->connection->query("DELETE FROM users WHERE user_id = '$newuserId'");
         return false;
       }
-
 
       $stmtEmp->bind_param("isssssddss", $newuserId, $this->homeAddress, $this->positionTitle, $this->department, $this->date_of_joining, $this->status, $this->baseSalary, $this->allowances, $this->bankName, $this->bankAccountNumber);
 
@@ -167,7 +206,7 @@ class Employee
           'team_members' => []
       ];
 
-      $query = "SELECT u.first_name, u.last_name, e.position_title, e.base_salary_rs, e.status
+      $query = "SELECT u.user_id, u.first_name, u.last_name, e.position_title, e.base_salary_rs, e.status
                 FROM users u
                 JOIN employees e ON u.user_id = e.user_id
                 ORDER BY e.date_of_joining DESC";
@@ -187,6 +226,7 @@ class Employee
                   }
                   
                   $data['team_members'][] = [
+                      'user_id' => $row['user_id'],
                       'name' => trim($row['first_name'] . ' ' . $row['last_name']),
                       'role' => $row['position_title'] ?: 'Employee',
                       'salary' => 'Rs ' . number_format($row['base_salary_rs']),

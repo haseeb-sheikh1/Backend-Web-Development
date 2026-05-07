@@ -9,7 +9,6 @@
     // Determine user role
     $is_admin = isset($_SESSION['role_id']) && $_SESSION['role_id'] == 1;
     $current_page = "settings";
-    $extra_css = "settings";
     $title = $is_admin ? "Admin Settings - CodeXentric" : "Employee Settings - CodeXentric";
 
     require_once "../pages/Database.php";
@@ -79,366 +78,495 @@
     include_once "../includes/header.php";
 ?>
 
-<div class="app-body">
-    <?php include_once "../includes/sidebar.php"; ?>
+<style>
+/* ── Profile Theme Styles (from update_profile.php) ── */
+.profile-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 30px;
+    padding: 0 0 20px 0;
+    max-width: 1200px;
+    margin: 0 auto;
+}
 
-<?php if ($is_admin): ?>
-    <!-- ADMIN SETTINGS -->
-    <style> .nav-links { display: none; } </style>
+.profile-sidebar {
+    width: 280px;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-self: flex-start;
+    position: sticky;
+    top: 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+}
 
-        <div class="dashboard-container">
-            
-            <div class="dash-welcome">
-                <div class="dash-welcome-text">
-                    <h1>Admin Settings</h1>
-                    <p>Manage your profile and system preferences.</p>
-                </div>
+.profile-avatar-wrapper {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    padding: 4px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 20px;
+    overflow: hidden;
+    position: relative;
+}
+
+.profile-avatar-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.profile-sidebar h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+    text-align: center;
+    margin: 0 0 5px 0;
+}
+
+.profile-sidebar p {
+    font-size: 11px;
+    color: #64748b;
+    margin-bottom: 30px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+}
+
+.profile-nav {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.profile-nav-link {
+    display: block;
+    padding: 12px 16px;
+    border-radius: 8px;
+    color: #475569;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.profile-nav-link:hover {
+    background: #f8fafc;
+    color: var(--brand-green);
+}
+
+.profile-nav-link.active {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+.profile-main {
+    flex: 1;
+}
+
+.section-card {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 24px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+    scroll-margin-top: 20px;
+}
+
+.section-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.section-header h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #334155;
+    margin: 0;
+}
+
+.section-body {
+    padding: 24px;
+}
+
+/* ── Modern Grid & Forms ── */
+.modern-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.form-field {
+    margin-bottom: 20px;
+}
+
+.form-field.full {
+    grid-column: span 2;
+}
+
+.form-field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 8px;
+}
+
+.modern-input {
+    width: 100%;
+    height: 44px;
+    padding: 0 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #1e293b;
+    background: #fff;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.modern-input:focus {
+    border-color: var(--brand-green);
+    box-shadow: 0 0 0 3px rgba(24, 109, 85, 0.1);
+    outline: none;
+}
+
+.modern-input:disabled {
+    background: #f8fafc;
+    cursor: not-allowed;
+    border-style: dashed;
+}
+
+.modern-btn-primary {
+    background: var(--brand-green);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modern-btn-primary:hover {
+    background: #125542;
+    transform: translateY(-1px);
+}
+
+/* ── Toggle Switch ── */
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.setting-item:last-child {
+    border-bottom: none;
+}
+
+.setting-item-text h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 2px;
+}
+
+.setting-item-text p {
+    font-size: 12.5px;
+    color: #64748b;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #e2e8f0;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: var(--brand-green);
+}
+
+input:checked + .slider:before {
+    transform: translateX(20px);
+}
+
+.alert {
+    padding: 14px 20px;
+    border-radius: 10px;
+    margin-bottom: 24px;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.alert-danger {
+    background: #fef2f2;
+    border: 1px solid #fee2e2;
+    color: #991b1b;
+}
+
+.alert-success {
+    background: #f0fdf4;
+    border: 1px solid #dcfce7;
+    color: #166534;
+}
+
+/* Page Layout Fixes */
+.app-right {
+    background: #f6f8fb;
+}
+</style>
+
+<div class="dashboard-container">
+
+    <?php if (isset($error_msg) || isset($success_msg)): ?>
+    <div>
+        <?php if (isset($error_msg)): ?>
+            <div class="alert alert-danger">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <?php echo htmlspecialchars($error_msg); ?>
             </div>
-
-            <?php if (isset($error_msg)): ?>
-                <div style="background:var(--red-bg);color:var(--red);padding:12px 16px;border-radius:8px;font-weight:600;font-size:14px;border:1px solid rgba(220,38,38,0.2);">
-                    <?php echo htmlspecialchars($error_msg); ?>
-                </div>
-            <?php endif; ?>
-            <?php if (isset($success_msg)): ?>
-                <div style="background:var(--green-bg);color:var(--green);padding:12px 16px;border-radius:8px;font-weight:600;font-size:14px;border:1px solid rgba(5,150,105,0.2);">
-                    <?php echo htmlspecialchars($success_msg); ?>
-                </div>
-            <?php endif; ?>
-
-
-            <section class="settings-grid">
-                <!-- Admin Profile & Security Card -->
-                <div class="emp-card">
-                    <div class="emp-card-head">
-                        <div class="emp-card-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                        </div>
-                        <h3 class="emp-card-title"><span class="dot"></span>Profile & Security</h3>
-                    </div>
-                    
-                    <div class="emp-card-body">
-                        <form action="" method="POST" enctype="multipart/form-data">
-                            <div class="form-group" style="margin-bottom: 24px;">
-                                <div class="image-upload-group">
-                                    <div class="profile-image-preview">
-                                        <img name="profile_image" id="admin-preview" src="../assets/default-profile.png" alt="Profile Picture">
-                                    </div>
-                                    <div class="upload-input-wrapper">
-                                        <label for="admin-profile-image">Change Profile Picture</label>
-                                        <input type="file" id="admin-profile-image" name="profile_image" accept="image/*" onchange="previewImage(event, 'admin-preview')">
-                                        <p>JPG, PNG or GIF (Max 5MB)</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="form-group-row" style="margin-bottom: 16px;">
-                                <div class="form-group">
-                                    <label for="admin-first-name">First Name</label>
-                                    <input type="text" class="form-input" id="admin-first-name" name="first_name" placeholder="First Name" value="<?php echo htmlspecialchars($_SESSION['first_name']); ?>" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="admin-last-name">Last Name</label>
-                                    <input type="text" class="form-input" id="admin-last-name" name="last_name" placeholder="Last Name" value="<?php echo htmlspecialchars($_SESSION['last_name']); ?>" required>
-                                </div>
-                            </div>
-                            <div class="form-group" style="margin-bottom: 16px;">
-                                <label for="admin-email">Email Address</label>
-                                <input type="email" class="form-input" id="admin-email" name="email" placeholder="Email Address" value="<?php echo htmlspecialchars($_SESSION['email']); ?>" required>
-                            </div>
-
-                            <div class="form-footer">
-                                <button type="submit" name="update_profile" class="btn-primary">Save Profile Settings</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <div class="emp-card">
-                    <div class="emp-card-head">
-                        <div class="emp-card-icon" style="background:var(--amber-bg, #FFFBEB); color:var(--amber, #F59E0B);">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                        </div>
-                        <h3 class="emp-card-title"><span class="dot" style="background:linear-gradient(135deg,#D97706,#F59E0B)"></span>Password & Security</h3>
-                    </div>
-                    
-                    <div class="emp-card-body">
-                        <form action="" method="POST">
-                            <div class="form-group" style="margin-bottom: 16px;">
-                                <label for="current-password">Current Password</label>
-                                <input type="password" class="form-input" id="current-password" name="current_password" placeholder="Enter your current password" required>
-                            </div>
-
-                            <div class="form-group-row">
-                                <div class="form-group">
-                                    <label for="password">New Password</label>
-                                    <input type="password" class="form-input" id="password" name="new_password" placeholder="••••••••" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="confirm-password">Confirm Password</label>
-                                    <input type="password" class="form-input" id="confirm-password" name="confirm_new_password" placeholder="••••••••" required>
-                                </div>
-                            </div>
-
-                            <div class="form-footer">
-                                <button type="submit" name="update_password" class="btn-primary">Update Password</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Admin System Preferences Card -->
-                <div class="emp-card">
-                    <div class="emp-card-head">
-                        <div class="emp-card-icon" style="background:#F3E8FF; color:#7E22CE;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                        </div>
-                        <h3 class="emp-card-title"><span class="dot" style="background:linear-gradient(135deg,#7E22CE,#9333EA)"></span>System Preferences</h3>
-                    </div>
-
-                    <div class="emp-card-body">
-                        <div class="setting-list">
-                            <div class="setting-item">
-                                <div class="setting-item-text">
-                                    <h4>Enable email alerts</h4>
-                                    <p>Receive updates for payroll and employee requests.</p>
-                                </div>
-                                <label class="toggle-switch">
-                                    <input type="checkbox" checked>
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-
-                            <div class="setting-item">
-                                <div class="setting-item-text">
-                                    <h4>Share weekly reports</h4>
-                                    <p>Automatically generate a summary for stakeholders.</p>
-                                </div>
-                                <label class="toggle-switch">
-                                    <input type="checkbox">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-
-                            <div class="setting-item">
-                                <div class="setting-item-text">
-                                    <h4>Dark mode</h4>
-                                    <p>Switch dashboard appearance for low-light comfort.</p>
-                                </div>
-                                <label class="toggle-switch">
-                                    <input type="checkbox">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="form-footer" style="margin-top: 16px;">
-                            <button type="button" class="btn-primary">Update System Preferences</button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </div>
-
-<?php else: ?>
-    <!-- EMPLOYEE SETTINGS -->
-        <div class="dashboard-container">
-            <div class="dash-welcome">
-                <div class="dash-welcome-text">
-                    <h1>Employee Settings</h1>
-                    <p>Manage your profile and account preferences</p>
-                </div>
+        <?php endif; ?>
+        <?php if (isset($success_msg)): ?>
+            <div class="alert alert-success">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                <?php echo htmlspecialchars($success_msg); ?>
             </div>
+        <?php endif; ?>
+    </div>
+    <?php endif; ?>
 
-            <?php if (isset($error_msg)): ?>
-                <div style="background:var(--red-bg);color:var(--red);padding:12px 16px;border-radius:8px;font-weight:600;font-size:14px;border:1px solid rgba(220,38,38,0.2);">
-                    <?php echo htmlspecialchars($error_msg); ?>
-                </div>
-            <?php endif; ?>
-            <?php if (isset($success_msg)): ?>
-                <div style="background:var(--green-bg);color:var(--green);padding:12px 16px;border-radius:8px;font-weight:600;font-size:14px;border:1px solid rgba(5,150,105,0.2);">
-                    <?php echo htmlspecialchars($success_msg); ?>
-                </div>
-            <?php endif; ?>
-
-            <section class="settings-grid">
-                <!-- Employee Personal Information Card -->
-                <div class="emp-card">
-                    <div class="emp-card-head">
-                        <div class="emp-card-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                        </div>
-                        <h3 class="emp-card-title"><span class="dot"></span>Personal Information</h3>
-                    </div>
-
-                    <div class="emp-card-body">
-                        <form action="#" method="POST" enctype="multipart/form-data">
-                            <!-- Profile Image Upload -->
-                            <div class="form-group" style="margin-bottom: 24px;">
-                                <div class="image-upload-group">
-                                    <div class="profile-image-preview">
-                                        <img id="employee-preview" src="../assets/default-profile.png" alt="Profile Picture">
-                                    </div>
-                                    <div class="upload-input-wrapper">
-                                        <label for="employee-profile-image">Change Profile Picture</label>
-                                        <input type="file" id="employee-profile-image" name="profile_image" accept="image/*" onchange="previewImage(event, 'employee-preview')">
-                                        <p>JPG, PNG or GIF (Max 5MB)</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="form-group-row" style="margin-bottom: 16px;">
-                                <div class="form-group">
-                                    <label for="first-name">First Name</label>
-                                    <input type="text" class="form-input" id="first-name" name="first_name" placeholder="Enter your first name" value="<?php echo htmlspecialchars($_SESSION['first_name'] ?? ''); ?>" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="last-name">Last Name</label>
-                                    <input type="text" class="form-input" id="last-name" name="last_name" placeholder="Enter your last name" value="<?php echo htmlspecialchars($_SESSION['last_name'] ?? ''); ?>" required>
-                                </div>
-                            </div>
-
-                            <div class="form-group-row" style="margin-bottom: 16px;">
-                                <div class="form-group">
-                                    <label for="email">Email Address</label>
-                                    <input type="email" class="form-input" id="email" name="email" placeholder="Enter your email address" value="<?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?>" required>
-                                </div>
-                            </div>
-
-                            <div class="form-group-row" style="margin-bottom: 16px;">
-                                <div class="form-group">
-                                    <label for="department">Department</label>
-                                    <input type="text" class="form-input" id="department" name="department" placeholder="Your department" value="<?php echo htmlspecialchars($employee_data['department'] ?? ''); ?>" disabled>
-                                </div>
-                                <div class="form-group">
-                                    <label for="position">Position</label>
-                                    <input type="text" class="form-input" id="position" name="position" placeholder="Your job title" value="<?php echo htmlspecialchars($employee_data['position_title'] ?? ''); ?>" disabled>
-                                </div>
-                            </div>
-
-                            <div class="form-group-row">
-                                <div class="form-group">
-                                    <label for="employee-id">Employee ID</label>
-                                    <input type="text" class="form-input" id="employee-id" name="employee_id" placeholder="Your employee ID" value="<?php echo htmlspecialchars($employee_data['employee_id'] ?? ''); ?>" disabled>
-                                </div>
-                                <div class="form-group">
-                                    <label for="hire-date">Date of Hire</label>
-                                    <input type="date" class="form-input" id="hire-date" name="hire_date" value="<?php echo htmlspecialchars($employee_data['date_of_joining'] ?? ''); ?>" disabled>
-                                </div>
-                            </div>
-
-                            <div class="form-footer">
-                                <button type="submit" name="update_profile" class="btn-primary">Save Profile Changes</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Employee Password & Security Card -->
-                <div class="emp-card">
-                    <div class="emp-card-head">
-                        <div class="emp-card-icon" style="background:var(--amber-bg, #FFFBEB); color:var(--amber, #F59E0B);">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                        </div>
-                        <h3 class="emp-card-title"><span class="dot" style="background:linear-gradient(135deg,#D97706,#F59E0B)"></span>Password & Security</h3>
-                    </div>
-
-                    <div class="emp-card-body">
-                        <form action="#" method="POST">
-                            <div class="form-group" style="margin-bottom: 16px;">
-                                <label for="current-password">Current Password</label>
-                                <input type="password" class="form-input" id="current-password" name="current_password" placeholder="Enter your current password" required>
-                            </div>
-
-                            <div class="form-group-row">
-                                <div class="form-group">
-                                    <label for="new-password">New Password</label>
-                                    <input type="password" class="form-input" id="new-password" name="new_password" placeholder="Enter a new password" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="confirm-new-password">Confirm New Password</label>
-                                    <input type="password" class="form-input" id="confirm-new-password" name="confirm_new_password" placeholder="Confirm your new password" required>
-                                </div>
-                            </div>
-
-                            <div class="form-footer">
-                                <button type="submit" name="update_password" class="btn-primary">Update Password</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Employee Preferences Card -->
-                <div class="emp-card">
-                    <div class="emp-card-head">
-                        <div class="emp-card-icon" style="background:#F3E8FF; color:#7E22CE;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                        </div>
-                        <h3 class="emp-card-title"><span class="dot" style="background:linear-gradient(135deg,#7E22CE,#9333EA)"></span>Preferences</h3>
-                    </div>
-
-                    <div class="emp-card-body">
-                        <div class="setting-list">
-                            <div class="setting-item">
-                                <div class="setting-item-text">
-                                    <h4>Email Notifications</h4>
-                                    <p>Receive email alerts for important updates and leave approvals.</p>
-                                </div>
-                                <label class="toggle-switch">
-                                    <input type="checkbox" checked>
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-
-                            <div class="setting-item">
-                                <div class="setting-item-text">
-                                    <h4>Attendance Reminders</h4>
-                                    <p>Get reminded to mark your daily attendance.</p>
-                                </div>
-                                <label class="toggle-switch">
-                                    <input type="checkbox" checked>
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-
-                            <div class="setting-item">
-                                <div class="setting-item-text">
-                                    <h4>Dark Mode</h4>
-                                    <p>Switch dashboard appearance for low-light comfort.</p>
-                                </div>
-                                <label class="toggle-switch">
-                                    <input type="checkbox">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="form-footer" style="margin-top: 16px;">
-                            <button type="button" class="btn-primary">Save Preferences</button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </div>
-
-<?php endif; ?>
-
-<!-- Image Preview Script -->
-<script>
-    function previewImage(event, previewElementId) {
-        const file = event.target.files[0];
-        const preview = document.getElementById(previewElementId);
+    <div class="profile-container">
         
-        if (file && file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                preview.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-    }
-</script>
+        <!-- Sidebar -->
+        <aside class="profile-sidebar">
+            <div class="profile-avatar-wrapper">
+                <?php 
+                    $profile_img = !empty($_SESSION['profile_image']) ? "../assets/uploads/" . $_SESSION['profile_image'] : "../assets/default-profile.png";
+                ?>
+                <img id="profile-preview" src="<?php echo $profile_img; ?>" alt="Profile Picture">
+            </div>
+            <h2><?php echo htmlspecialchars($_SESSION['first_name'] . ' ' . $_SESSION['last_name']); ?></h2>
+            <p><?php echo $is_admin ? "Administrator" : htmlspecialchars($employee_data['position_title'] ?? "Employee"); ?></p>
+            
+            <nav class="profile-nav">
+                <a href="#profile-section" class="profile-nav-link active">Personal Settings</a>
+                <a href="#password-section" class="profile-nav-link">Password & Security</a>
+                <a href="#preferences-section" class="profile-nav-link">System Preferences</a>
+            </nav>
+        </aside>
 
-</div><!-- end app-body -->
+        <!-- Main Content -->
+        <main class="profile-main">
+            
+            <!-- SECTION 1: PROFILE DETAILS -->
+            <div class="section-card" id="profile-section">
+                <div class="section-header">
+                    <h3>Personal Settings</h3>
+                </div>
+                <div class="section-body">
+                    <form action="" method="POST" enctype="multipart/form-data">
+                        <div class="form-field full">
+                            <label>Profile Image</label>
+                            <div style="display:flex; align-items:center; gap:14px;">
+                                <input type="file" name="profile_image" accept="image/*" class="modern-input" style="padding-top:8px;" onchange="previewImage(event, 'profile-preview')">
+                                <p style="font-size:11px; color:#64748b;">Recommend 500x500px JPG/PNG</p>
+                            </div>
+                        </div>
+
+                        <div class="modern-grid">
+                            <div class="form-field">
+                                <label>First Name</label>
+                                <input type="text" name="first_name" class="modern-input" value="<?php echo htmlspecialchars($_SESSION['first_name']); ?>" required>
+                            </div>
+                            <div class="form-field">
+                                <label>Last Name</label>
+                                <input type="text" name="last_name" class="modern-input" value="<?php echo htmlspecialchars($_SESSION['last_name']); ?>" required>
+                            </div>
+                            <div class="form-field full">
+                                <label>Email Address</label>
+                                <input type="email" name="email" class="modern-input" value="<?php echo htmlspecialchars($_SESSION['email']); ?>" required>
+                            </div>
+                            <?php if (!$is_admin): ?>
+                                <div class="form-field">
+                                    <label>Employee ID</label>
+                                    <input type="text" class="modern-input" value="CEMS-<?php echo htmlspecialchars($_SESSION['user_id']); ?>" disabled>
+                                </div>
+                                <div class="form-field">
+                                    <label>Department</label>
+                                    <input type="text" class="modern-input" value="<?php echo htmlspecialchars($employee_data['department'] ?? ''); ?>" disabled>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+
+                        <div style="display:flex; justify-content:flex-end; margin-top:10px;">
+                            <button type="submit" name="update_profile" class="modern-btn-primary">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                Save Profile
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- SECTION 2: PASSWORD SECURITY -->
+            <div class="section-card" id="password-section">
+                <div class="section-header">
+                    <h3>Password & Security</h3>
+                </div>
+                <div class="section-body">
+                    <form action="" method="POST">
+                        <div class="form-field full">
+                            <label>Current Password</label>
+                            <input type="password" name="current_password" class="modern-input" placeholder="Enter current password" required>
+                        </div>
+                        <div class="modern-grid">
+                            <div class="form-field">
+                                <label>New Password</label>
+                                <input type="password" name="new_password" class="modern-input" placeholder="New password" required>
+                            </div>
+                            <div class="form-field">
+                                <label>Confirm Password</label>
+                                <input type="password" name="confirm_new_password" class="modern-input" placeholder="Confirm new password" required>
+                            </div>
+                        </div>
+                        <div style="display:flex; justify-content:flex-end; margin-top:10px;">
+                            <button type="submit" name="update_password" class="modern-btn-primary" style="background:#f59e0b;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                Update Password
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- SECTION 3: SYSTEM PREFERENCES -->
+            <div class="section-card" id="preferences-section">
+                <div class="section-header">
+                    <h3>System Preferences</h3>
+                </div>
+                <div class="section-body">
+                    <div class="setting-item">
+                        <div class="setting-item-text">
+                            <h4>Email Alerts</h4>
+                            <p>Receive notifications for payroll processing and announcements.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-item-text">
+                            <h4>Attendance Tracking</h4>
+                            <p>Enable automatic reminders for daily check-in/out.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-item-text">
+                            <h4>Interface Theme</h4>
+                            <p>Switch between light and high-contrast appearance.</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div style="display:flex; justify-content:flex-end; margin-top:20px;">
+                        <button type="button" class="modern-btn-primary" style="background:#6366f1;">Apply Preferences</button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script>
+    function previewImage(event, previewId) {
+        const reader = new FileReader();
+        reader.onload = function(){
+            const output = document.getElementById(previewId);
+            output.src = reader.result;
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+
+    // Scroll handling for active state
+    document.addEventListener('DOMContentLoaded', function() {
+        const links = document.querySelectorAll('.profile-nav-link');
+        const sections = document.querySelectorAll('.section-card');
+
+        window.addEventListener('scroll', function() {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 60) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            links.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').substring(1) === current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    });
+</script>
 
 <?php include_once "../includes/footer.php"; ?>

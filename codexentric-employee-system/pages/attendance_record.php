@@ -78,69 +78,19 @@
 ?>
 
 <style>
-/* ══════════════════════════════════════════
-   Attendance Record — CodeXentric Theme
-══════════════════════════════════════════ */
+:root {
+  --bg: #f1f5f9;
+  --card-bg: #ffffff;
+  --border: #e2e8f0;
+  --text-main: #334155;
+  --text-muted: #64748b;
+  --brand-orange: #ff7b1d;
+  --brand-orange-hover: #e66a15;
+  --brand-green: #186D55;
+  --font-body: 'Nunito Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
 
 .dashboard-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    font-family: 'Inter', sans-serif;
-    box-sizing: border-box;
-}
-
-/* Welcome Banner */
-.dash-welcome {
-  background: linear-gradient(135deg, #0f1c2e 0%, #1252cc 60%, #1a6eff 100%);
-  border-radius: 12px;
-  padding: 32px 36px;
-  display: flex; align-items: center; justify-content: space-between;
-  position: relative; overflow: hidden;
-  box-shadow: 0 6px 24px rgba(26, 110, 255, 0.15);
-}
-@media (max-width: 760px) {
-  .dash-welcome { flex-direction: column; align-items: flex-start; gap: 20px; padding: 24px; }
-}
-.dash-welcome::before {
-  content: ''; position: absolute;
-  width: 300px; height: 300px; border-radius: 50%;
-  background: rgba(255,255,255,0.04);
-  top: -100px; right: -60px; pointer-events: none;
-}
-.dash-welcome::after {
-  content: ''; position: absolute;
-  width: 160px; height: 160px; border-radius: 50%;
-  background: rgba(255,255,255,0.03);
-  bottom: -50px; right: 200px; pointer-events: none;
-}
-.dash-welcome-text { position: relative; z-index: 1; }
-.dash-welcome-text h1 { font-family: 'Inter', sans-serif; font-size: 26px; font-weight: 800; color: #fff; margin: 0 0 6px 0; letter-spacing: -0.3px; }
-.dash-welcome-text p { font-size: 14.5px; color: rgba(255,255,255,0.8); margin: 0; display: flex; align-items: center; gap: 6px; }
-.dash-welcome-text p a { color: #fff; text-decoration: none; opacity: 0.9; }
-.dash-welcome-text p a:hover { opacity: 1; text-decoration: underline; }
-.dash-welcome-text p span { opacity: 0.5; }
-
-/* ── Card Shell ── */
-.att-card {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 1px 8px rgba(21,89,181,0.08);
-    overflow: hidden;
-}
-.att-card-header {
-    padding: 18px 24px;
-    border-bottom: 1.5px solid #E2E8F0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.att-card-header .icon {
-    width: 36px; height: 36px;
-    background: #EBF2FC;
     border-radius: 8px;
     display: flex; align-items: center; justify-content: center;
     color: #1E6FD9;
@@ -385,65 +335,6 @@
 .att-card:nth-child(2) { animation-delay: 0.08s; }
 </style>
 
-<div class="dashboard-container">
-
-    <!-- Title Bar -->
-    <div class="dash-welcome">
-        <div class="dash-welcome-text">
-            <h1>Attendance Record</h1>
-            <p>
-                <a href="administrator_dashboard.php">Dashboard</a>
-                <span>›</span>
-                <span>Attendance</span>
-                <span>›</span>
-                <span>View Record</span>
-            </p>
-        </div>
-    </div>
-
-    <!-- Search / Filter Card -->
-    <div class="att-card">
-        <div class="att-card-header">
-            <div class="icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                </svg>
-            </div>
-            <h2>Search Attendance</h2>
-        </div>
-        <div class="att-card-body">
-            <form method="GET" action="attendance_record.php">
-                <div class="att-form-grid">
-
-                    <!-- Employee Dropdown -->
-                    <div class="att-form-group">
-                        <label for="employeeId">Employee Name</label>
-                        <div class="att-select-wrap">
-                            <select id="employeeId" name="employeeId">
-                                <option value="">-- Select Employee --</option>
-                                <?php foreach ($employees as $emp): ?>
-                                    <option value="<?php echo (int)$emp['id']; ?>"
-                                        <?php echo ($selected_employee_id == $emp['id']) ? 'selected' : ''; ?>>
-                                        <?php echo htmlspecialchars($emp['full_name']); ?>
-                                    </option>
-                                <?php endforeach; ?>
-                                <!-- DEMO option — remove once DB is wired -->
-                                <option value="104" <?php echo ($selected_employee_id == 104) ? 'selected' : ''; ?>>
-                                    Demo Employee (ID 104)
-                                </option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Date Picker -->
-                    <div class="att-form-group">
-                        <label for="date">Date</label>
-                        <input
-                            type="date"
-                            id="date"
-                            name="date"
-                            value="<?php echo htmlspecialchars($selected_date); ?>"
-                            max="<?php echo date('Y-m-d'); ?>"
                         >
                     </div>
 

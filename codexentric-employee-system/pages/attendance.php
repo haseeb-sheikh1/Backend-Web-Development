@@ -16,22 +16,297 @@
     $title = "Attendance Tracker - CodeXentric";
     include_once "../includes/header.php";
 ?>
+<style>
+:root {
+  --bg: #f1f5f9;
+  --card-bg: #ffffff;
+  --border: #e2e8f0;
+  --text-main: #334155;
+  --text-muted: #64748b;
+  --brand-orange: #ff7b1d;
+  --brand-orange-hover: #e66a15;
+  --brand-green: #186D55;
+  --font-body: 'Nunito Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px;
+  font-family: var(--font-body);
+}
+
+/* ── Minimal Header ── */
+.dash-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--border);
+}
+
+.dash-header h1 {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.dash-subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 5px 0 0 0;
+}
+
+.btn-minimal {
+  height: 40px;
+  padding: 0 16px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.btn-minimal:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+/* ── Widget Card ── */
+.widget-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+}
+
+.card-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-main);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── Time Display ── */
+.time-display {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #fcfcfd;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.current-time {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--text-main);
+  letter-spacing: -1px;
+}
+
+.date-display {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--brand-orange);
+  margin-top: 5px;
+}
+
+/* ── Status Grid ── */
+.status-info {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.status-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.status-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.status-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+/* ── Form Controls ── */
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
+
+.dash-input {
+  width: 100%;
+  height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: var(--font-body);
+  color: var(--text-main);
+  background: #fff;
+  transition: all 0.2s;
+}
+
+.dash-input:focus {
+  border-color: var(--brand-orange);
+  box-shadow: 0 0 0 3px rgba(255, 123, 29, 0.1);
+  outline: none;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.btn-brand {
+  height: 44px;
+  padding: 0 24px;
+  background: var(--brand-orange);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.btn-brand:hover {
+  background: var(--brand-orange-hover);
+  transform: translateY(-1px);
+}
+
+.btn-brand.danger {
+  background: #ef4444;
+}
+
+.btn-brand.danger:hover {
+  background: #dc2626;
+}
+
+.btn-brand:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Table Design ── */
+.table-wrapper {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+}
+
+.attendance-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.attendance-table th {
+  background: #fcfcfd;
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid var(--border);
+}
+
+.attendance-table td {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text-main);
+}
+
+.attendance-table tr:hover {
+  background: #f8fafc;
+}
+
+.duration-tag {
+  font-weight: 800;
+  color: var(--brand-green);
+}
+
+.btn-action {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-action:hover {
+  background: #f1f5f9;
+  color: var(--brand-orange);
+  border-color: var(--brand-orange);
+}
+</style>
+
 <div class="dashboard-container">
-        <!-- Page Header -->
-        <header class="page-header" role="banner">
-            <div class="header-content">
-                <h1 class="page-title">Attendance Tracker</h1>
-                <p class="page-subtitle">Check in and out, or view your attendance history.</p>
-            </div>
-            <div class="header-actions">
-                <a href="employee_dashboard.php" class="action-button secondary" aria-label="Return to employee dashboard">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                        <path d="M19 12H5M12 19l-7-7 7-7"/>
-                    </svg>
-                    Back to Dashboard
-                </a>
-            </div>
-        </header>
+    <!-- Minimal Header -->
+    <header class="dash-header">
+        <div>
+            <h1>Attendance Tracker</h1>
+            <p class="dash-subtitle">Check in and out, or view your attendance history.</p>
+        </div>
+        <div class="dash-header-actions">
+            <a href="employee_dashboard.php" class="btn-minimal">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
+    </header>
 
         <!-- Check In/Out Section -->
         <section class="check-in-section" aria-labelledby="check-in-heading" style="margin-bottom: 30px;">
