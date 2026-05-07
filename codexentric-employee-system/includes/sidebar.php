@@ -307,6 +307,27 @@ $role = $_SESSION['role_id'];
                 <span class="sidebar-label">Payroll Reports</span>
             </a>
 
+            <a href="expenses.php"
+               class="sidebar-link <?php echo ($current_page == 'expenses') ? 'active' : ''; ?>">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                     <line x1="12" y1="1" x2="12" y2="23"/>
+                     <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+                <span class="sidebar-label">Expenses</span>
+            </a>
+
+            <a href="expense_reports.php"
+               class="sidebar-link <?php echo ($current_page == 'expense_reports') ? 'active' : ''; ?>">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                     <line x1="18" y1="20" x2="18" y2="10"/>
+                     <line x1="12" y1="20" x2="12" y2="4"/>
+                     <line x1="6" y1="20" x2="6" y2="14"/>
+                </svg>
+                <span class="sidebar-label">Expense Reports</span>
+            </a>
+
+
+
         <?php else: ?>
 
             <a href="employee_dashboard.php"

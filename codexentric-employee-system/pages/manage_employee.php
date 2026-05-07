@@ -25,13 +25,231 @@ session_start();
         exit;
     }
     if (isset($_POST['deactivate'])) {
-      $employeeId = $_GET['id'];
+        $employeeId = $_GET['id'];
         if ($employeeObj->deleteEmployee($employeeId)) {
-            echo "<p style='color:green; text-align:center; margin-top:40px;'>Employee account deactivated successfully.</p>";
-            echo "<p style='text-align:center;'><a href='employees_list.php'>Back to Employee List</a></p>";
+            ?>
+            <div class="feedback-card-container">
+                <div class="feedback-card success">
+                    <div class="feedback-icon-wrapper">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <h2>Account Deactivated</h2>
+                    <p>The employee account has been successfully deactivated and removed from active rosters.</p>
+                    <a href="employees_list.php" class="feedback-btn success">
+                        Back to Employee List
+                    </a>
+                </div>
+            </div>
+            <style>
+            .feedback-card-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: calc(100vh - 200px);
+                background: #f8fafc;
+                padding: 24px;
+            }
+            .feedback-card {
+                background: #ffffff;
+                border-radius: 16px;
+                padding: 40px 32px;
+                width: 100%;
+                max-width: 420px;
+                text-align: center;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+                border: 1px solid #e2e8f0;
+                animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+            }
+            @keyframes scaleUp {
+                from { transform: scale(0.95); opacity: 0; }
+                to { transform: scale(1); opacity: 1; }
+            }
+            .feedback-icon-wrapper {
+                width: 64px;
+                height: 64px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 24px auto;
+            }
+            .feedback-card.success .feedback-icon-wrapper {
+                background: #e8f5e9;
+                color: #186D55;
+            }
+            .feedback-card.error .feedback-icon-wrapper {
+                background: #ffebee;
+                color: #d32f2f;
+            }
+            .feedback-icon-wrapper svg {
+                width: 28px;
+                height: 28px;
+            }
+            .feedback-card h2 {
+                font-size: 20px;
+                font-weight: 700;
+                color: #1e293b;
+                margin-bottom: 12px;
+            }
+            .feedback-card p {
+                font-size: 14px;
+                color: #64748b;
+                line-height: 1.6;
+                margin-bottom: 30px;
+            }
+            .feedback-btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                height: 44px;
+                padding: 0 24px;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 600;
+                text-decoration: none;
+                transition: all 0.2s ease;
+                width: 100%;
+            }
+            .feedback-btn.success {
+                background: #186D55;
+                color: #ffffff;
+                box-shadow: 0 4px 12px rgba(24, 109, 85, 0.2);
+            }
+            .feedback-btn.success:hover {
+                background: #125542;
+                transform: translateY(-1px);
+                box-shadow: 0 6px 16px rgba(24, 109, 85, 0.25);
+            }
+            .feedback-btn.error {
+                background: #d32f2f;
+                color: #ffffff;
+                box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2);
+            }
+            .feedback-btn.error:hover {
+                background: #b71c1c;
+                transform: translateY(-1px);
+                box-shadow: 0 6px 16px rgba(211, 47, 47, 0.25);
+            }
+            </style>
+            </main>
+            </div>
+            <?php
+            include_once "../includes/footer.php";
             exit();
         } else {
-            echo "<p style='color:red; text-align:center; margin-top:40px;'>Failed to deactivate employee account.</p>";
+            ?>
+            <div class="feedback-card-container">
+                <div class="feedback-card error">
+                    <div class="feedback-icon-wrapper">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </div>
+                    <h2>Deactivation Failed</h2>
+                    <p>There was an unexpected error processing this employee deactivation. Please try again.</p>
+                    <a href="employees_list.php" class="feedback-btn error">
+                        Back to Employee List
+                    </a>
+                </div>
+            </div>
+            <style>
+            .feedback-card-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: calc(100vh - 200px);
+                background: #f8fafc;
+                padding: 24px;
+            }
+            .feedback-card {
+                background: #ffffff;
+                border-radius: 16px;
+                padding: 40px 32px;
+                width: 100%;
+                max-width: 420px;
+                text-align: center;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+                border: 1px solid #e2e8f0;
+                animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+            }
+            @keyframes scaleUp {
+                from { transform: scale(0.95); opacity: 0; }
+                to { transform: scale(1); opacity: 1; }
+            }
+            .feedback-icon-wrapper {
+                width: 64px;
+                height: 64px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 24px auto;
+            }
+            .feedback-card.success .feedback-icon-wrapper {
+                background: #e8f5e9;
+                color: #186D55;
+            }
+            .feedback-card.error .feedback-icon-wrapper {
+                background: #ffebee;
+                color: #d32f2f;
+            }
+            .feedback-icon-wrapper svg {
+                width: 28px;
+                height: 28px;
+            }
+            .feedback-card h2 {
+                font-size: 20px;
+                font-weight: 700;
+                color: #1e293b;
+                margin-bottom: 12px;
+            }
+            .feedback-card p {
+                font-size: 14px;
+                color: #64748b;
+                line-height: 1.6;
+                margin-bottom: 30px;
+            }
+            .feedback-btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                height: 44px;
+                padding: 0 24px;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 600;
+                text-decoration: none;
+                transition: all 0.2s ease;
+                width: 100%;
+            }
+            .feedback-btn.success {
+                background: #186D55;
+                color: #ffffff;
+                box-shadow: 0 4px 12px rgba(24, 109, 85, 0.2);
+            }
+            .feedback-btn.success:hover {
+                background: #125542;
+                transform: translateY(-1px);
+                box-shadow: 0 6px 16px rgba(24, 109, 85, 0.25);
+            }
+            .feedback-btn.error {
+                background: #d32f2f;
+                color: #ffffff;
+                box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2);
+            }
+            .feedback-btn.error:hover {
+                background: #b71c1c;
+                transform: translateY(-1px);
+                box-shadow: 0 6px 16px rgba(211, 47, 47, 0.25);
+            }
+            </style>
+            </main>
+            </div>
+            <?php
+            include_once "../includes/footer.php";
             exit();
         }
     }

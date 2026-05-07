@@ -611,16 +611,30 @@ select.pr-input {
                                 <div class="pr-detail-name"><?php echo htmlspecialchars($selected_employee_data['name']); ?></div>
                                 <div class="pr-detail-meta"><?php echo htmlspecialchars($selected_employee_data['bank']); ?></div>
                             </div>
-                            <?php if ($already_paid): ?>
-                                <span class="badge badge-paid" style="padding:5px 14px;font-size:12px;">✓ Salary Disbursed</span>
-                            <?php else: ?>
-                                <span class="badge badge-draft" style="padding:5px 14px;font-size:12px;">Pending</span>
-                            <?php endif; ?>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <?php if ($already_paid): ?>
+                                    <span class="badge badge-paid" style="padding:5px 14px;font-size:12px;">✓ Salary Disbursed</span>
+                                    <a href="salary_invoice.php?employeeId=<?php echo urlencode($selected_employee_data['id']); ?>&month=<?php echo urlencode(date('Y-m', strtotime($current_payroll_month))); ?>" class="badge" style="padding:5px 14px;font-size:12px; background:#f0fdf4; border:1px solid #bbf7d0; color:#166534; text-decoration:none; display:inline-flex; align-items:center; gap:5px;" target="_blank">
+                                        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                        View Invoice
+                                    </a>
+                                <?php else: ?>
+                                    <span class="badge badge-draft" style="padding:5px 14px;font-size:12px;">Pending</span>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
 
-                    <?php if (!$already_paid): ?>
                     <div class="pr-detail-body">
+                        <?php if ($already_paid): ?>
+                            <div class="pr-edit-warning" style="background:#fffbeb; border:1px solid #fef3c7; border-radius:8px; padding:12px 16px; margin-bottom:16px; display:flex; align-items:center; gap:10px;">
+                                <svg viewBox="0 0 24 24" width="18" height="18" stroke="#d97706" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                <p style="font-size:13px; color:#b45309; margin:0; font-weight:500;">
+                                    <strong>Salary already processed.</strong> You can edit the values below and submit to update the record directly in the database.
+                                </p>
+                            </div>
+                        <?php endif; ?>
+
                         <form method="POST" id="salaryForm">
                             <input type="hidden" name="emp_id" value="<?php echo $selected_employee_data['id']; ?>">
                             <input type="hidden" name="payroll_month" value="<?php echo $current_payroll_month; ?>">
@@ -644,21 +658,47 @@ select.pr-input {
                                     Bonuses
                                 </div>
                                 <div id="bonuses-container">
-                                    <div class="pr-dyn-row">
-                                        <select class="pr-input" name="bonus_names[]">
-                                            <option value="" disabled selected>Select bonus type…</option>
-                                            <?php foreach($salary_components['bonuses'] as $b): ?>
-                                                <option value="<?php echo htmlspecialchars($b['id']); ?>"><?php echo htmlspecialchars($b['name']); ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                        <div class="pr-amount-wrap">
-                                            <span class="pr-amount-prefix">Rs</span>
-                                            <input type="number" class="pr-input" name="bonus_amounts[]" placeholder="0" min="0">
+                                    <?php if ($already_paid && !empty($saved_breakdown['bonuses'])): ?>
+                                        <?php foreach ($saved_breakdown['bonuses'] as $b_idx => $saved_b): ?>
+                                            <div class="pr-dyn-row">
+                                                <select class="pr-input" name="bonus_names[]">
+                                                    <option value="" disabled>Select bonus type…</option>
+                                                    <?php foreach($salary_components['bonuses'] as $b): ?>
+                                                        <option value="<?php echo htmlspecialchars($b['id']); ?>" <?php echo ($b['id'] == $saved_b['bonus_id']) ? 'selected' : ''; ?>><?php echo htmlspecialchars($b['name']); ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                                <div class="pr-amount-wrap">
+                                                    <span class="pr-amount-prefix">Rs</span>
+                                                    <input type="number" class="pr-input" name="bonus_amounts[]" placeholder="0" min="0" value="<?php echo htmlspecialchars($saved_b['amount']); ?>">
+                                                </div>
+                                                <?php if ($b_idx === 0): ?>
+                                                    <button type="button" class="pr-btn-sq pr-btn-add" onclick="addRow('bonuses-container','bonus')" title="Add row">
+                                                        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                                    </button>
+                                                <?php else: ?>
+                                                    <button type="button" class="pr-btn-sq pr-btn-rem" onclick="removeRow(this)" title="Remove row">
+                                                        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                                    </button>
+                                                <?php endif; ?>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <div class="pr-dyn-row">
+                                            <select class="pr-input" name="bonus_names[]">
+                                                <option value="" disabled selected>Select bonus type…</option>
+                                                <?php foreach($salary_components['bonuses'] as $b): ?>
+                                                    <option value="<?php echo htmlspecialchars($b['id']); ?>"><?php echo htmlspecialchars($b['name']); ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <div class="pr-amount-wrap">
+                                                <span class="pr-amount-prefix">Rs</span>
+                                                <input type="number" class="pr-input" name="bonus_amounts[]" placeholder="0" min="0">
+                                            </div>
+                                            <button type="button" class="pr-btn-sq pr-btn-add" onclick="addRow('bonuses-container','bonus')" title="Add row">
+                                                <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                            </button>
                                         </div>
-                                        <button type="button" class="pr-btn-sq pr-btn-add" onclick="addRow('bonuses-container','bonus')" title="Add row">
-                                            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                        </button>
-                                    </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
 
@@ -669,21 +709,47 @@ select.pr-input {
                                     Allowances
                                 </div>
                                 <div id="allowances-container">
-                                    <div class="pr-dyn-row">
-                                        <select class="pr-input" name="allowance_names[]">
-                                            <option value="" disabled selected>Select allowance…</option>
-                                            <?php foreach($salary_components['allowances'] as $a): ?>
-                                                <option value="<?php echo htmlspecialchars($a['id']); ?>"><?php echo htmlspecialchars($a['name']); ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                        <div class="pr-amount-wrap">
-                                            <span class="pr-amount-prefix">Rs</span>
-                                            <input type="number" class="pr-input" name="allowance_amounts[]" placeholder="0" min="0">
+                                    <?php if ($already_paid && !empty($saved_breakdown['allowances'])): ?>
+                                        <?php foreach ($saved_breakdown['allowances'] as $a_idx => $saved_a): ?>
+                                            <div class="pr-dyn-row">
+                                                <select class="pr-input" name="allowance_names[]">
+                                                    <option value="" disabled>Select allowance…</option>
+                                                    <?php foreach($salary_components['allowances'] as $a): ?>
+                                                        <option value="<?php echo htmlspecialchars($a['id']); ?>" <?php echo ($a['id'] == $saved_a['allowance_id']) ? 'selected' : ''; ?>><?php echo htmlspecialchars($a['name']); ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                                <div class="pr-amount-wrap">
+                                                    <span class="pr-amount-prefix">Rs</span>
+                                                    <input type="number" class="pr-input" name="allowance_amounts[]" placeholder="0" min="0" value="<?php echo htmlspecialchars($saved_a['amount']); ?>">
+                                                </div>
+                                                <?php if ($a_idx === 0): ?>
+                                                    <button type="button" class="pr-btn-sq pr-btn-add" onclick="addRow('allowances-container','allowance')" title="Add row">
+                                                        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                                    </button>
+                                                <?php else: ?>
+                                                    <button type="button" class="pr-btn-sq pr-btn-rem" onclick="removeRow(this)" title="Remove row">
+                                                        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                                    </button>
+                                                <?php endif; ?>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <div class="pr-dyn-row">
+                                            <select class="pr-input" name="allowance_names[]">
+                                                <option value="" disabled selected>Select allowance…</option>
+                                                <?php foreach($salary_components['allowances'] as $a): ?>
+                                                    <option value="<?php echo htmlspecialchars($a['id']); ?>"><?php echo htmlspecialchars($a['name']); ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <div class="pr-amount-wrap">
+                                                <span class="pr-amount-prefix">Rs</span>
+                                                <input type="number" class="pr-input" name="allowance_amounts[]" placeholder="0" min="0">
+                                            </div>
+                                            <button type="button" class="pr-btn-sq pr-btn-add" onclick="addRow('allowances-container','allowance')" title="Add row">
+                                                <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                            </button>
                                         </div>
-                                        <button type="button" class="pr-btn-sq pr-btn-add" onclick="addRow('allowances-container','allowance')" title="Add row">
-                                            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                        </button>
-                                    </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
 
@@ -694,45 +760,57 @@ select.pr-input {
                                     Deductions
                                 </div>
                                 <div id="deductions-container">
-                                    <div class="pr-dyn-row">
-                                        <select class="pr-input" name="deduction_names[]">
-                                            <option value="" disabled selected>Select deduction…</option>
-                                            <?php foreach($salary_components['deductions'] as $d): ?>
-                                                <option value="<?php echo htmlspecialchars($d['id']); ?>"><?php echo htmlspecialchars($d['name']); ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                        <div class="pr-amount-wrap">
-                                            <span class="pr-amount-prefix">Rs</span>
-                                            <input type="number" class="pr-input" name="deduction_amounts[]" placeholder="0" min="0">
+                                    <?php if ($already_paid && !empty($saved_breakdown['deductions'])): ?>
+                                        <?php foreach ($saved_breakdown['deductions'] as $d_idx => $saved_d): ?>
+                                            <div class="pr-dyn-row">
+                                                <select class="pr-input" name="deduction_names[]">
+                                                    <option value="" disabled>Select deduction…</option>
+                                                    <?php foreach($salary_components['deductions'] as $d): ?>
+                                                        <option value="<?php echo htmlspecialchars($d['id']); ?>" <?php echo ($d['id'] == $saved_d['deduction_id']) ? 'selected' : ''; ?>><?php echo htmlspecialchars($d['name']); ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                                <div class="pr-amount-wrap">
+                                                    <span class="pr-amount-prefix">Rs</span>
+                                                    <input type="number" class="pr-input" name="deduction_amounts[]" placeholder="0" min="0" value="<?php echo htmlspecialchars($saved_d['amount']); ?>">
+                                                </div>
+                                                <?php if ($d_idx === 0): ?>
+                                                    <button type="button" class="pr-btn-sq pr-btn-add" onclick="addRow('deductions-container','deduction')" title="Add row">
+                                                        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                                    </button>
+                                                <?php else: ?>
+                                                    <button type="button" class="pr-btn-sq pr-btn-rem" onclick="removeRow(this)" title="Remove row">
+                                                        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                                    </button>
+                                                <?php endif; ?>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <div class="pr-dyn-row">
+                                            <select class="pr-input" name="deduction_names[]">
+                                                <option value="" disabled selected>Select deduction…</option>
+                                                <?php foreach($salary_components['deductions'] as $d): ?>
+                                                    <option value="<?php echo htmlspecialchars($d['id']); ?>"><?php echo htmlspecialchars($d['name']); ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <div class="pr-amount-wrap">
+                                                <span class="pr-amount-prefix">Rs</span>
+                                                <input type="number" class="pr-input" name="deduction_amounts[]" placeholder="0" min="0">
+                                            </div>
+                                            <button type="button" class="pr-btn-sq pr-btn-add" onclick="addRow('deductions-container','deduction')" title="Add row">
+                                                <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                            </button>
                                         </div>
-                                        <button type="button" class="pr-btn-sq pr-btn-add" onclick="addRow('deductions-container','deduction')" title="Add row">
-                                            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                        </button>
-                                    </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
 
-                            <button type="submit" name="process_salary" class="pr-process-btn"
-                                onclick="return confirm('Process salary for <?php echo htmlspecialchars($selected_employee_data['name']); ?>? This will lock the record for <?php echo date('F Y'); ?>.');">
+                            <button type="submit" name="process_salary" class="pr-process-btn" style="<?php echo $already_paid ? 'background: #186D55;' : ''; ?>"
+                                onclick="return confirm('<?php echo $already_paid ? "Update salary for " . htmlspecialchars($selected_employee_data['name']) . "?" : "Process salary for " . htmlspecialchars($selected_employee_data['name']) . "? This will lock the record."; ?>');">
                                 <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-                                Process & Finalize Salary
+                                <?php echo $already_paid ? 'Update & Save Changes' : 'Process & Finalize Salary'; ?>
                             </button>
                         </form>
                     </div>
-
-                    <?php else: ?>
-                    <div class="pr-locked">
-                        <div class="pr-locked-icon">
-                            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                        </div>
-                        <h3>Record Locked</h3>
-                        <p>Salary for <strong><?php echo htmlspecialchars($selected_employee_data['name']); ?></strong> has been processed and disbursed for <?php echo date('F Y'); ?>.</p>
-                        <a href="salary_invoice.php?employeeId=<?php echo urlencode($selected_employee_data['id']); ?>&month=<?php echo urlencode(date('Y-m', strtotime($current_payroll_month))); ?>" class="pr-invoice-btn">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                            View Invoice
-                        </a>
-                    </div>
-                    <?php endif; ?>
 
                 <?php else: ?>
                     <div class="pr-empty">

@@ -29,6 +29,8 @@ if (isset($_GET['id']) && !empty($_GET['id'])) {
     die("Error: No Employee ID provided.");
 }
 
+$alert_banner = "";
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     
     $bank_name = trim($_POST['bank_name']);
@@ -50,16 +52,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
         $updateEmployee = $employeeObj->updateEmployeeProfile($first_name, $last_name, $email, $position_title, $department, $home_address, $status, $base_salary_rs, $allowances, $employment_type, $bank_name, $bank_account_number, $user_id);
       
         if ($updateEmployee) {
-            echo "<p style='color:green; text-align:center; margin-top:40px;'>Employee profile updated successfully.</p>";
-            echo "<p style='text-align:center;'><a href='manage_employee.php?id={$user_id}'>Back to Profile</a></p>";
+            // Re-fetch employee details to show updated data in form
+            $employee = $employeeObj->getEmployeeDetailsById($user_id);
+            $alert_banner = "
+            <div class='alert-banner-modern success' style='background: #ecfdf5; border: 1px solid #10b981; border-radius: 12px; padding: 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.08); animation: slideDown 0.3s ease both;'>
+                <div style='display: flex; align-items: center; gap: 14px;'>
+                    <div style='background: #10b981; color: #fff; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;'>
+                        <svg viewBox='0 0 24 24' style='width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 3;'><polyline points='20 6 9 17 4 12'/></svg>
+                    </div>
+                    <div>
+                        <h4 style='margin: 0; color: #065f46; font-size: 15px; font-weight: 800;'>Profile Updated Successfully</h4>
+                        <p style='margin: 3px 0 0 0; color: #047857; font-size: 13px; font-weight: 600;'>The employee details have been securely synchronized with the database.</p>
+                    </div>
+                </div>
+                <a href='manage_employee.php?id=" . htmlspecialchars($user_id) . "' style='background: #10b981; color: #fff; text-decoration: none; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.2); transition: all 0.2s;'>
+                    Back to Profile
+                    <svg viewBox='0 0 24 24' style='width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.5;'><polyline points='9 18 15 12 9 6'/></svg>
+                </a>
+            </div>";
         } else {
-          echo "<p style='color:red;'>Error: " . $employeeObj->errors['general'] . "</p>";
-            echo "<p style='color:red; text-align:center; margin-top:40px;'>Employee profile update error.</p>";
+            $err = isset($employeeObj->errors['general']) ? $employeeObj->errors['general'] : 'Employee profile update error.';
+            $alert_banner = "
+            <div class='alert-banner-modern error' style='background: #fef2f2; border: 1px solid #ef4444; border-radius: 12px; padding: 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 14px; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.08); animation: slideDown 0.3s ease both;'>
+                <div style='background: #ef4444; color: #fff; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;'>
+                    <svg viewBox='0 0 24 24' style='width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 3;'><line x1='18' y1='6' x2='6' y2='18'/><line x1='6' y1='6' x2='18' y2='18'/></svg>
+                </div>
+                <div>
+                    <h4 style='margin: 0; color: #991b1b; font-size: 15px; font-weight: 800;'>Profile Update Failed</h4>
+                    <p style='margin: 3px 0 0 0; color: #b91c1c; font-size: 13px; font-weight: 600;'>" . htmlspecialchars($err) . "</p>
+                </div>
+            </div>";
         } 
         
     } else {
-       
-        echo "<p style='color:red; text-align:center; margin-top:40px;'>Error: Missing User ID. Cannot update.</p>";
+        $alert_banner = "
+        <div class='alert-banner-modern error' style='background: #fef2f2; border: 1px solid #ef4444; border-radius: 12px; padding: 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 14px; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.08); animation: slideDown 0.3s ease both;'>
+            <div style='background: #ef4444; color: #fff; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;'>
+                <svg viewBox='0 0 24 24' style='width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 3;'><line x1='18' y1='6' x2='6' y2='18'/><line x1='6' y1='6' x2='18' y2='18'/></svg>
+            </div>
+            <div>
+                <h4 style='margin: 0; color: #991b1b; font-size: 15px; font-weight: 800;'>Missing User ID</h4>
+                <p style='margin: 3px 0 0 0; color: #b91c1c; font-size: 13px; font-weight: 600;'>Cannot update because User ID is missing.</p>
+            </div>
+        </div>";
     }  
 }
 ?>
@@ -404,6 +439,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
         <a href="manage_employee.php?id=<?php echo htmlspecialchars($employee['user_id']); ?>"><?php echo htmlspecialchars($employee['first_name']); ?></a>
         <span>Update Profile</span>
     </nav>
+
+    <?php echo $alert_banner; ?>
 
     <div class="profile-container">
         

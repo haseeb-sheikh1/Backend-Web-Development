@@ -39,19 +39,19 @@ class Payroll {
                 'deductions' => []
             ];
 
-            $b_stmt = $this->db->prepare("SELECT b.name, ba.amount FROM bonus_allowance ba JOIN bonus b ON ba.bonus_id = b.id WHERE ba.payroll_id = ?");
+            $b_stmt = $this->db->prepare("SELECT ba.bonus_id, b.name, ba.amount FROM bonus_allowance ba JOIN bonus b ON ba.bonus_id = b.id WHERE ba.payroll_id = ?");
             $b_stmt->bind_param("i", $payroll_id);
             $b_stmt->execute();
             $b_res = $b_stmt->get_result();
             while ($b_row = $b_res->fetch_assoc()) { $breakdown['bonuses'][] = $b_row; }
 
-            $a_stmt = $this->db->prepare("SELECT a.name, pa.amount_rs as amount FROM payroll_allowances pa JOIN allowances a ON pa.allowance_id = a.id WHERE pa.payroll_id = ?");
+            $a_stmt = $this->db->prepare("SELECT pa.allowance_id, a.name, pa.amount_rs as amount FROM payroll_allowances pa JOIN allowances a ON pa.allowance_id = a.id WHERE pa.payroll_id = ?");
             $a_stmt->bind_param("i", $payroll_id);
             $a_stmt->execute();
             $a_res = $a_stmt->get_result();
             while ($a_row = $a_res->fetch_assoc()) { $breakdown['allowances'][] = $a_row; }
 
-            $d_stmt = $this->db->prepare("SELECT d.name, pd.amount_rs as amount FROM payroll_deductions pd JOIN deductions d ON pd.deduction_id = d.id WHERE pd.payroll_id = ?");
+            $d_stmt = $this->db->prepare("SELECT pd.deduction_id, d.name, pd.amount_rs as amount FROM payroll_deductions pd JOIN deductions d ON pd.deduction_id = d.id WHERE pd.payroll_id = ?");
             $d_stmt->bind_param("i", $payroll_id);
             $d_stmt->execute();
             $d_res = $d_stmt->get_result();
@@ -189,8 +189,18 @@ class Payroll {
         $employee_id = $this->getEmployeeIdByUserId($user_id);
         if (!$employee_id) return "Employee not found.";
 
+        $is_update = false;
+        $payroll_id = null;
         if ($this->isSalaryProcessed($employee_id, $payroll_month)) {
-            return "Salary already processed for this month.";
+            $is_update = true;
+            $stmtGetId = $this->db->prepare("SELECT id FROM payroll WHERE employee_id = ? AND payroll_month = ?");
+            $stmtGetId->bind_param("is", $employee_id, $payroll_month);
+            $stmtGetId->execute();
+            $resGetId = $stmtGetId->get_result();
+            if ($payroll_row = $resGetId->fetch_assoc()) {
+                $payroll_id = $payroll_row['id'];
+            }
+            $stmtGetId->close();
         }
 
         // Calculate totals
@@ -224,15 +234,31 @@ class Payroll {
         $this->db->begin_transaction();
 
         try {
-            // Insert Main Record
-            $stmt = $this->db->prepare("INSERT INTO payroll (employee_id, payroll_month, base_salary_rs, net_payable_rs, status) VALUES (?, ?, ?, ?, ?)");
-            $stmt->bind_param("isdds", $employee_id, $payroll_month, $base_salary, $net_payable, $status);
-            
-            if (!$stmt->execute()) {
-                throw new Exception("Failed to insert payroll record.");
+            if ($is_update) {
+                // Delete existing sub-records
+                $this->db->query("DELETE FROM bonus_allowance WHERE payroll_id = $payroll_id");
+                $this->db->query("DELETE FROM payroll_allowances WHERE payroll_id = $payroll_id");
+                $this->db->query("DELETE FROM payroll_deductions WHERE payroll_id = $payroll_id");
+
+                // Update Main Record
+                $stmt = $this->db->prepare("UPDATE payroll SET base_salary_rs = ?, net_payable_rs = ?, status = ? WHERE id = ?");
+                $stmt->bind_param("ddsi", $base_salary, $net_payable, $status, $payroll_id);
+                if (!$stmt->execute()) {
+                    throw new Exception("Failed to update payroll record.");
+                }
+                $stmt->close();
+            } else {
+                // Insert Main Record
+                $stmt = $this->db->prepare("INSERT INTO payroll (employee_id, payroll_month, base_salary_rs, net_payable_rs, status) VALUES (?, ?, ?, ?, ?)");
+                $stmt->bind_param("isdds", $employee_id, $payroll_month, $base_salary, $net_payable, $status);
+                
+                if (!$stmt->execute()) {
+                    throw new Exception("Failed to insert payroll record.");
+                }
+                
+                $payroll_id = $this->db->insert_id;
+                $stmt->close();
             }
-            
-            $payroll_id = $this->db->insert_id;
 
             // Insert Bonuses
             if (!empty($b_names) && !empty($b_amounts)) {
@@ -244,6 +270,7 @@ class Payroll {
                         $stmtBonus->execute();
                     }
                 }
+                $stmtBonus->close();
             }
 
             // Insert Allowances
@@ -256,6 +283,7 @@ class Payroll {
                         $stmtAllow->execute();
                     }
                 }
+                $stmtAllow->close();
             }
 
             // Insert Deductions
@@ -268,6 +296,7 @@ class Payroll {
                         $stmtDeduct->execute();
                     }
                 }
+                $stmtDeduct->close();
             }
 
             $this->db->commit();

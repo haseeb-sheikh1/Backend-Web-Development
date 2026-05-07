@@ -7,7 +7,7 @@
 
     $title     = "Salary Reports";
     $extra_css = "salary_reports";
-    $current_page = "payroll"; // Keep the payroll sidebar item active
+    $current_page = "salary_reports"; // Keep the payroll reports sidebar item active
     include_once "../includes/header.php";
 
     require_once "../pages/Database.php";

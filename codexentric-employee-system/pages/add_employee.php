@@ -24,20 +24,128 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_employee'])) {
 
   <div class="dashboard-container">
     
+    <?php if (isset($_SESSION['success_msg']) || isset($employee->errors['success'])): 
+        $msg = isset($_SESSION['success_msg']) ? $_SESSION['success_msg'] : $employee->errors['success'];
+        unset($_SESSION['success_msg']);
+    ?>
+        <div class="feedback-card-container">
+            <div class="feedback-card success">
+                <div class="feedback-icon-wrapper">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </div>
+                <h2>Employee Registered</h2>
+                <p><?php echo htmlspecialchars($msg); ?></p>
+                <div class="feedback-btn-group">
+                    <a href="employees_list.php" class="feedback-btn outline">
+                        Back to Employee List
+                    </a>
+                    <a href="add_employee.php" class="feedback-btn success">
+                        Add Another Employee
+                    </a>
+                </div>
+            </div>
+        </div>
+        <style>
+        .feedback-card-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 200px);
+            background: #f8fafc;
+            padding: 24px;
+        }
+        .feedback-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 40px 32px;
+            width: 100%;
+            max-width: 440px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+        @keyframes scaleUp {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .feedback-icon-wrapper {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px auto;
+            background: #e8f5e9;
+            color: #186D55;
+        }
+        .feedback-icon-wrapper svg {
+            width: 28px;
+            height: 28px;
+        }
+        .feedback-card h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+        .feedback-card p {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .feedback-btn-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        .feedback-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 44px;
+            padding: 0 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            flex: 1;
+        }
+        .feedback-btn.success {
+            background: #186D55;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(24, 109, 85, 0.2);
+        }
+        .feedback-btn.success:hover {
+            background: #125542;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(24, 109, 85, 0.25);
+        }
+        .feedback-btn.outline {
+            background: #ffffff;
+            color: #64748b;
+            border: 1px solid #cbd5e1;
+        }
+        .feedback-btn.outline:hover {
+            background: #f8fafc;
+            color: #334155;
+            border-color: #94a3b8;
+        }
+        </style>
+    <?php else: ?>
 
+        <?php if (isset($employee->errors['general'])): ?>
+          <div class="alert alert-danger">
+              <p>• <?php echo htmlspecialchars($employee->errors['general']); ?></p>
+          </div>
+        <?php endif; ?>
 
-    <?php if (isset($employee->errors['general'])): ?>
-      <div class="alert alert-danger">
-          <p>• <?php echo htmlspecialchars($employee->errors['general']); ?></p>
-      </div>
-    <?php endif; ?>
-    <?php if (isset($_SESSION['success_msg'])): ?>
-      <div class="alert alert-success">
-          <p>• <?php echo htmlspecialchars($_SESSION['success_msg']); unset($_SESSION['success_msg']); ?></p>
-      </div>
-    <?php endif; ?>
-
-    <form action="add_employee.php" method="POST" id="create_employee_form" novalidate>
+        <form action="add_employee.php" method="POST" id="create_employee_form" novalidate>
       <div class="dashboard-grid">
 
         <!-- Personal Information -->
@@ -179,5 +287,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_employee'])) {
         </button>
       </div>
     </form>
+    <?php endif; ?>
   </div>
 <?php include_once "../includes/footer.php"; ?>

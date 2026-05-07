@@ -153,8 +153,8 @@
 
 .form-input:focus, .form-select:focus {
   outline: none;
-  border-color: var(--brand-orange);
-  box-shadow: 0 0 0 3px rgba(255, 123, 29, 0.1);
+  border-color: var(--brand-green);
+  box-shadow: 0 0 0 3px rgba(24, 109, 85, 0.15);
 }
 
 .form-input::placeholder {
@@ -201,7 +201,7 @@
   align-items: center;
   gap: 10px;
   padding: 12px 24px;
-  background: var(--brand-orange);
+  background: var(--brand-green);
   color: #fff;
   border: none;
   border-radius: 10px;
@@ -209,13 +209,13 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 4px 12px rgba(255, 123, 29, 0.15);
+  box-shadow: 0 4px 12px rgba(24, 109, 85, 0.15);
 }
 
 .btn-brand:hover {
-  background: var(--brand-orange-hover);
+  background: #11523F;
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(255, 123, 29, 0.2);
+  box-shadow: 0 6px 16px rgba(24, 109, 85, 0.25);
 }
 
 @media (max-width: 600px) {
