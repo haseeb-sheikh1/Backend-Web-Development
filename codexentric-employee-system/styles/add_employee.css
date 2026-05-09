@@ -16,7 +16,7 @@
 .dashboard-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 30px 30px 30px;
+  padding: 0 30px 10px 30px;
   box-sizing: border-box;
   font-family: var(--font-body);
 }
@@ -67,8 +67,8 @@
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
-  margin-bottom: 30px;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
 @media (max-width: 900px) {
@@ -107,7 +107,7 @@
 }
 
 .widget-body {
-  padding: 24px;
+  padding: 18px 20px;
   flex: 1;
 }
 
@@ -115,13 +115,13 @@
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  gap: 12px;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .form-group.span-full {
@@ -139,7 +139,7 @@
 }
 
 .form-input, .form-select {
-  height: 44px;
+  height: 38px;
   padding: 0 14px;
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -165,7 +165,7 @@
 .alert {
   padding: 14px 20px;
   border-radius: 10px;
-  margin-bottom: 24px;
+  margin-bottom: 12px;
   font-size: 14px;
   font-weight: 600;
 }

@@ -289,7 +289,7 @@ include_once "../includes/sidebar.php";
 }
 
 .rep-card-header {
-    padding: 18px 24px;
+    padding: 12px 20px;
     border-bottom: 1px solid #f1f5f9;
     display: flex;
     align-items: center;
@@ -298,7 +298,7 @@ include_once "../includes/sidebar.php";
 }
 
 .rep-card-header .icon-brand {
-    color: var(--brand-orange);
+    color: #186D55;
     display: flex;
     align-items: center;
 }
@@ -314,11 +314,171 @@ include_once "../includes/sidebar.php";
 
 .rep-card-body { padding: 24px; }
 
+/* ── Container Override ── */
+.expenses-container {
+    max-width: 1250px !important;
+    margin: 0 auto;
+    padding: 10px 30px 40px 30px;
+}
+
+/* ── Charts Grid ── */
+.chart-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 0.7fr;
+    gap: 20px;
+    margin-bottom: 20px;
+    margin-top: 10px;
+    align-items: flex-start;
+}
+.chart-card {
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    padding: 12px 15px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+.chart-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 25px;
+}
+.chart-card-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.chart-legend {
+    display: flex;
+    gap: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+}
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.dot { width: 8px; height: 8px; border-radius: 2px; }
+
+/* ── Premium Bubble Card Styles ── */
+.premium-card {
+    background: #fff;
+    border-radius: 24px;
+    padding: 30px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.04);
+    border: 1px solid #f1f5f9;
+    display: flex;
+    flex-direction: column;
+}
+.prem-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 25px;
+}
+.prem-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0;
+}
+.prem-subtitle {
+    font-size: 14px;
+    color: #94a3b8;
+    font-weight: 500;
+    margin-top: 4px;
+}
+.btn-view-report {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    text-decoration: none;
+    transition: all 0.2s;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+.btn-view-report:hover { background: #f8fafc; border-color: #cbd5e1; }
+
+.bubble-pack-container {
+    position: relative;
+    height: 160px;
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.prem-bubble {
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    position: absolute;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.prem-bubble:hover { transform: scale(1.05); z-index: 10; }
+/* Scaled down positions from image */
+.b-main { width: 100px; height: 100px; left: 5%; top: 50%; transform: translateY(-50%); font-size: 20px; z-index: 4; }
+.b-second { width: 75px; height: 75px; right: 15%; top: 5%; font-size: 15px; z-index: 3; }
+.b-third { width: 60px; height: 60px; right: 25%; bottom: 5%; font-size: 12px; z-index: 5; }
+.b-fourth { width: 35px; height: 35px; right: 5%; top: 45%; font-size: 8px; z-index: 2; }
+
+.prem-legend {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 5px;
+    border-top: 1px dashed #f1f5f9;
+    padding-top: 10px;
+}
+.leg-row {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed #f1f5f9;
+}
+.leg-row:last-child { border-bottom: none; }
+.leg-item { display: flex; align-items: flex-start; gap: 8px; }
+.leg-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 3px; }
+.leg-info { display: flex; flex-direction: column; }
+.leg-cat { font-size: 11px; font-weight: 700; }
+.leg-val { font-size: 10px; font-weight: 700; color: #94a3b8; margin-top: 1px; }
+
+/* ── Summary Sparklines ── */
+.summary-sparkline {
+    width: 80px;
+    height: 40px;
+    margin-left: auto;
+}
+/* ── Trend Info ── */
+.trend-stats {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #f1f5f9;
+}
+.t-stat { display: flex; flex-direction: column; min-width: 90px; }
+.t-label { font-size: 9px; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 3px; letter-spacing: 0.5px; }
+.t-val { font-size: 15px; font-weight: 800; color: #1e293b; letter-spacing: -0.5px; }
+.t-line { width: 4px; height: 20px; border-radius: 10px; margin-right: 10px; }
+
+@media (max-width: 1024px) {
+    .chart-grid { grid-template-columns: 1fr; }
+}
+
 /* Form grid elements styled exactly like Salary Reports */
 .modern-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 24px;
+    gap: 16px;
 }
 
 .modern-field label {
@@ -326,12 +486,12 @@ include_once "../includes/sidebar.php";
     font-size: 13px;
     font-weight: 700;
     color: #475569;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
 }
 
 .modern-input, .modern-select {
     width: 100%;
-    height: 44px;
+    height: 38px;
     padding: 0 16px;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
@@ -351,8 +511,8 @@ include_once "../includes/sidebar.php";
     display: flex;
     justify-content: flex-end;
     gap: 12px;
-    margin-top: 24px;
-    padding-top: 20px;
+    margin-top: 16px;
+    padding-top: 12px;
     border-top: 1px solid #f1f5f9;
 }
 
@@ -389,7 +549,7 @@ include_once "../includes/sidebar.php";
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 24px;
+    padding: 12px 20px;
     background: #fff;
     border-bottom: 1px solid #f1f5f9;
 }
@@ -403,7 +563,7 @@ include_once "../includes/sidebar.php";
     font-size: 14px;
 }
 
-.meta-person svg { color: var(--brand-orange); }
+.meta-person svg { color: #186D55; }
 
 .meta-pill {
     background: #f1f5f9;
@@ -418,12 +578,12 @@ include_once "../includes/sidebar.php";
 /* ── Pill-Row Table ── */
 .rep-table {
     width: 100%;
-    border-spacing: 0 12px;
+    border-spacing: 0 8px;
     border-collapse: separate;
 }
 
 .rep-table thead th {
-    padding: 12px 24px;
+    padding: 10px 20px;
     text-align: left;
     font-size: 11px;
     font-weight: 800;
@@ -444,26 +604,26 @@ include_once "../includes/sidebar.php";
 }
 
 .rep-table td {
-    padding: 18px 24px;
+    padding: 12px 20px;
     border: 1px solid #e2e8f0;
     border-left: none;
     border-right: none;
-    font-size: 14px;
+    font-size: 13.5px;
     color: #475569;
 }
 
 .rep-table td:first-child { 
     border-left: 1px solid #e2e8f0;
-    border-radius: 50px 0 0 50px; 
-    padding-left: 30px;
+    border-radius: 12px 0 0 12px; 
+    padding-left: 25px;
     font-weight: 700;
     color: #1e293b;
 }
 
 .rep-table td:last-child { 
     border-right: 1px solid #e2e8f0;
-    border-radius: 0 50px 50px 0; 
-    padding-right: 30px;
+    border-radius: 0 12px 12px 0; 
+    padding-right: 25px;
 }
 
 .val-net { color: var(--brand-orange); font-weight: 800; }
@@ -485,6 +645,9 @@ include_once "../includes/sidebar.php";
 }
 </style>
 
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <div class="expenses-container">
 
   <!-- Alert System -->
@@ -496,133 +659,166 @@ include_once "../includes/sidebar.php";
   <?php endif; ?>
 
 
-  <!-- Search / Filter Card (Styled exactly like Salary Reports) -->
-  <div class="rep-card" style="margin-top: 15px;">
-      <div class="rep-card-header">
-          <div class="icon-brand">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          </div>
-          <h2>Search Expense Reports</h2>
-      </div>
-      <div class="rep-card-body">
-          <form method="GET" action="expense_reports.php">
-              <div class="modern-grid">
-
-                  <!-- Report Type Dropdown -->
-                  <div class="modern-field">
-                      <label>Report Type</label>
-                      <select name="report_type" id="report_type" class="modern-select" onchange="toggleFilterFields()" required>
-                          <option value="monthly" <?php echo ($report_type === 'monthly') ? 'selected' : ''; ?>>Monthly Detailed Report</option>
-                          <option value="yearly" <?php echo ($report_type === 'yearly') ? 'selected' : ''; ?>>Yearly Summary Report</option>
-                      </select>
-                  </div>
-
-                  <!-- Month Picker -->
-                  <div class="modern-field" id="month_field">
-                      <label>Select Month</label>
-                      <input type="month" name="month" class="modern-input" value="<?php echo htmlspecialchars($selected_month); ?>">
-                  </div>
-
-                  <!-- Year Picker -->
-                  <div class="modern-field" id="year_field">
-                      <label>Select Year</label>
-                      <input type="number" name="year" class="modern-input" min="2000" max="2100" value="<?php echo htmlspecialchars($selected_year); ?>">
-                  </div>
-
+  <!-- Compact Search Bar -->
+  <div class="rep-card" style="margin-top: 5px; margin-bottom: 20px; background: #f8fafc; border: 1px solid #e2e8f0;">
+      <div class="rep-card-body" style="padding: 10px 20px;">
+          <form method="GET" action="expense_reports.php" style="display: flex; align-items: center; gap: 24px; flex-wrap: wrap;">
+              
+              <!-- Report Type -->
+              <div style="display:flex; align-items:center; gap:8px;">
+                  <label style="font-size:10px; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Type:</label>
+                  <select name="report_type" id="report_type" class="modern-select" style="height:34px; width:170px; font-size:12px; border-color:#cbd5e1;" onchange="toggleFilterFields()" required>
+                      <option value="monthly" <?php echo ($report_type === 'monthly') ? 'selected' : ''; ?>>Monthly Detailed Report</option>
+                      <option value="yearly" <?php echo ($report_type === 'yearly') ? 'selected' : ''; ?>>Yearly Summary Report</option>
+                  </select>
               </div>
 
-              <!-- Action Buttons -->
-              <div class="modern-actions">
-                  <a href="expense_reports.php" class="btn-secondary-modern">Reset</a>
-                  <button type="submit" class="btn-primary-modern">Generate Report</button>
+              <!-- Month Picker -->
+              <div id="month_field" style="display:flex; align-items:center; gap:8px;">
+                  <label style="font-size:10px; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Month:</label>
+                  <input type="month" name="month" class="modern-input" style="height:34px; width:150px; font-size:12px; border-color:#cbd5e1;" value="<?php echo htmlspecialchars($selected_month); ?>">
+              </div>
+
+              <!-- Year Picker -->
+              <div id="year_field" style="display:flex; align-items:center; gap:8px;">
+                  <label style="font-size:10px; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Year:</label>
+                  <input type="number" name="year" class="modern-input" style="height:34px; width:110px; font-size:12px; border-color:#cbd5e1;" min="2000" max="2100" value="<?php echo htmlspecialchars($selected_year); ?>">
+              </div>
+
+              <div style="margin-left: auto; display: flex; gap: 8px;">
+                  <button type="submit" class="btn-primary-modern" style="padding: 8px 20px; font-size: 12px; box-shadow: 0 4px 10px rgba(24, 109, 85, 0.15);">Update Dashboard</button>
+                  <a href="expense_reports.php" class="btn-secondary-modern" style="padding: 8px 20px; font-size: 12px; background:#fff;">Reset</a>
               </div>
           </form>
       </div>
   </div>
 
   <?php if ($report_generated): ?>
-  <!-- Summary Cards -->
-  <div class="expenses-summary-grid" style="margin-bottom: 8px;">
-    <div class="summary-card">
-      <div class="summary-icon-wrapper">
-        <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-      </div>
-      <div class="summary-details">
-        <h3><?php echo ($report_type === 'monthly') ? 'Total Monthly Spend' : 'Total Yearly Spend'; ?></h3>
-        <p class="value">Rs <?php echo number_format($monthly_spend, 2); ?></p>
-        <p class="subtext"><?php echo ($report_type === 'monthly') ? date('F Y', strtotime($selected_month . "-01")) : "Year " . $selected_year; ?></p>
-      </div>
-    </div>
 
-    <div class="summary-card">
-      <div class="summary-icon-wrapper">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  <!-- ── Modern Charts Row ── -->
+  <div class="chart-grid">
+      
+      <!-- 1. Burn Rate Trend Over Time (Line) -->
+      <div class="chart-card">
+          <div class="chart-card-header">
+              <span class="chart-card-title">6-Month Burn Rate Trend</span>
+              <div class="chart-legend">
+                  <div class="legend-item"><span class="dot" style="background:#186D55"></span> Actual Spend</div>
+                  <div class="legend-item"><span class="dot" style="background:rgba(199, 210, 254, 0.5)"></span> Avg. Area</div>
+              </div>
+          </div>
+          <div class="trend-stats">
+              <!-- Outflow / Burn -->
+              <div style="display:flex; align-items:center;">
+                  <div class="t-line" style="background:#186D55"></div>
+                  <div class="t-stat">
+                      <span class="t-label">Total Outflow</span>
+                      <span class="t-val">Rs <?php echo number_format($burn_rate); ?></span>
+                  </div>
+              </div>
+              <!-- Operating Expense -->
+              <div style="display:flex; align-items:center; border-left: 1px solid #f1f5f9; padding-left: 20px;">
+                  <div class="t-line" style="background:#C7D2FE"></div>
+                  <div class="t-stat">
+                      <span class="t-label">Operating spend</span>
+                      <span class="t-val">Rs <?php echo number_format($monthly_spend); ?></span>
+                  </div>
+              </div>
+              <!-- Pending -->
+              <div style="display:flex; align-items:center; border-left: 1px solid #f1f5f9; padding-left: 20px;">
+                  <div class="t-line" style="background:#ef4444"></div>
+                  <div class="t-stat">
+                      <span class="t-label">Pending Payments</span>
+                      <span class="t-val">Rs <?php echo number_format($pending_payments); ?></span>
+                  </div>
+              </div>
+              <!-- Top Category -->
+              <div style="display:flex; align-items:center; border-left: 1px solid #f1f5f9; padding-left: 20px;">
+                  <div class="t-line" style="background:#F59E0B"></div>
+                  <div class="t-stat">
+                      <span class="t-label">Top Category</span>
+                      <span class="t-val" style="font-size: 15px;"><?php echo htmlspecialchars($highest_expense_cat); ?></span>
+                  </div>
+              </div>
+          </div>
+          <div style="height: 120px; width: 100%;">
+              <canvas id="burnTrendChart"></canvas>
+          </div>
       </div>
-      <div class="summary-details">
-        <h3>Pending Payments</h3>
-        <p class="value" style="color: #dc2626;">Rs <?php echo number_format($pending_payments, 2); ?></p>
-        <p class="subtext"><?php echo ($report_type === 'monthly') ? 'For this month' : 'For this year'; ?></p>
-      </div>
-    </div>
 
-    <div class="summary-card">
-      <div class="summary-icon-wrapper">
-        <svg viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
-      </div>
-      <div class="summary-details">
-        <h3>Highest Category</h3>
-        <p class="value" style="font-size: 19px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px;">
-          <?php echo htmlspecialchars($highest_expense_cat); ?>
-        </p>
-        <p class="subtext">Rs <?php echo number_format($highest_expense_amt, 2); ?></p>
-      </div>
-    </div>
+      <!-- 2. Premium Monthly Expense Card -->
+      <div class="premium-card">
+          <div class="prem-header">
+              <div>
+                  <h2 class="prem-title"><?php echo ($report_type === 'monthly') ? 'Monthly' : 'Yearly'; ?> Expense</h2>
+                  <p class="prem-subtitle">
+                      <?php echo ($report_type === 'monthly') ? date('j - t M, Y', strtotime($selected_month . "-01")) : "FY " . $selected_year; ?>
+                  </p>
+              </div>
+              <a href="#" class="btn-view-report">View Report</a>
+          </div>
 
-    <div class="summary-card">
-      <div class="summary-icon-wrapper">
-        <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-      </div>
-      <div class="summary-details">
-        <h3>Total Outflow (Burn)</h3>
-        <p class="value" style="color: #186D55;">Rs <?php echo number_format($burn_rate, 2); ?></p>
-        <p class="subtext">Payroll + Operating</p>
-      </div>
-    </div>
-  </div>
+          <div class="bubble-pack-container">
+              <?php 
+                  // Prepare Top 4 categories for the premium view
+                  arsort($dist_values);
+                  $top4 = array_slice($dist_values, 0, 4, true);
+                  $total_top = array_sum($dist_values);
+                  
+                  $bubble_classes = ['b-main', 'b-second', 'b-third', 'b-fourth'];
+                  $bubble_colors = [
+                      ['bg'=>'#EEF2FF', 'text'=>'#6366F1', 'dot'=>'#6366F1'], // Purple
+                      ['bg'=>'#ECFDF5', 'text'=>'#10B981', 'dot'=>'#10B981'], // Green
+                      ['bg'=>'#FDF2F8', 'text'=>'#EC4899', 'dot'=>'#EC4899'], // Pink
+                      ['bg'=>'#FFFBEB', 'text'=>'#F59E0B', 'dot'=>'#F59E0B']  // Orange
+                  ];
+                  
+                  $legend_data = [];
+                  $idx = 0;
+                  foreach ($top4 as $key => $val):
+                      $perc = ($total_top > 0) ? round(($val / $total_top) * 100) : 0;
+                      $label = $dist_labels[$key];
+                      $style = $bubble_colors[$idx % 4];
+                      $class = $bubble_classes[$idx % 4];
+                      
+                      $legend_data[] = [
+                          'label' => $label,
+                          'val'   => $val,
+                          'dot'   => $style['dot']
+                      ];
+              ?>
+                  <div class="prem-bubble <?php echo $class; ?>" 
+                       style="background: <?php echo $style['bg']; ?>; color: <?php echo $style['text']; ?>;">
+                      <?php echo $perc; ?>%
+                  </div>
+              <?php 
+                  $idx++; 
+                  endforeach; 
+                  if (empty($top4)):
+              ?>
+                  <div style="color:#94a3b8; font-size:14px; font-weight:600;">No distribution data</div>
+              <?php endif; ?>
+          </div>
 
-  <!-- Reporting & Visualization (Graphs) -->
-  <div class="expenses-charts-grid" style="margin-top: 10px; margin-bottom: 24px;">
-    
-    <!-- Donut Chart Card -->
-    <div class="widget-card">
-      <div class="widget-header">
-        <span class="widget-header-title">
-          <svg viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
-          Distribution Breakdown
-        </span>
+          <div class="prem-legend">
+              <?php 
+              $chunks = array_chunk($legend_data, 2);
+              foreach ($chunks as $row): 
+              ?>
+              <div class="leg-row">
+                  <?php foreach ($row as $leg): ?>
+                  <div class="leg-item">
+                      <div class="leg-dot" style="background: <?php echo $leg['dot']; ?>;"></div>
+                      <div class="leg-info">
+                          <span class="leg-cat" style="color: <?php echo $leg['dot']; ?>;"><?php echo htmlspecialchars($leg['label']); ?></span>
+                          <span class="leg-val">Rs <?php echo number_format($leg['val']); ?></span>
+                      </div>
+                  </div>
+                  <?php endforeach; ?>
+              </div>
+              <?php endforeach; ?>
+          </div>
       </div>
-      <div class="widget-body">
-        <div class="chart-wrapper">
-          <canvas id="distributionChart"></canvas>
-        </div>
-      </div>
-    </div>
-
-    <!-- Bar Chart Card -->
-    <div class="widget-card">
-      <div class="widget-header">
-        <span class="widget-header-title">
-          <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-          6-Month Outflow Trend
-        </span>
-      </div>
-      <div class="widget-body">
-        <div class="chart-wrapper">
-          <canvas id="trendChart"></canvas>
-        </div>
-      </div>
-    </div>
-
   </div>
 
   <!-- Detailed Results Card (Stlyed exactly like Salary Reports with Pill-Rows) -->
@@ -643,8 +839,25 @@ include_once "../includes/sidebar.php";
               </svg>
               <?php echo ($report_type === 'monthly') ? 'Monthly Detailed Bills' : 'Yearly Month-by-Month Summary'; ?>
           </div>
-          <div class="meta-pill">
-              <?php echo ($report_type === 'monthly') ? date('F Y', strtotime($selected_month . "-01")) : "Year " . $selected_year; ?>
+          <div class="meta-pill" style="display: flex; align-items: center; gap: 10px;">
+              <span><?php echo ($report_type === 'monthly') ? date('F Y', strtotime($selected_month . "-01")) : "Year " . $selected_year; ?></span>
+              
+              <?php if ($report_type === 'monthly'): ?>
+                  <a href="expense_report_print.php?report_type=monthly&month=<?php echo $selected_month; ?>" 
+                     class="btn-invoice" style="background: #186D55; color: #fff; border: none; padding: 4px 12px; font-size: 11px;">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="margin-right: 4px;"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"/></svg>
+                      View Report
+                  </a>
+              <?php else: ?>
+                  <a href="expense_report_print.php?report_type=yearly&year=<?php echo $selected_year; ?>" 
+                     class="btn-invoice" style="background: #186D55; color: #fff; border: none; padding: 4px 12px; font-size: 11px;">
+                      Month Summary
+                  </a>
+                  <a href="expense_yearly_print.php?year=<?php echo $selected_year; ?>" 
+                     class="btn-invoice" style="background: #186D55; color: #fff; border: none; padding: 4px 12px; font-size: 11px;">
+                      Category Breakdown
+                  </a>
+              <?php endif; ?>
           </div>
       </div>
 
@@ -769,8 +982,11 @@ include_once "../includes/sidebar.php";
                                       </div>
                                   <?php endif; ?>
                               </td>
-                              <td style="text-align:right;">
+                              <td style="text-align:right; display: flex; gap: 8px; justify-content: flex-end;">
                                   <a href="expense_reports.php?report_type=monthly&month=<?php echo urlencode($sum_row['month_code']); ?>" class="btn-invoice">
+                                      Dashboard
+                                  </a>
+                                  <a href="expense_report_print.php?report_type=monthly&month=<?php echo urlencode($sum_row['month_code']); ?>" class="btn-invoice" style="border-color: #186D55; color: #186D55;">
                                       View Report
                                   </a>
                               </td>
@@ -865,82 +1081,130 @@ include_once "../includes/sidebar.php";
 
   <?php if ($report_generated): ?>
   document.addEventListener("DOMContentLoaded", function() {
-      // 1. Distribution Chart (Donut)
-      const distCtx = document.getElementById('distributionChart').getContext('2d');
-      const distLabels = <?php echo json_encode($dist_labels); ?>;
-      const distValues = <?php echo json_encode($dist_values); ?>;
-      
-      new Chart(distCtx, {
-          type: 'doughnut',
+      // 1. Burn Rate Trend Chart (Line with area)
+      const burnCtx = document.getElementById('burnTrendChart').getContext('2d');
+      const gradient = burnCtx.createLinearGradient(0, 0, 0, 200);
+      gradient.addColorStop(0, 'rgba(24, 109, 85, 0.2)');
+      gradient.addColorStop(1, 'rgba(24, 109, 85, 0)');
+
+      new Chart(burnCtx, {
+          type: 'line',
           data: {
-              labels: distLabels,
+              labels: <?php echo json_encode($trend_labels); ?>,
               datasets: [{
-                  data: distValues,
-                  backgroundColor: [
-                      '#ff7b1d', '#186D55', '#2563eb', '#f59e0b', '#3b82f6', '#10b981', '#a855f7', '#64748b'
-                  ],
-                  borderWidth: 2,
-                  borderColor: '#ffffff'
+                  label: 'Actual Outflow',
+                  data: <?php echo json_encode($trend_values); ?>,
+                  borderColor: '#186D55',
+                  backgroundColor: gradient,
+                  borderWidth: 3,
+                  fill: true,
+                  tension: 0.4,
+                  pointBackgroundColor: '#fff',
+                  pointBorderColor: '#186D55',
+                  pointBorderWidth: 2,
+                  pointRadius: 4,
+                  pointHoverRadius: 6
               }]
           },
           options: {
               responsive: true,
               maintainAspectRatio: false,
-              plugins: {
-                  legend: {
-                      position: 'right',
-                      labels: {
-                          boxWidth: 12,
-                          font: { family: 'Nunito Sans', size: 11, weight: '700' },
-                          color: '#334155'
+              plugins: { legend: { display: false } },
+              scales: {
+                  y: {
+                      beginAtZero: true,
+                      grid: { color: '#f1f5f9', borderDash: [5, 5] },
+                      ticks: {
+                          color: '#94a3b8',
+                          font: { size: 10, weight: '600' },
+                          callback: value => 'Rs ' + (value/1000) + 'k'
                       }
-                  }
+                  },
+                  x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10, weight: '600' } } }
               }
           }
       });
 
-      // 2. Trend Chart (Bar)
-      const trendCtx = document.getElementById('trendChart').getContext('2d');
-      const trendLabels = <?php echo json_encode($trend_labels); ?>;
-      const trendValues = <?php echo json_encode($trend_values); ?>;
-
-      new Chart(trendCtx, {
+      // 2. Cost Centers Comparison Chart (Horizontal Bar)
+      const costCtx = document.getElementById('costComparisonChart').getContext('2d');
+      new Chart(costCtx, {
           type: 'bar',
           data: {
-              labels: trendLabels,
+              labels: ['Cost Center Balance'],
+              datasets: [
+                {
+                  label: 'Salaries',
+                  data: [<?php echo $payroll_amt; ?>],
+                  backgroundColor: '#186D55',
+                  borderRadius: 4,
+                  barThickness: 20
+                },
+                {
+                  label: 'Expenses',
+                  data: [<?php echo $monthly_spend; ?>],
+                  backgroundColor: '#C7D2FE',
+                  borderRadius: 4,
+                  barThickness: 20
+                }
+              ]
+          },
+          options: {
+              indexAxis: 'y',
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false } },
+              scales: {
+                  x: { display: false },
+                  y: { display: false }
+              }
+          }
+      });
+
+      // 3. Sparklines for Summary Cards
+      const sparklineOptions = {
+          type: 'line',
+          options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false }, tooltip: { enabled: false } },
+              scales: { x: { display: false }, y: { display: false } },
+              elements: { point: { radius: 0 }, line: { tension: 0.4, borderWidth: 2 } }
+          }
+      };
+
+      // Spend Sparkline
+      new Chart(document.getElementById('spendSparkline'), {
+          ...sparklineOptions,
+          data: {
+              labels: <?php echo json_encode($trend_labels); ?>,
+              datasets: [{ data: <?php echo json_encode($trend_values); ?>, borderColor: '#186D55' }]
+          }
+      });
+
+      // Pending Sparkline (Mini Bar)
+      new Chart(document.getElementById('pendingSparkline'), {
+          type: 'bar',
+          data: {
+              labels: ['Paid', 'Pending'],
               datasets: [{
-                  label: 'General Operating Expenses',
-                  data: trendValues,
-                  backgroundColor: 'rgba(255, 123, 29, 0.85)',
-                  hoverBackgroundColor: 'rgba(255, 123, 29, 1)',
-                  borderRadius: 6,
-                  borderWidth: 0
+                  data: [<?php echo ($monthly_spend - $pending_payments); ?>, <?php echo $pending_payments; ?>],
+                  backgroundColor: ['#186D55', '#dc2626']
               }]
           },
           options: {
               responsive: true,
               maintainAspectRatio: false,
-              plugins: {
-                  legend: { display: false }
-              },
-              scales: {
-                  y: {
-                      beginAtZero: true,
-                      grid: { color: '#e2e8f0' },
-                      ticks: {
-                          font: { family: 'Nunito Sans', size: 10, weight: '700' },
-                          color: '#64748b',
-                          callback: function(value) { return 'Rs ' + value.toLocaleString(); }
-                      }
-                  },
-                  x: {
-                      grid: { display: false },
-                      ticks: {
-                          font: { family: 'Nunito Sans', size: 11, weight: '700' },
-                          color: '#64748b'
-                      }
-                  }
-              }
+              plugins: { legend: { display: false } },
+              scales: { x: { display: false }, y: { display: false } }
+          }
+      });
+
+      // Burn Sparkline
+      new Chart(document.getElementById('burnSparkline'), {
+          ...sparklineOptions,
+          data: {
+              labels: <?php echo json_encode($trend_labels); ?>,
+              datasets: [{ data: <?php echo json_encode($trend_values); ?>, borderColor: '#C7D2FE' }]
           }
       });
   });

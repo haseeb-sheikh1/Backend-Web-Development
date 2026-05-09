@@ -250,19 +250,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s;
-    line-height: 1;
-    font-family: var(--font);
+    text-decoration: none;
+    transition: all 0.2s ease;
 }
 .help-btn:hover {
-    background: #f1f5f9;
-    border-color: #94a3b8;
-    color: #374151;
-}
-.help-btn:hover {
-    background: #f1f5f9;
-    border-color: #94a3b8;
-    color: #374151;
+    background: #f0fdf4;
+    border-color: var(--brand-green);
+    color: var(--brand-green);
 }
     .sidebar-link svg {
         width: 16px; height: 16px;
@@ -495,7 +489,7 @@
         </header>
         <!-- SUB-HEADER BAR -->
 <div class="sub-header-bar">
-    <button class="help-btn" title="Help" onclick="alert('Help coming soon!')">?</button>
+    <a href="../pages/help.php" class="help-btn" title="System Help Center">?</a>
 </div>
 
         <!-- MAIN CONTENT -->

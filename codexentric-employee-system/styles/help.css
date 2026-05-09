@@ -1,0 +1,191 @@
+/* ── Help Page Styles ── */
+.help-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 30px 40px 30px;
+}
+
+/* Header Section */
+.help-header {
+    background: linear-gradient(135deg, #186D55 0%, #11523F 100%);
+    border-radius: 16px;
+    padding: 40px;
+    margin: 20px 0 32px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #fff;
+    box-shadow: 0 10px 25px rgba(24, 109, 85, 0.15);
+}
+
+.help-header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    letter-spacing: -1px;
+}
+
+.help-header p {
+    font-size: 16px;
+    opacity: 0.9;
+    max-width: 600px;
+    line-height: 1.6;
+}
+
+.header-icon svg {
+    width: 80px;
+    height: 80px;
+    opacity: 0.2;
+}
+
+/* Grid Layout */
+.help-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 24px;
+}
+
+/* Help Cards */
+.help-card {
+    background: #fff;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    padding: 30px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+.help-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.06);
+    border-color: #cbd5e1;
+}
+
+.card-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.card-icon svg {
+    width: 28px;
+    height: 28px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+}
+
+.help-card h3 {
+    font-size: 19px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 12px;
+}
+
+.help-card p {
+    font-size: 14.5px;
+    color: #64748b;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.help-card ul {
+    list-style: none;
+    padding: 0;
+    margin-top: auto;
+}
+
+.help-card ul li {
+    font-size: 13.5px;
+    color: #475569;
+    padding: 8px 0;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.help-card ul li::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: #186D55;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.help-card ul li strong {
+    color: #1e293b;
+}
+
+/* Footer Section */
+.help-footer {
+    margin-top: 48px;
+    text-align: center;
+    padding: 40px;
+    background: #f8fafc;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+}
+
+.help-footer p {
+    font-size: 15px;
+    color: #64748b;
+    margin-bottom: 20px;
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 32px;
+    background: #186D55;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 14px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(24, 109, 85, 0.15);
+}
+
+.btn-back:hover {
+    background: #11523F;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(24, 109, 85, 0.25);
+}
+
+/* Animations */
+.animate-fade {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .help-header {
+        flex-direction: column;
+        text-align: center;
+        padding: 30px 20px;
+    }
+    .header-icon {
+        display: none;
+    }
+    .help-header h1 {
+        font-size: 26px;
+    }
+    .help-grid {
+        grid-template-columns: 1fr;
+    }
+}

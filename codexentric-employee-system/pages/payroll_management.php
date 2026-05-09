@@ -43,7 +43,8 @@
             $_SESSION['pr_error'] = $result;
         }
         
-        header("Location: payroll_management.php?emp_id=" . $emp_id);
+        $selected_redirect_month = isset($_POST['payroll_month']) ? substr($_POST['payroll_month'], 0, 7) : date('Y-m');
+        header("Location: payroll_management.php?emp_id=" . $emp_id . "&month=" . urlencode($selected_redirect_month));
         exit();
     }
 
@@ -52,7 +53,8 @@
     
 
     
-    $current_month = date('Y-m-01');
+    $selected_month = isset($_GET['month']) ? $_GET['month'] : date('Y-m');
+    $current_month = $selected_month . '-01';
     $monthly_stats = $payrollObj->getMonthlyPayrollStats($current_month);
     
     $salary_breakdown = [];
@@ -62,17 +64,11 @@
             $bank_info .= " - " . $emp['bank_account_number'];
         }
         
-        $allowances_list = [];
-        if (!empty($emp['allowances_rs']) && $emp['allowances_rs'] > 0) {
-            $allowances_list[] = ["name" => "Standard Allowance", "amount" => $emp['allowances_rs']];
-        }
-
         $salary_breakdown[] = [
             "id" => (int)$emp['user_id'],
             "name" => trim($emp['first_name'] . ' ' . $emp['last_name']),
             "bank" => $bank_info,
-            "base_salary" => $emp['base_salary_rs'] ?: "0",
-            "allowances_list" => $allowances_list
+            "base_salary" => $emp['base_salary_rs'] ?: "0"
         ];
     }
 
@@ -498,9 +494,60 @@ select.pr-input {
 @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
 .pr-stats { animation: fadeUp .3s ease both; }
 .pr-split  { animation: fadeUp .3s .1s ease both; }
+/* Custom Premium Confirmation Modal */
+.custom-modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease; z-index: 10000;
+}
+.custom-modal-overlay.show { opacity: 1; pointer-events: auto; }
+.custom-modal-box {
+    background: #ffffff; border-radius: 16px; width: 440px; max-width: 90%;
+    padding: 28px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transform: scale(0.92); transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    text-align: center; border: 1px solid var(--border);
+}
+.custom-modal-overlay.show .custom-modal-box { transform: scale(1); }
+.custom-modal-icon {
+    width: 56px; height: 56px; border-radius: 50%; background: #fffbeb;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #d97706; margin-bottom: 20px; border: 1.5px solid #fef3c7;
+}
+.custom-modal-icon svg { width: 28px; height: 28px; stroke: currentColor; fill: none; stroke-width: 2.2; }
+.custom-modal-title { font-size: 18px; font-weight: 800; color: var(--text-h); margin-bottom: 12px; }
+.custom-modal-desc { font-size: 14px; color: var(--text-m); line-height: 1.6; margin-bottom: 28px; }
+.custom-modal-btns { display: flex; align-items: center; justify-content: center; gap: 12px; }
+.custom-modal-btn {
+    height: 42px; padding: 0 20px; border-radius: 8px; font-size: 14px; font-weight: 700;
+    cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s; border: none; outline: none;
+}
+.custom-modal-btn.cancel { background: #f1f5f9; color: #475569; }
+.custom-modal-btn.cancel:hover { background: #e2e8f0; }
+.custom-modal-btn.confirm { background: var(--ox); color: #ffffff; }
+.custom-modal-btn.confirm:hover { background: var(--ox-hover); }
 </style>
 
 <div class="payroll-root">
+    <!-- Beautiful Month Selection Strip -->
+    <div style="background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; animation: fadeUp .3s ease both;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="background: var(--ox-light); color: var(--ox); width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div>
+                <h2 style="font-size: 16px; font-weight: 700; color: var(--text-h); margin: 0;">Payroll Processing Period</h2>
+                <p style="font-size: 12.5px; color: var(--text-m); margin: 2px 0 0 0;">Select the month you want to view, process, or edit salary records for.</p>
+            </div>
+        </div>
+        <form method="GET" action="payroll_management.php" style="display: flex; align-items: center; gap: 10px;">
+            <?php if ($selected_emp_id): ?>
+                <input type="hidden" name="emp_id" value="<?php echo htmlspecialchars($selected_emp_id); ?>">
+            <?php endif; ?>
+            <input type="month" name="month" value="<?php echo htmlspecialchars($selected_month); ?>" style="height: 40px; padding: 0 16px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 14px; font-weight: 600; color: var(--text-h); outline: none;" onchange="this.form.submit()">
+        </form>
+    </div>
 
 
     <div class="pr-body">
@@ -529,7 +576,7 @@ select.pr-input {
                 <div class="pr-stat-info">
                     <div class="pr-stat-label">Total Disbursed</div>
                     <div class="pr-stat-value">Rs <?php echo number_format($monthly_stats['net_payable'] ?? 0); ?></div>
-                    <div class="pr-stat-sub">Net payable for <?php echo date('F'); ?></div>
+                    <div class="pr-stat-sub">Net payable for <?php echo date('F Y', strtotime($current_month)); ?></div>
                 </div>
             </div>
             <div class="pr-stat">
@@ -574,9 +621,9 @@ select.pr-input {
                     <?php foreach ($salary_breakdown as $row):
                         $is_active = ($selected_emp_id == $row['id']) ? 'active' : '';
                         $real_row_emp_id = $payrollObj->getEmployeeIdByUserId($row['id']);
-                        $is_paid   = $payrollObj->isSalaryProcessed($real_row_emp_id, date('Y-m-01'));
+                        $is_paid   = $payrollObj->isSalaryProcessed($real_row_emp_id, $current_month);
                     ?>
-                    <a href="payroll_management.php?emp_id=<?php echo $row['id']; ?>" class="pr-emp-item <?php echo $is_active; ?>">
+                    <a href="payroll_management.php?emp_id=<?php echo $row['id']; ?>&month=<?php echo urlencode($selected_month); ?>" class="pr-emp-item <?php echo $is_active; ?>">
                         <div class="pr-emp-left">
                             <div class="pr-av"><?php echo strtoupper(substr($row['name'], 0, 1)); ?></div>
                             <div>
@@ -598,7 +645,7 @@ select.pr-input {
             <div class="pr-card">
                 <?php if ($selected_employee_data):
                     $real_emp_id = $payrollObj->getEmployeeIdByUserId($selected_employee_data['id']);
-                    $current_payroll_month = date('Y-m-01');
+                    $current_payroll_month = $current_month;
                     $already_paid = $payrollObj->isSalaryProcessed($real_emp_id, $current_payroll_month);
                     $saved_breakdown = false;
                     if ($already_paid) {
@@ -805,7 +852,7 @@ select.pr-input {
                             </div>
 
                             <button type="submit" name="process_salary" class="pr-process-btn" style="<?php echo $already_paid ? 'background: #186D55;' : ''; ?>"
-                                onclick="return confirm('<?php echo $already_paid ? "Update salary for " . htmlspecialchars($selected_employee_data['name']) . "?" : "Process salary for " . htmlspecialchars($selected_employee_data['name']) . "? This will lock the record."; ?>');">
+                                onclick="return confirmSalaryProcess(event);">
                                 <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
                                 <?php echo $already_paid ? 'Update & Save Changes' : 'Process & Finalize Salary'; ?>
                             </button>
@@ -893,6 +940,43 @@ function addRow(containerId, type) {
     container.appendChild(row);
     row.querySelector('select').focus();
 }
+
+let isConfirmed = false;
+
+function confirmSalaryProcess(event) {
+    if (isConfirmed) return true;
+    event.preventDefault();
+    
+    const message = "<?php echo $already_paid ? 'Update salary for ' . addslashes(htmlspecialchars($selected_employee_data['name'] ?? '')) . '?' : 'Process salary for ' . addslashes(htmlspecialchars($selected_employee_data['name'] ?? '')) . '? This will lock the record.'; ?>";
+    document.getElementById('confirmModalDesc').textContent = message;
+    
+    document.getElementById('confirmModal').classList.add('show');
+    return false;
+}
+
+function closeConfirmModal() {
+    document.getElementById('confirmModal').classList.remove('show');
+}
+
+function submitSalaryForm() {
+    isConfirmed = true;
+    document.getElementById('salaryForm').submit();
+}
 </script>
+
+<!-- Custom Premium Confirmation Modal -->
+<div class="custom-modal-overlay" id="confirmModal">
+    <div class="custom-modal-box">
+        <div class="custom-modal-icon">
+            <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="custom-modal-title">Confirm Payroll Action</div>
+        <div class="custom-modal-desc" id="confirmModalDesc">Process salary for the selected employee? This will lock the record.</div>
+        <div class="custom-modal-btns">
+            <button class="custom-modal-btn cancel" onclick="closeConfirmModal()">Cancel</button>
+            <button class="custom-modal-btn confirm" id="confirmModalSubmitBtn" onclick="submitSalaryForm()">Confirm & Save</button>
+        </div>
+    </div>
+</div>
 
 <?php include_once "../includes/footer.php"; ?>

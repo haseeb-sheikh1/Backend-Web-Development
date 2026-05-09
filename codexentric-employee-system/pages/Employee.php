@@ -6,7 +6,6 @@ class Employee
   public $department;
   public $employeeType;
   public $baseSalary;
-  public $allowances;
   public $bankName;
   public $bankAccountNumber;
   public $Fname;
@@ -77,14 +76,10 @@ class Employee
       $this->department = trim($_POST['department'] ?? '');
       $this->status = trim($_POST['status'] ?? 'Active');
       $this->date_of_joining = trim($_POST['date_of_joining'] ?? date('Y-m-d'));
-      $this->baseSalary = trim($_POST['base_salary'] ?? 0);
-
-      // empty string trying to insert into an INT/DECIMAL column
-      $allowances_input = trim($_POST['allowances'] ?? '');
-      $this->allowances = ($allowances_input === '') ? 0 : $allowances_input;
-
+      $this->baseSalary = isset($_POST['base_salary']) && $_POST['base_salary'] !== '' ? (float)$_POST['base_salary'] : null;
       $this->bankName = trim($_POST['bank_name'] ?? '');
       $this->bankAccountNumber = trim($_POST['bank_account_number'] ?? '');
+      $this->employmentType = trim($_POST['employment_type'] ?? 'Full-time');
 
       $hashedPassword = password_hash($this->password, PASSWORD_DEFAULT);
 
@@ -109,7 +104,7 @@ class Employee
       $stmtUser->close();
 
       // Inserting into Employees Table using Prepared Statements
-      $stmtEmp = $this->connection->prepare("INSERT INTO employees (user_id, home_address, position_title, department, date_of_joining, status, base_salary_rs, allowances_rs, bank_name, bank_account_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+      $stmtEmp = $this->connection->prepare("INSERT INTO employees (user_id, home_address, position_title, department, date_of_joining, status, base_salary_rs, bank_name, bank_account_number, employment_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
       if (!$stmtEmp) {
         $this->errors['general'] = "Prepare failed for employee: " . $this->connection->error;
@@ -118,7 +113,7 @@ class Employee
         return false;
       }
 
-      $stmtEmp->bind_param("isssssddss", $newuserId, $this->homeAddress, $this->positionTitle, $this->department, $this->date_of_joining, $this->status, $this->baseSalary, $this->allowances, $this->bankName, $this->bankAccountNumber);
+      $stmtEmp->bind_param("isssssdsss", $newuserId, $this->homeAddress, $this->positionTitle, $this->department, $this->date_of_joining, $this->status, $this->baseSalary, $this->bankName, $this->bankAccountNumber, $this->employmentType);
 
       if (!$stmtEmp->execute()) {
         $this->errors['general'] = "Error creating employee record: " . $stmtEmp->error;
@@ -152,7 +147,7 @@ class Employee
 
   public function getAllEmployeesPayrollDetails()
   {
-    $query = "SELECT u.user_id, u.first_name, u.last_name, e.bank_name, e.bank_account_number, e.base_salary_rs, e.allowances_rs
+    $query = "SELECT u.user_id, u.first_name, u.last_name, e.bank_name, e.bank_account_number, e.base_salary_rs
           FROM users u
           JOIN employees e ON u.user_id = e.user_id";
 
@@ -245,7 +240,7 @@ class Employee
 
     $query = "SELECT u.user_id, u.first_name, u.last_name, u.email, 
                          e.home_address,e.employee_id, e.position_title, e.department, 
-                         e.employment_type, e.base_salary_rs, e.allowances_rs, 
+                         e.employment_type, e.base_salary_rs, 
                          e.bank_name, e.bank_account_number, e.status, e.date_of_joining
                   FROM users u
                   JOIN employees e ON u.user_id = e.user_id
@@ -278,7 +273,7 @@ class Employee
   }
 
 
-  public function updateEmployeeProfile($first_name, $last_name, $email, $position_title, $department, $home_address, $status, $base_salary_rs, $allowances, $employment_type, $bank_name, $bank_account_number, $user_id)
+  public function updateEmployeeProfile($first_name, $last_name, $email, $position_title, $department, $home_address, $status, $base_salary_rs, $employment_type, $bank_name, $bank_account_number, $user_id)
   {
 
 
@@ -292,7 +287,6 @@ class Employee
                   e.home_address = ?,
                   e.status = ?,
                   e.base_salary_rs = ?,
-                  e.allowances_rs = ?,
                   e.employment_type = ?,
                   e.bank_name = ?,
                   e.bank_account_number = ?
@@ -306,7 +300,7 @@ class Employee
     }
 
     $result->bind_param(
-      "sssssssddsssi",
+      "sssssssdsssi",
       $first_name,
       $last_name,
       $email,
@@ -315,7 +309,6 @@ class Employee
       $home_address,
       $status,
       $base_salary_rs,
-      $allowances,
       $employment_type,
       $bank_name,
       $bank_account_number,

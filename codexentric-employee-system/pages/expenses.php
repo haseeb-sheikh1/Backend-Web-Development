@@ -106,10 +106,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_expense'])) {
     $category_id = intval($_POST['category_id']);
     $amount = floatval($_POST['amount']);
     $bill_date = $_POST['bill_date'];
-    $status = $_POST['status']; // 'Paid' or 'Unpaid'
+    $status = $_POST['status']; 
     $invoice_number = trim($_POST['invoice_number']);
     $notes = trim($_POST['description']);
-    $admin_id = $_SESSION['user_id']; // Captured hiddenly from session
+    $admin_id = $_SESSION['user_id']; 
+
+    // Handle Dynamic Category Creation
+    if ($category_id === -1 && !empty($_POST['new_category_name'])) {
+        $new_cat_name = trim($_POST['new_category_name']);
+        
+        // Check if category already exists to avoid duplicates
+        $check_stmt = $conn->prepare("SELECT id FROM expense_categories WHERE category_name = ?");
+        $check_stmt->bind_param("s", $new_cat_name);
+        $check_stmt->execute();
+        $check_res = $check_stmt->get_result();
+        
+        if ($check_res->num_rows > 0) {
+            $category_id = $check_res->fetch_assoc()['id'];
+        } else {
+            $ins_cat_stmt = $conn->prepare("INSERT INTO expense_categories (category_name, created_at) VALUES (?, NOW())");
+            $ins_cat_stmt->bind_param("s", $new_cat_name);
+            $ins_cat_stmt->execute();
+            $category_id = $conn->insert_id;
+            $ins_cat_stmt->close();
+        }
+        $check_stmt->close();
+    }
 
     // ── Backend Validation ──
     if (empty($_POST['category_id'])) {
@@ -351,19 +373,20 @@ include_once "../includes/sidebar.php";
     <div class="widget-card">
       <div class="widget-header">
         <span class="widget-header-title">
-          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          <svg viewBox="0 0 24 24" style="stroke: var(--brand-green);"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
           <?php echo $edit_mode ? 'Edit Bill Details' : 'Record New Bill'; ?>
         </span>
         <?php if ($edit_mode): ?>
-          <a href="expenses.php" style="font-size: 12px; color: var(--brand-orange); font-weight:700; text-decoration:none;">Cancel Edit</a>
+          <a href="expenses.php" style="font-size: 12px; color: var(--brand-green); font-weight:800; text-decoration:none; text-transform: uppercase; letter-spacing: 0.5px;">Cancel Edit</a>
         <?php endif; ?>
       </div>
-      <div class="widget-body">
-        <form action="expenses.php<?php echo $edit_mode ? '?edit=' . $edit_data['id'] : ''; ?>" method="POST" enctype="multipart/form-data" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px;">
+      <div class="widget-body" style="padding: 28px;">
+        <form action="expenses.php<?php echo $edit_mode ? '?edit=' . $edit_data['id'] : ''; ?>" method="POST" enctype="multipart/form-data" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px 28px;">
           
-          <div class="form-group" style="margin-bottom: 0;">
-            <label style="margin-bottom: 4px; font-size: 12px;">Expense Category <span style="color: var(--danger);">*</span></label>
-            <select name="category_id" class="form-select" style="height: 38px; padding: 6px 12px;" required>
+          <!-- Category -->
+          <div class="form-group" style="margin: 0;">
+            <label>Expense Category <span style="color: var(--danger);">*</span></label>
+            <select name="category_id" id="category_select" class="form-select" style="height: 44px; font-weight: 600;" onchange="toggleNewCategoryField()" required>
               <option value="" disabled selected>Select Category</option>
               <?php
               $all_cats = $conn->query("SELECT * FROM expense_categories ORDER BY category_name ASC");
@@ -372,67 +395,77 @@ include_once "../includes/sidebar.php";
                   echo "<option value='{$c['id']}' $selected>" . htmlspecialchars($c['category_name']) . "</option>";
               }
               ?>
+              <option value="-1" style="background: #f1f5f9; font-weight: 700;">+ Add New Category...</option>
             </select>
+            <!-- Dynamic Category Input (Hidden by default) -->
+            <div id="new_category_wrapper" style="display: none; margin-top: 10px;">
+                <input type="text" name="new_category_name" id="new_category_name" class="form-input" style="border-color: var(--brand-green); height: 40px;" placeholder="Enter new category name...">
+            </div>
           </div>
 
-          <div class="form-group" style="margin-bottom: 0;">
-            <label style="margin-bottom: 4px; font-size: 12px;">Amount (Rs) <span style="color: var(--danger);">*</span></label>
+          <!-- Amount -->
+          <div class="form-group" style="margin: 0;">
+            <label>Amount (Rs) <span style="color: var(--danger);">*</span></label>
             <div class="input-container">
-              <span class="currency-prefix" style="height: 38px; display: flex; align-items: center; justify-content: center;">Rs</span>
-              <input type="number" step="0.01" name="amount" class="form-input form-input-prefix" style="height: 38px;" placeholder="0.00" value="<?php echo $edit_mode ? htmlspecialchars($edit_data['amount']) : ''; ?>" required>
+              <span class="currency-prefix" style="height: 44px;">Rs</span>
+              <input type="number" step="0.01" name="amount" class="form-input form-input-prefix" style="height: 44px; font-weight: 700; font-size: 15px;" placeholder="0.00" value="<?php echo $edit_mode ? htmlspecialchars($edit_data['amount']) : ''; ?>" required>
             </div>
           </div>
 
-          <div class="form-group" style="margin-bottom: 0;">
-            <label style="margin-bottom: 4px; font-size: 12px;">Billing Date <span style="color: var(--danger);">*</span></label>
-            <input type="date" name="bill_date" class="form-input" style="height: 38px;" value="<?php echo $edit_mode ? htmlspecialchars($edit_data['bill_date']) : date('Y-m-d'); ?>" required>
+          <!-- Date -->
+          <div class="form-group" style="margin: 0;">
+            <label>Billing Date <span style="color: var(--danger);">*</span></label>
+            <input type="date" name="bill_date" class="form-input" style="height: 44px;" value="<?php echo $edit_mode ? htmlspecialchars($edit_data['bill_date']) : date('Y-m-d'); ?>" required>
           </div>
 
-          <div class="form-group" style="margin-bottom: 0;">
-            <label style="margin-bottom: 4px; font-size: 12px;">Payment Status <span style="color: var(--danger);">*</span></label>
-            <div class="status-toggle-row" style="height: 38px; margin: 0; padding: 0; display: flex; gap: 8px;">
-              <div class="status-toggle-option" style="flex: 1; height: 100%;">
+          <!-- Status -->
+          <div class="form-group" style="margin: 0;">
+            <label>Payment Status <span style="color: var(--danger);">*</span></label>
+            <div class="status-toggle-row" style="height: 44px; padding: 4px;">
+              <div class="status-toggle-option" style="flex: 1;">
                 <input type="radio" id="statusPaid" name="status" value="Paid" <?php echo (!$edit_mode || $edit_data['status'] === 'Paid') ? 'checked' : ''; ?>>
-                <label for="statusPaid" class="status-toggle-label paid" style="height: 100%; display: flex; align-items: center; justify-content: center; padding: 0; font-size: 13px; font-weight: 700;">Paid</label>
+                <label for="statusPaid" class="status-toggle-label paid" style="height: 100%; display: flex; align-items: center; justify-content: center;">Paid</label>
               </div>
-              <div class="status-toggle-option" style="flex: 1; height: 100%;">
+              <div class="status-toggle-option" style="flex: 1;">
                 <input type="radio" id="statusUnpaid" name="status" value="Unpaid" <?php echo ($edit_mode && $edit_data['status'] === 'Unpaid') ? 'checked' : ''; ?>>
-                <label for="statusUnpaid" class="status-toggle-label unpaid" style="height: 100%; display: flex; align-items: center; justify-content: center; padding: 0; font-size: 13px; font-weight: 700;">Unpaid</label>
+                <label for="statusUnpaid" class="status-toggle-label unpaid" style="height: 100%; display: flex; align-items: center; justify-content: center;">Unpaid</label>
               </div>
             </div>
           </div>
 
-          <div class="form-group" style="margin-bottom: 0;">
-            <label style="margin-bottom: 4px; font-size: 12px;">Reference / Invoice #</label>
-            <input type="text" name="invoice_number" class="form-input" style="height: 38px;" placeholder="e.g. INV-2026-103" value="<?php echo $edit_mode ? htmlspecialchars($edit_data['invoice_number']) : ''; ?>">
+          <!-- Reference -->
+          <div class="form-group" style="margin: 0;">
+            <label>Reference / Invoice #</label>
+            <input type="text" name="invoice_number" class="form-input" style="height: 44px;" placeholder="e.g. INV-2026-103" value="<?php echo $edit_mode ? htmlspecialchars($edit_data['invoice_number']) : ''; ?>">
           </div>
 
-          <div class="form-group" style="margin-bottom: 0;">
-            <label style="margin-bottom: 4px; font-size: 12px;">Attach Receipt (PDF / Image)</label>
-            <div class="upload-zone" style="padding: 10px; height: 38px; display: flex; align-items: center; justify-content: center; gap: 8px; border-style: dashed; border-width: 1.5px; border-radius: 6px;">
-              <div class="upload-zone-icon" style="margin: 0; width: 16px; height: 16px;">
-                <svg viewBox="0 0 24 24" style="width: 16px; height: 16px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              </div>
-              <span class="upload-zone-text" style="font-size: 11px; margin: 0;">Click to upload receipt</span>
+          <!-- Receipt -->
+          <div class="form-group" style="margin: 0;">
+            <label>Attach Receipt (PDF / Image)</label>
+            <div class="upload-zone" style="height: 44px; padding: 0 16px; display: flex; align-items: center; justify-content: center; gap: 10px;">
               <input type="file" name="attachment" class="upload-file-input" onchange="updateFileName(this)">
-            </div>
-            <div id="file-upload-name" style="font-size: 10px; color: var(--brand-green); font-weight: 700; margin-top: 2px; text-align: center; height: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-              <?php echo ($edit_mode && !empty($edit_data['attachment_path'])) ? "Current file: " . htmlspecialchars($edit_data['attachment_path']) : ""; ?>
+              <div class="upload-zone-icon" style="margin: 0;">
+                <svg viewBox="0 0 24 24" style="width: 18px; height: 18px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+              </div>
+              <div class="upload-zone-text" id="file-upload-text" style="font-size: 13px;">
+                <?php echo ($edit_mode && !empty($edit_data['attachment_path'])) ? "File: " . htmlspecialchars($edit_data['attachment_path']) : "Click to upload receipt"; ?>
+              </div>
             </div>
           </div>
 
-          <div class="form-group" style="grid-column: span 2; margin-bottom: 0;">
-            <label style="margin-bottom: 4px; font-size: 12px;">Description / Notes</label>
-            <textarea name="description" class="form-textarea" style="height: 52px; min-height: 52px; padding: 6px 12px;" placeholder="Provide details about the expense..."><?php echo $edit_mode ? htmlspecialchars($edit_data['pure_description']) : ''; ?></textarea>
+          <!-- Description -->
+          <div class="form-group" style="grid-column: span 2; margin: 0;">
+            <label>Description / Notes</label>
+            <textarea name="description" class="form-textarea" style="height: 80px; padding: 12px 16px;" placeholder="Provide details about the expense..."><?php echo $edit_mode ? htmlspecialchars($edit_data['pure_description']) : ''; ?></textarea>
           </div>
 
-          <div style="grid-column: span 2; display: flex; justify-content: flex-end; margin-top: 4px;">
-            <button type="submit" name="submit_expense" class="btn-submit" style="width: auto; min-width: 180px; padding: 0 24px; height: 42px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-              <svg viewBox="0 0 24 24" style="width: 16px; height: 16px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          <!-- Actions -->
+          <div style="grid-column: span 2; display: flex; justify-content: flex-end; margin-top: 8px;">
+            <button type="submit" name="submit_expense" class="btn-submit" style="width: auto; padding: 0 40px; height: 48px; border-radius: 10px; font-size: 14px;">
+              <svg viewBox="0 0 24 24" style="width: 18px; height: 18px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
               <strong><?php echo $edit_mode ? 'Update Expense Record' : 'Add Bill Entry'; ?></strong>
             </button>
           </div>
-
         </form>
       </div>
     </div>
@@ -487,6 +520,22 @@ include_once "../includes/sidebar.php";
   function closeReceiptModal() {
       document.getElementById('receiptModal').classList.remove('show');
       document.getElementById('receiptModalBody').innerHTML = '';
+  }
+
+  // Dynamic Category Toggle
+  function toggleNewCategoryField() {
+      const select = document.getElementById('category_select');
+      const wrapper = document.getElementById('new_category_wrapper');
+      const input = document.getElementById('new_category_name');
+      
+      if (select.value === "-1") {
+          wrapper.style.display = 'block';
+          input.focus();
+          input.required = true;
+      } else {
+          wrapper.style.display = 'none';
+          input.required = false;
+      }
   }
 </script>
 

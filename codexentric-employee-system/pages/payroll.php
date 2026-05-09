@@ -214,15 +214,6 @@ class Payroll {
             $total_allowances += (float)$amt;
         }
 
-        // Add fixed allowance from DB
-        $stmtFixed = $this->db->prepare("SELECT allowances_rs FROM employees WHERE employee_id = ?");
-        $stmtFixed->bind_param("i", $employee_id);
-        $stmtFixed->execute();
-        $resFixed = $stmtFixed->get_result();
-        if ($rowFixed = $resFixed->fetch_assoc()) {
-            $total_allowances += (float)$rowFixed['allowances_rs'];
-        }
-
         $total_deductions = 0;
         foreach ($d_amounts as $amt) {
             $total_deductions += (float)$amt;

@@ -29,7 +29,6 @@ $selected_month   = isset($_GET['month'])      ? $_GET['month']             : da
 $employee_name = '';
 $employee_role = '';
 $employee_bank = '';
-$standard_allowance = 0;
 $monthly_data  = null;
 
 if ($selected_user_id) {
@@ -47,7 +46,6 @@ if ($selected_user_id) {
     foreach ($empDetails as $ed) {
         if ($ed['user_id'] == $selected_user_id) {
             $employee_bank = $ed['bank_name'] . ' - ' . $ed['bank_account_number'];
-            $standard_allowance = isset($ed['allowances_rs']) ? (float)$ed['allowances_rs'] : 0;
             break;
         }
     }
@@ -442,6 +440,10 @@ if ($selected_user_id) {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             Back to Reports
         </a>
+        <a href="download_invoice.php?employeeId=<?php echo $selected_user_id; ?>&month=<?php echo $selected_month; ?>" class="inv-back" style="background: var(--brand-green); color: #fff; border-color: var(--brand-green);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            Download HD PDF
+        </a>
     </div>
 
     <?php if ($monthly_data): ?>
@@ -449,7 +451,6 @@ if ($selected_user_id) {
         $total_earnings = $monthly_data['base_salary'];
         foreach ($monthly_data['bonuses'] as $b)    $total_earnings += $b['amount'];
         foreach ($monthly_data['allowances'] as $a) $total_earnings += $a['amount'];
-        if ($standard_allowance > 0)                 $total_earnings += $standard_allowance;
         $total_deductions = 0;
         if (!empty($monthly_data['deductions']))
             foreach ($monthly_data['deductions'] as $d) $total_deductions += $d['amount'];
@@ -462,8 +463,7 @@ if ($selected_user_id) {
         <!-- Header Row -->
         <div class="inv-head-container">
             <div>
-                <h1 class="inv-title">Invoice</h1>
-                <div style="font-size:12px; color:#64748b; margin-top:5px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">Payslip Record</div>
+                <h1 class="inv-title">Salary Report</h1>
             </div>
             
             <!-- Official Brand Vector Logo -->
@@ -532,48 +532,35 @@ if ($selected_user_id) {
                     <tr>
                         <th>Description</th>
                         <th>Category</th>
-                        <th style="text-align: right;">Unit Price (Rs)</th>
-                        <th style="text-align: right;">Total (Rs)</th>
+                        <th style="text-align: right;">Amount (Rs)</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td>Basic Base Salary Disbursement</td>
                         <td>Base Salary</td>
-                        <td style="text-align: right;">Rs <?php echo number_format($monthly_data['base_salary'], 2); ?></td>
-                        <td style="text-align: right;">Rs <?php echo number_format($monthly_data['base_salary'], 2); ?></td>
+                        <td style="text-align: right;"><strong>Rs <?php echo number_format($monthly_data['base_salary'], 2); ?></strong></td>
                     </tr>
                     <?php foreach ($monthly_data['bonuses'] as $b): ?>
                     <tr>
                         <td>Performance Bonus - <?php echo htmlspecialchars($b['name']); ?></td>
                         <td>Bonus</td>
-                        <td style="text-align: right;">Rs <?php echo number_format($b['amount'], 2); ?></td>
-                        <td style="text-align: right;">Rs <?php echo number_format($b['amount'], 2); ?></td>
+                        <td style="text-align: right;"><strong>Rs <?php echo number_format($b['amount'], 2); ?></strong></td>
                     </tr>
                     <?php endforeach; ?>
                     <?php foreach ($monthly_data['allowances'] as $a): ?>
                     <tr>
                         <td>Approved Allowance - <?php echo htmlspecialchars($a['name']); ?></td>
                         <td>Allowance</td>
-                        <td style="text-align: right;">Rs <?php echo number_format($a['amount'], 2); ?></td>
-                        <td style="text-align: right;">Rs <?php echo number_format($a['amount'], 2); ?></td>
+                        <td style="text-align: right;"><strong>Rs <?php echo number_format($a['amount'], 2); ?></strong></td>
                     </tr>
                     <?php endforeach; ?>
-                    <?php if ($standard_allowance > 0): ?>
-                    <tr>
-                        <td>Standard Standard Approved Allowance</td>
-                        <td>Allowance</td>
-                        <td style="text-align: right;">Rs <?php echo number_format($standard_allowance, 2); ?></td>
-                        <td style="text-align: right;">Rs <?php echo number_format($standard_allowance, 2); ?></td>
-                    </tr>
-                    <?php endif; ?>
                     <?php if (!empty($monthly_data['deductions'])): 
                         foreach ($monthly_data['deductions'] as $d): ?>
                     <tr>
                         <td>Deduction Retainment - <?php echo htmlspecialchars($d['name']); ?></td>
                         <td>Deduction</td>
-                        <td style="text-align: right; color: var(--danger);">- Rs <?php echo number_format($d['amount'], 2); ?></td>
-                        <td style="text-align: right; color: var(--danger);">- Rs <?php echo number_format($d['amount'], 2); ?></td>
+                        <td style="text-align: right; color: var(--danger);"><strong>- Rs <?php echo number_format($d['amount'], 2); ?></strong></td>
                     </tr>
                     <?php endforeach; endif; ?>
                 </tbody>
@@ -593,7 +580,7 @@ if ($selected_user_id) {
                 </tr>
                 <tr class="balance-due-row">
                     <td>Balance Due (Net Payable)</td>
-                    <td>Rs <?php echo number_format($monthly_data['net_payable'], 2); ?></td>
+                    <td>Rs <?php echo number_format($total_earnings - $total_deductions, 2); ?></td>
                 </tr>
             </table>
         </div>

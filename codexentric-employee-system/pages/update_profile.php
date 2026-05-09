@@ -43,13 +43,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     $department = trim($_POST['department']);
     $home_address = trim($_POST['home_address']);
     $status = trim($_POST['status']);
-    $base_salary_rs = $_POST['base_salary_rs'];
-    $allowances = $_POST['allowances'];
     $employment_type = $_POST['employment_type'];
+    $base_salary_rs = isset($_POST['base_salary_rs']) && $_POST['base_salary_rs'] !== '' ? (float)$_POST['base_salary_rs'] : null;
 
     if (!empty($user_id)) {
 
-        $updateEmployee = $employeeObj->updateEmployeeProfile($first_name, $last_name, $email, $position_title, $department, $home_address, $status, $base_salary_rs, $allowances, $employment_type, $bank_name, $bank_account_number, $user_id);
+        $updateEmployee = $employeeObj->updateEmployeeProfile($first_name, $last_name, $email, $position_title, $department, $home_address, $status, $base_salary_rs, $employment_type, $bank_name, $bank_account_number, $user_id);
       
         if ($updateEmployee) {
             // Re-fetch employee details to show updated data in form
@@ -548,10 +547,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
                             <div class="form-field">
                                 <label>Base Salary (Rs) <span class="req">*</span></label>
                                 <input type="number" name="base_salary_rs" class="modern-input" value="<?php echo htmlspecialchars($employee['base_salary_rs']); ?>" required>
-                            </div>
-                            <div class="form-field">
-                                <label>Allowances (Rs)</label>
-                                <input type="number" name="allowances" class="modern-input" value="<?php echo htmlspecialchars($employee['allowances'] ?? ''); ?>">
                             </div>
                             <div class="form-field">
                                 <label>Bank Name</label>

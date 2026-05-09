@@ -145,7 +145,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_employee'])) {
           </div>
         <?php endif; ?>
 
-        <form action="add_employee.php" method="POST" id="create_employee_form" novalidate>
+        <form action="add_employee.php" method="POST" id="create_employee_form" autocomplete="off" novalidate>
       <div class="dashboard-grid">
 
         <!-- Personal Information -->
@@ -172,7 +172,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_employee'])) {
               </div>
               <div class="form-group span-full">
                 <label>Residential Address</label>
-                <input type="text" name="home_address" class="form-input" placeholder="Street, City, Country" value="<?php echo isset($_POST['home_address']) ? htmlspecialchars($_POST['home_address']) : ''; ?>">
+                <input type="text" name="home_address" class="form-input" placeholder="Street, City, Country" value="<?php echo isset($_POST['home_address']) ? htmlspecialchars($_POST['home_address']) : ''; ?>" autocomplete="off">
               </div>
             </div>
           </div>
@@ -192,8 +192,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_employee'])) {
                   <option value="" disabled <?php echo empty($_POST['department']) ? 'selected' : ''; ?>>Select Department</option>
                   <option value="Software Engineering" <?php echo (isset($_POST['department']) && $_POST['department'] === 'Software Engineering') ? 'selected' : ''; ?>>Software Engineering</option>
                   <option value="Design" <?php echo (isset($_POST['department']) && $_POST['department'] === 'Design') ? 'selected' : ''; ?>>Design</option>
-                  <option value="Quality Assurance" <?php echo (isset($_POST['department']) && $_POST['department'] === 'Quality Assurance') ? 'selected' : ''; ?>>Quality Assurance</option>
-                  <option value="Human Resources" <?php echo (isset($_POST['department']) && $_POST['department'] === 'Human Resources') ? 'selected' : ''; ?>>Human Resources</option>
                 </select>
                 <?php if (isset($employee->errors['department'])): ?>
                   <small class="error-msg"><?php echo htmlspecialchars($employee->errors['department']); ?></small>
@@ -201,7 +199,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_employee'])) {
               </div>
               <div class="form-group">
                 <label>Position</label>
-                <input type="text" name="position_title" class="form-input" placeholder="e.g. Developer" value="<?php echo isset($_POST['position_title']) ? htmlspecialchars($_POST['position_title']) : ''; ?>">
+                <select name="position_title" class="form-select">
+                  <option value="" disabled <?php echo empty($_POST['position_title']) ? 'selected' : ''; ?>>Select Position</option>
+                  <option value="Backend Developer" <?php echo (isset($_POST['position_title']) && $_POST['position_title'] === 'Backend Developer') ? 'selected' : ''; ?>>Backend Developer</option>
+                  <option value="Frontend Developer" <?php echo (isset($_POST['position_title']) && $_POST['position_title'] === 'Frontend Developer') ? 'selected' : ''; ?>>Frontend Developer</option>
+                  <option value="Backend intern" <?php echo (isset($_POST['position_title']) && $_POST['position_title'] === 'Backend intern') ? 'selected' : ''; ?>>Backend intern</option>
+                  <option value="Senior Backend Developer" <?php echo (isset($_POST['position_title']) && $_POST['position_title'] === 'Senior Backend Developer') ? 'selected' : ''; ?>>Senior Backend Developer</option>
+                </select>
                 <?php if (isset($employee->errors['position_title'])): ?>
                   <small class="error-msg"><?php echo htmlspecialchars($employee->errors['position_title']); ?></small>
                 <?php endif; ?>
@@ -213,8 +217,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_employee'])) {
               <div class="form-group">
                 <label>Status</label>
                 <select name="status" class="form-select">
-                  <option value="Active" <?php echo (isset($_POST['status']) && $_POST['status'] === 'Active') ? 'selected' : ''; ?>>Active</option>
-                  <option value="Onboarding" <?php echo (isset($_POST['status']) && $_POST['status'] === 'Onboarding') ? 'selected' : ''; ?>>Onboarding</option>
+                  <option value="Active" <?php echo (!isset($_POST['status']) || $_POST['status'] === 'Active') ? 'selected' : ''; ?>>Active</option>
+                  <option value="De-activated" <?php echo (isset($_POST['status']) && $_POST['status'] === 'De-activated') ? 'selected' : ''; ?>>De-activated</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Employment Type</label>
+                <select name="employment_type" class="form-select">
+                  <option value="Full-time" <?php echo (!isset($_POST['employment_type']) || $_POST['employment_type'] === 'Full-time') ? 'selected' : ''; ?>>Full-time</option>
+                  <option value="Part-time" <?php echo (isset($_POST['employment_type']) && $_POST['employment_type'] === 'Part-time') ? 'selected' : ''; ?>>Part-time</option>
+                  <option value="Contract" <?php echo (isset($_POST['employment_type']) && $_POST['employment_type'] === 'Contract') ? 'selected' : ''; ?>>Contract</option>
                 </select>
               </div>
             </div>
@@ -231,14 +243,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_employee'])) {
             <div class="form-grid">
               <div class="form-group span-full">
                 <label>Work Email <span class="req">*</span></label>
-                <input type="email" name="email" class="form-input" placeholder="email@company.com" value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>" required>
+                <input type="email" name="email" class="form-input" placeholder="email@company.com" value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>" required autocomplete="off">
                 <?php if (isset($employee->errors['email'])): ?>
                   <small class="error-msg"><?php echo htmlspecialchars($employee->errors['email']); ?></small>
                 <?php endif; ?>
               </div>
               <div class="form-group span-full">
                 <label>Password <span class="req">*</span></label>
-                <input type="password" name="password" class="form-input" placeholder="••••••••" required>
+                <input type="password" name="password" class="form-input" placeholder="••••••••" required autocomplete="new-password">
                 <?php if (isset($employee->errors['password'])): ?>
                   <small class="error-msg"><?php echo htmlspecialchars($employee->errors['password']); ?></small>
                 <?php endif; ?>
@@ -261,10 +273,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_employee'])) {
                 <?php if (isset($employee->errors['base_salary'])): ?>
                   <small class="error-msg"><?php echo htmlspecialchars($employee->errors['base_salary']); ?></small>
                 <?php endif; ?>
-              </div>
-              <div class="form-group">
-                <label>Allowances (Rs)</label>
-                <input type="number" name="allowances" class="form-input" placeholder="0.00" value="<?php echo isset($_POST['allowances']) ? htmlspecialchars($_POST['allowances']) : '0'; ?>">
               </div>
               <div class="form-group">
                 <label>Bank Name</label>

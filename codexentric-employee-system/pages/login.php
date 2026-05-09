@@ -250,17 +250,17 @@ body { font-family: 'Nunito', sans-serif; }
   text-align: center;
   margin-top: 10px;
   font-size: 13.5px;
-  color: var(--cx-orange);
+  color: var(--cx-teal);
   font-weight: 700;
   text-decoration: none;
   transition: color 0.15s;
 }
-.forgot-link:hover { color: var(--cx-orange-d); text-decoration: underline; }
+.forgot-link:hover { color: var(--cx-teal-d); text-decoration: underline; }
 
 .btn-primary {
   width: 100%;
   height: 52px;
-  background: var(--cx-orange);
+  background: var(--cx-teal);
   color: #fff;
   border: none;
   border-radius: 10px;
@@ -273,12 +273,12 @@ body { font-family: 'Nunito', sans-serif; }
   justify-content: center;
   margin-top: 24px;
   transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
-  box-shadow: 0 4px 14px rgba(245,130,31,0.35);
+  box-shadow: 0 4px 14px rgba(26,92,90,0.3);
   letter-spacing: 0.3px;
 }
 .btn-primary:hover {
-  background: var(--cx-orange-d);
-  box-shadow: 0 6px 20px rgba(245,130,31,0.4);
+  background: var(--cx-teal-d);
+  box-shadow: 0 6px 20px rgba(26,92,90,0.4);
   transform: translateY(-1px);
 }
 .btn-primary:active { transform: translateY(0); box-shadow: none; }
@@ -314,8 +314,37 @@ body { font-family: 'Nunito', sans-serif; }
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
   .login-left { display: none; }
-  .login-right { padding: 32px 20px; }
-  .login-logo-card { min-width: unset; width: 100%; max-width: 380px; }
+  .login-right { 
+    padding: 20px 20px 40px 20px; 
+    justify-content: flex-start;
+    overflow-x: hidden;
+  }
+  
+  /* Orange header area for mobile */
+  .login-right::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 180px;
+    background: var(--cx-orange);
+    clip-path: polygon(0 0, 100% 0, 100% 65%, 0 100%);
+    z-index: 0;
+  }
+  
+  .login-logo-card { 
+    margin-top: 220px;
+    min-width: unset; 
+    width: 100%; 
+    max-width: 380px; 
+    position: relative;
+    z-index: 1;
+  }
+  
+  .login-card {
+    position: relative;
+    z-index: 1;
+    margin-top: 45px;
+  }
 }
 </style>
 
@@ -326,12 +355,12 @@ body { font-family: 'Nunito', sans-serif; }
     <div class="login-left-circle">
       <div class="login-left-circle-inner">
         <!-- Minimal <C> Logo -->
-        <div style="font-family: 'Sora', sans-serif; font-size: 64px; font-weight: 800; line-height: 1; display: flex; align-items: center; gap: 2px; margin-bottom: 4px;">
-          <span style="color: var(--cx-orange);">&lt;</span>
-          <span style="color: var(--cx-teal); transform: translateY(-1px);">C</span>
-          <span style="color: var(--cx-orange);">&gt;</span>
+        <div style="font-family: 'Sora', sans-serif; font-size: 132px; font-weight: 900; line-height: 1; display: flex; align-items: center; gap: 4px; margin-bottom: 0;">
+          <span style="color: var(--cx-orange); font-weight: 900;">&lt;</span>
+          <span style="color: var(--cx-teal); font-weight: 900; transform: translateY(-6px);">C</span>
+          <span style="color: var(--cx-orange); font-weight: 900;">&gt;</span>
         </div>
-        <span style="font-size: 11px; letter-spacing: 5px; font-weight: 800; color: var(--cx-teal); margin-left: 5px;">EMS</span>
+        <span style="font-size: 11px; letter-spacing: 5px; font-weight: 800; color: var(--cx-teal); margin-top: -5px; margin-left: 5px;">EMS</span>
       </div>
     </div>
   </aside>

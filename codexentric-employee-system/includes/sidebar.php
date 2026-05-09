@@ -34,7 +34,8 @@ $role = $_SESSION['role_id'];
 .sidebar.collapsed .sidebar-label,
 .sidebar.collapsed .sidebar-search-input,
 .sidebar.collapsed .sidebar-brand-name,
-.sidebar.collapsed .sidebar-brand-sub {
+.sidebar.collapsed .sidebar-brand-sub,
+.sidebar.collapsed .sidebar-brand-fullname {
     display: none;
 }
 .sidebar.collapsed .sidebar-search {
@@ -226,19 +227,17 @@ $role = $_SESSION['role_id'];
 
     <!-- ── Brand ── -->
     <a href="<?php echo $role == '1' ? 'administrator_dashboard.php' : 'employee_dashboard.php'; ?>"
-       class="sidebar-brand">
-
-        <!-- Icon mark: < CX > in brand colours -->
-        <svg class="sidebar-brand-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-            <polyline points="13,5 4,20 13,35" fill="none" stroke="#f5a623" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <text x="14" y="28" font-family="'Nunito Sans',Arial,sans-serif" font-weight="800" font-size="20" fill="#1a6b58">CX</text>
-            <polyline points="27,5 36,20 27,35" fill="none" stroke="#f5a623" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-
-        <div class="sidebar-brand-text">
-            <span class="sidebar-brand-name">CodeXentric</span>
-            <span class="sidebar-brand-sub">EMS</span>
-        </div>
+       class="sidebar-brand" style="display: flex; align-items: center; justify-content: center; gap: 0; text-decoration: none; padding: 0; height: 60px; width: 100%;">
+        <span style="color: #ff7b1d; font-family: 'Nunito Sans', sans-serif; font-weight: 800; font-size: 25px; margin-right: 1px;">&lt;</span>
+        <span class="sidebar-brand-fullname" style="color: #186D55; font-family: 'Nunito Sans', sans-serif; font-weight: 800; font-size: 25px; letter-spacing: -0.5px;">code</span>
+        <span style="position: relative; display: inline-block; width: 17px; height: 25px; margin: 0 2px; vertical-align: bottom;">
+            <!-- Backward slash \ (teal/green #186D55) -->
+            <span style="position: absolute; top: 1px; left: 6px; width: 4.5px; height: 21px; background-color: #186D55; transform: rotate(-30deg); border-radius: 2px;"></span>
+            <!-- Forward slash / (brand orange #ff7b1d) -->
+            <span style="position: absolute; top: 1px; left: 6px; width: 4.5px; height: 21px; background-color: #ff7b1d; transform: rotate(30deg); border-radius: 2px;"></span>
+        </span>
+        <span class="sidebar-brand-fullname" style="color: #186D55; font-family: 'Nunito Sans', sans-serif; font-weight: 800; font-size: 25px; letter-spacing: -0.5px;">entric</span>
+        <span style="color: #ff7b1d; font-family: 'Nunito Sans', sans-serif; font-weight: 800; font-size: 25px; margin-left: 1px;">&gt;</span>
     </a>
 
     <!-- ── Search ── -->

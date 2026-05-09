@@ -23,24 +23,42 @@
     $employees = $employeeObj->getBasicEmployeeDetails();
 
     // ── Pull query params ──
-    $selected_user_id = isset($_GET['employeeId']) ? (int)$_GET['employeeId'] : null;
+    $selected_user_id = isset($_GET['employeeId']) ? ($_GET['employeeId'] === 'all' ? 'all' : (int)$_GET['employeeId']) : 'all';
     $selected_year    = isset($_GET['year'])       ? $_GET['year']             : date('Y');
+    $selected_month   = isset($_GET['month'])      ? $_GET['month']            : date('Y-m');
 
     $employee_name = '';
     $yearly_data   = null;
+    $all_employees_data = null;
 
-    if ($selected_user_id) {
+    if ($selected_user_id === 'all') {
+        $query_month = $selected_month . '-01';
+        $stmt_all = $connection->prepare("
+            SELECT 
+                u.first_name, u.last_name, u.user_id,
+                p.id as payroll_id, p.base_salary_rs, p.net_payable_rs, p.status, p.payroll_month,
+                COALESCE((SELECT SUM(amount) FROM bonus_allowance WHERE payroll_id = p.id), 0) as total_bonuses,
+                COALESCE((SELECT SUM(amount_rs) FROM payroll_allowances WHERE payroll_id = p.id), 0) as total_allowances,
+                COALESCE((SELECT SUM(amount_rs) FROM payroll_deductions WHERE payroll_id = p.id), 0) as total_deductions
+            FROM payroll p
+            JOIN employees e ON p.employee_id = e.employee_id
+            JOIN users u ON e.user_id = u.user_id
+            WHERE p.payroll_month = ?
+            ORDER BY u.first_name ASC, u.last_name ASC
+        ");
+        $stmt_all->bind_param("s", $query_month);
+        $stmt_all->execute();
+        $res_all = $stmt_all->get_result();
+        $all_employees_data = [];
+        while ($row_all = $res_all->fetch_assoc()) {
+            $all_employees_data[] = $row_all;
+        }
+        $stmt_all->close();
+    } elseif ($selected_user_id) {
         $real_emp_id = $payrollObj->getEmployeeIdByUserId($selected_user_id);
         
         // Get employee name and allowance
         $empDetails = $employeeObj->getAllEmployeesPayrollDetails();
-        $standard_allowance = 0;
-        foreach ($empDetails as $ed) {
-            if ($ed['user_id'] == $selected_user_id) {
-                $standard_allowance = isset($ed['allowances_rs']) ? (float)$ed['allowances_rs'] : 0;
-                break;
-            }
-        }
 
         foreach ($employees as $emp) {
             if ($emp['user_id'] == $selected_user_id) {
@@ -432,8 +450,9 @@
                     <!-- Employee Dropdown -->
                     <div class="modern-field">
                         <label>Employee Name</label>
-                        <select name="employeeId" class="modern-select" required>
+                        <select name="employeeId" class="modern-select" required onchange="toggleFields(this.value)">
                             <option value="" disabled <?php echo !$selected_user_id ? 'selected' : ''; ?>>-- Select Employee --</option>
+                            <option value="all" <?php echo ($selected_user_id === 'all') ? 'selected' : ''; ?>>— All Employees —</option>
                             <?php foreach ($employees as $emp): ?>
                                 <option value="<?php echo (int)$emp['user_id']; ?>"
                                     <?php echo ($selected_user_id == $emp['user_id']) ? 'selected' : ''; ?>>
@@ -444,9 +463,15 @@
                     </div>
 
                     <!-- Year Picker -->
-                    <div class="modern-field">
+                    <div class="modern-field" id="year-field" style="<?php echo ($selected_user_id === 'all') ? 'display:none;' : ''; ?>">
                         <label>Report Year</label>
                         <input type="number" name="year" class="modern-input" min="2000" max="2100" value="<?php echo htmlspecialchars($selected_year); ?>">
+                    </div>
+
+                    <!-- Month Picker -->
+                    <div class="modern-field" id="month-field" style="<?php echo ($selected_user_id === 'all') ? '' : 'display:none;'; ?>">
+                        <label>Report Month</label>
+                        <input type="month" name="month" class="modern-input" value="<?php echo htmlspecialchars($selected_month); ?>">
                     </div>
 
                 </div>
@@ -469,24 +494,90 @@
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
                 </svg>
             </div>
-            <h2>Yearly Report Detail</h2>
+            <h2><?php echo ($selected_user_id === 'all') ? 'All Employees Monthly Report' : 'Yearly Report Detail'; ?></h2>
         </div>
         <div class="rep-results-meta">
             <div class="meta-person">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                 </svg>
-                <?php echo htmlspecialchars($employee_name); ?>
+                <?php echo ($selected_user_id === 'all') ? 'All Processed Employees' : htmlspecialchars($employee_name); ?>
             </div>
             <div class="meta-pill">
-                Year: <?php echo htmlspecialchars($selected_year); ?>
+                <?php echo ($selected_user_id === 'all') ? 'Month: ' . date('F Y', strtotime($selected_month . '-01')) : 'Year: ' . htmlspecialchars($selected_year); ?>
             </div>
         </div>
 
         <div class="rep-card-body">
 
-            <!-- YEARLY VIEW -->
-            <?php if (!empty($yearly_data)): ?>
+            <?php if ($selected_user_id === 'all'): ?>
+                <!-- ALL EMPLOYEES MONTHLY VIEW -->
+                <?php if (!empty($all_employees_data)): ?>
+                    <div style="overflow-x: auto;">
+                        <table class="rep-table">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Base Salary</th>
+                                    <th>Bonuses</th>
+                                    <th>Allowances</th>
+                                    <th>Deductions</th>
+                                    <th>Net Payout</th>
+                                    <th style="text-align:right;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php 
+                                    $sum_base = 0; $sum_bonuses = 0; $sum_allowances = 0; $sum_deductions = 0; $sum_net = 0;
+                                    foreach ($all_employees_data as $row): 
+                                        $sum_base += $row['base_salary_rs'];
+                                        $sum_bonuses += $row['total_bonuses'];
+                                        $sum_allowances += $row['total_allowances'];
+                                        $sum_deductions += $row['total_deductions'];
+                                        $sum_net += $row['net_payable_rs'];
+                                ?>
+                                <tr>
+                                    <td style="font-weight:700; color:#1e293b;"><?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?></td>
+                                    <td>Rs <?php echo number_format($row['base_salary_rs']); ?></td>
+                                    <td class="val-positive">+ Rs <?php echo number_format($row['total_bonuses']); ?></td>
+                                    <td class="val-positive">+ Rs <?php echo number_format($row['total_allowances']); ?></td>
+                                    <td class="val-negative">- Rs <?php echo number_format($row['total_deductions']); ?></td>
+                                    <td class="val-net">Rs <?php echo number_format($row['net_payable_rs']); ?></td>
+                                    <td style="text-align:right;">
+                                        <a href="salary_invoice.php?employeeId=<?php echo urlencode($row['user_id']); ?>&month=<?php echo urlencode(date('Y-m', strtotime($row['payroll_month']))); ?>" class="btn-invoice" title="View Salary Slip" style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 10px;" target="_blank">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                            <tfoot>
+                                <tr style="background: #f8fafc; box-shadow: 0 2px 8px rgba(0,0,0,0.03); font-weight: 800; border-radius: 12px;">
+                                    <td style="color:#334155; border-radius: 50px 0 0 50px;">MONTH TOTAL</td>
+                                    <td>Rs <?php echo number_format($sum_base); ?></td>
+                                    <td class="val-positive">+ Rs <?php echo number_format($sum_bonuses); ?></td>
+                                    <td class="val-positive">+ Rs <?php echo number_format($sum_allowances); ?></td>
+                                    <td class="val-negative">- Rs <?php echo number_format($sum_deductions); ?></td>
+                                    <td class="val-net" style="font-size:14px;">Rs <?php echo number_format($sum_net); ?></td>
+                                    <td style="border-radius: 0 50px 50px 0;"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                <?php else: ?>
+                    <div class="rep-empty">
+                        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                            <line x1="9" y1="15" x2="15" y2="15"/>
+                        </svg>
+                        <strong>No Records Found</strong>
+                        <p>No payroll data found for any employee in the month of <?php echo date('F Y', strtotime($selected_month . '-01')); ?>.</p>
+                    </div>
+                <?php endif; ?>
+
+            <?php else: ?>
+                <!-- YEARLY VIEW -->
+                <?php if (!empty($yearly_data)): ?>
                     <div style="overflow-x: auto;">
                         <table class="rep-table">
                             <thead>
@@ -497,7 +588,6 @@
                                     <th>Allowances</th>
                                     <th>Deductions</th>
                                     <th>Net Payable</th>
-                                    <th>Status</th>
                                     <th style="text-align:right;">Action</th>
                                 </tr>
                             </thead>
@@ -505,12 +595,12 @@
                                 <?php 
                                     $sum_base = 0; $sum_bonuses = 0; $sum_allowances = 0; $sum_deductions = 0; $sum_net = 0;
                                     foreach ($yearly_data as $row): 
-                                        $row_allowances = $row['total_allowances'] + $standard_allowance;
+                                        $row_allowances = $row['total_allowances'];
                                         $sum_base += $row['base_salary'];
                                         $sum_bonuses += $row['total_bonuses'];
                                         $sum_allowances += $row_allowances;
                                         $sum_deductions += $row['total_deductions'];
-                                        $sum_net += $row['net_payable'];
+                                        $sum_net += ($row['base_salary'] + $row['total_bonuses'] + $row_allowances - $row['total_deductions']);
                                 ?>
                                 <tr>
                                     <td style="font-weight:700; color:#1e293b;"><?php echo date('F Y', strtotime($row['payroll_month'])); ?></td>
@@ -518,15 +608,10 @@
                                     <td class="val-positive">+ Rs <?php echo number_format($row['total_bonuses']); ?></td>
                                     <td class="val-positive">+ Rs <?php echo number_format($row_allowances); ?></td>
                                     <td class="val-negative">- Rs <?php echo number_format($row['total_deductions']); ?></td>
-                                    <td class="val-net">Rs <?php echo number_format($row['net_payable']); ?></td>
-                                    <td>
-                                        <span class="status-badge <?php echo $row['status'] === 'PROCESSED' ? 'status-paid' : 'status-pending'; ?>">
-                                            <?php echo htmlspecialchars($row['status']); ?>
-                                        </span>
-                                    </td>
+                                    <td class="val-net">Rs <?php echo number_format($row['base_salary'] + $row['total_bonuses'] + $row_allowances - $row['total_deductions']); ?></td>
                                     <td style="text-align:right;">
-                                        <a href="salary_invoice.php?employeeId=<?php echo urlencode($selected_user_id); ?>&month=<?php echo urlencode(date('Y-m', strtotime($row['payroll_month']))); ?>" class="btn-invoice">
-                                            Invoice
+                                        <a href="salary_invoice.php?employeeId=<?php echo urlencode($selected_user_id); ?>&month=<?php echo urlencode(date('Y-m', strtotime($row['payroll_month']))); ?>" class="btn-invoice" title="View Salary Slip" style="display: inline-flex; align-items: center; justify-content: center; padding: 8px 10px;">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                                         </a>
                                     </td>
                                 </tr>
@@ -540,7 +625,6 @@
                                     <td class="val-positive">+ Rs <?php echo number_format($sum_allowances); ?></td>
                                     <td class="val-negative">- Rs <?php echo number_format($sum_deductions); ?></td>
                                     <td class="val-net" style="font-size:14px;">Rs <?php echo number_format($sum_net); ?></td>
-                                    <td></td>
                                     <td style="border-radius: 0 50px 50px 0;"></td>
                                 </tr>
                             </tfoot>
@@ -556,9 +640,26 @@
                         <p>No payroll data found for this employee in the year <?php echo htmlspecialchars($selected_year); ?>.</p>
                     </div>
                 <?php endif; ?>
+            <?php endif; ?>
 
         </div>
     </div>
     <?php endif; ?>
 
-</div><?php include_once "../includes/footer.php"; ?>
+</div>
+
+<script>
+function toggleFields(val) {
+    const yearField = document.getElementById('year-field');
+    const monthField = document.getElementById('month-field');
+    if (val === 'all') {
+        yearField.style.display = 'none';
+        monthField.style.display = 'block';
+    } else {
+        yearField.style.display = 'block';
+        monthField.style.display = 'none';
+    }
+}
+</script>
+
+<?php include_once "../includes/footer.php"; ?>
