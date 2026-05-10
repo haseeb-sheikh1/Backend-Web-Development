@@ -4,6 +4,10 @@ if (!isset($_SESSION['email'])) {
     header("Location: login.php");
     exit();
 }
+if (!isset($_SESSION['role_id']) || $_SESSION['role_id'] != '1') {
+    header("Location: employee_dashboard.php");
+    exit();
+}
 $user_role = "admin";
 $current_page = "add_employee";
 $extra_css = "add_employee"; 
@@ -158,14 +162,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_employee'])) {
             <div class="form-grid">
               <div class="form-group">
                 <label>First Name <span class="req">*</span></label>
-                <input type="text" name="first_name" class="form-input" placeholder="e.g. John" value="<?php echo isset($_POST['first_name']) ? htmlspecialchars($_POST['first_name']) : ''; ?>" required>
+                <input type="text" name="first_name" class="form-input" placeholder="e.g. Haseeb" value="<?php echo isset($_POST['first_name']) ? htmlspecialchars($_POST['first_name']) : ''; ?>" required>
                 <?php if (isset($employee->errors['first_name'])): ?>
                   <small class="error-msg"><?php echo htmlspecialchars($employee->errors['first_name']); ?></small>
                 <?php endif; ?>
               </div>
               <div class="form-group">
                 <label>Last Name <span class="req">*</span></label>
-                <input type="text" name="last_name" class="form-input" placeholder="e.g. Doe" value="<?php echo isset($_POST['last_name']) ? htmlspecialchars($_POST['last_name']) : ''; ?>" required>
+                <input type="text" name="last_name" class="form-input" placeholder="e.g. Sheikh" value="<?php echo isset($_POST['last_name']) ? htmlspecialchars($_POST['last_name']) : ''; ?>" required>
                 <?php if (isset($employee->errors['last_name'])): ?>
                   <small class="error-msg"><?php echo htmlspecialchars($employee->errors['last_name']); ?></small>
                 <?php endif; ?>
@@ -243,7 +247,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_employee'])) {
             <div class="form-grid">
               <div class="form-group span-full">
                 <label>Work Email <span class="req">*</span></label>
-                <input type="email" name="email" class="form-input" placeholder="email@company.com" value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>" required autocomplete="off">
+                <input type="email" name="email" class="form-input" placeholder="name@gmail.com" value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>" required autocomplete="off">
                 <?php if (isset($employee->errors['email'])): ?>
                   <small class="error-msg"><?php echo htmlspecialchars($employee->errors['email']); ?></small>
                 <?php endif; ?>

@@ -26,6 +26,12 @@ $employees = $employeeObj->getBasicEmployeeDetails();
 $selected_user_id = isset($_GET['employeeId']) ? (int)$_GET['employeeId'] : null;
 $selected_month   = isset($_GET['month'])      ? $_GET['month']             : date('Y-m');
 
+// Security Gate: Non-admins can ONLY view their own IDs
+if ($_SESSION['role_id'] != '1' && $selected_user_id != $_SESSION['user_id']) {
+    echo "<div style='padding:100px; text-align:center; font-family:sans-serif;'><h2>Unauthorized Access Locked</h2><p>You do not have privilege to access this statement.</p><a href='employee_dashboard.php'>Return Dashboard</a></div>";
+    exit();
+}
+
 $employee_name = '';
 $employee_role = '';
 $employee_bank = '';
@@ -436,10 +442,17 @@ if ($selected_user_id) {
 <div class="inv-wrap">
 
     <div class="inv-bar">
+        <?php if ($_SESSION['role_id'] == '1'): ?>
         <a href="salary_reports.php" class="inv-back">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             Back to Reports
         </a>
+        <?php else: ?>
+        <a href="employee_payroll.php" class="inv-back">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Back to History
+        </a>
+        <?php endif; ?>
         <a href="download_invoice.php?employeeId=<?php echo $selected_user_id; ?>&month=<?php echo $selected_month; ?>" class="inv-back" style="background: var(--brand-green); color: #fff; border-color: var(--brand-green);">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
             Download HD PDF

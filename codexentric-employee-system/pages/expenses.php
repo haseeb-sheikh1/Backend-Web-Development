@@ -2,8 +2,12 @@
 session_start();
 
 // 1. Role Protection - Only accessible to Admin (role_id == '1')
-if (!isset($_SESSION['email']) || $_SESSION['role_id'] != '1') {
+if (!isset($_SESSION['email'])) {
     header("Location: login.php");
+    exit();
+}
+if (!isset($_SESSION['role_id']) || $_SESSION['role_id'] != '1') {
+    header("Location: employee_dashboard.php");
     exit();
 }
 
@@ -161,15 +165,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_expense'])) {
             $file_ext = strtolower(pathinfo($file_orig_name, PATHINFO_EXTENSION));
             
             $allowed_exts = ['pdf', 'jpg', 'jpeg', 'png'];
-            if (in_array($file_ext, $allowed_exts)) {
-                // Delete old attachment if updating
+            if (!in_array($file_ext, $allowed_exts)) {
+                $error_message = "Invalid file type. Only PDFs and Images (JPG, PNG) are allowed.";
+            } elseif ($_FILES['attachment']['size'] > 5000000) {
+                $error_message = "Attachment is too large. Max limit is 5MB.";
+            } else {
+                // Success
                 if ($edit_mode && $attachment_name && file_exists($upload_dir . $attachment_name)) {
                     unlink($upload_dir . $attachment_name);
                 }
                 $attachment_name = uniqid('receipt_', true) . '.' . $file_ext;
                 move_uploaded_file($file_tmp, $upload_dir . $attachment_name);
-            } else {
-                $error_message = "Invalid file type. Only PDFs and Images (JPG, PNG) are allowed.";
             }
         }
     }
@@ -370,15 +376,20 @@ include_once "../includes/sidebar.php";
 
   <!-- Full Width Form Wrapper -->
   <div style="width: 100%; margin: 10px 0 20px 0;">
-    <div class="widget-card">
-      <div class="widget-header">
-        <span class="widget-header-title">
-          <svg viewBox="0 0 24 24" style="stroke: var(--brand-green);"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-          <?php echo $edit_mode ? 'Edit Bill Details' : 'Record New Bill'; ?>
+    <div class="widget-card" style="border-radius: 20px; border: 1px solid #eef2f6; box-shadow: 0 6px 25px rgba(0,0,0,0.03);">
+      <div class="widget-header" style="padding: 22px 24px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; text-transform: none; letter-spacing: 0;">
+        <span class="widget-header-title" style="font-size: 16px; font-weight: 700; color: #334155;">
+          <?php echo $edit_mode ? 'Edit Bill Details' : 'Record Expenses'; ?>
         </span>
-        <?php if ($edit_mode): ?>
-          <a href="expenses.php" style="font-size: 12px; color: var(--brand-green); font-weight:800; text-decoration:none; text-transform: uppercase; letter-spacing: 0.5px;">Cancel Edit</a>
-        <?php endif; ?>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <?php if ($edit_mode): ?>
+            <a href="expenses.php" style="font-size: 12px; color: var(--brand-green); font-weight:800; text-decoration:none; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 8px;">Cancel Edit</a>
+          <?php endif; ?>
+          <!-- Interactive chevron toggle capsule seen in reference screenshot -->
+          <div style="width: 26px; height: 26px; border-radius: 50%; background: #eff2f6; display: flex; align-items: center; justify-content: center; color: #475569; cursor: pointer;">
+            <svg viewBox="0 0 24 24" style="width: 13px; height: 13px; stroke: currentColor; stroke-width: 3; fill: none;"><path d="M18 15l-6-6-6 6"/></svg>
+          </div>
+        </div>
       </div>
       <div class="widget-body" style="padding: 28px;">
         <form action="expenses.php<?php echo $edit_mode ? '?edit=' . $edit_data['id'] : ''; ?>" method="POST" enctype="multipart/form-data" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px 28px;">
@@ -459,11 +470,15 @@ include_once "../includes/sidebar.php";
             <textarea name="description" class="form-textarea" style="height: 80px; padding: 12px 16px;" placeholder="Provide details about the expense..."><?php echo $edit_mode ? htmlspecialchars($edit_data['pure_description']) : ''; ?></textarea>
           </div>
 
-          <!-- Actions -->
-          <div style="grid-column: span 2; display: flex; justify-content: flex-end; margin-top: 8px;">
-            <button type="submit" name="submit_expense" class="btn-submit" style="width: auto; padding: 0 40px; height: 48px; border-radius: 10px; font-size: 14px;">
-              <svg viewBox="0 0 24 24" style="width: 18px; height: 18px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-              <strong><?php echo $edit_mode ? 'Update Expense Record' : 'Add Bill Entry'; ?></strong>
+          <!-- Footer Separator & Action Layout modeled exactly from reference image -->
+          <div style="grid-column: span 2; margin-top: 12px; padding-top: 24px; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; gap: 12px;">
+            <!-- Secondary Outline Pill -->
+            <a href="expenses.php" style="display: flex; align-items: center; justify-content: center; height: 38px; padding: 0 32px; border-radius: 25px; border: 1.5px solid var(--brand-green); color: var(--brand-green); font-weight: 700; font-size: 13px; text-decoration: none; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">Reset</a>
+            
+            <!-- Primary Filled Pill -->
+            <button type="submit" name="submit_expense" style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 38px; padding: 0 36px; border-radius: 25px; background: var(--brand-green); color: #ffffff; border: none; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(24, 109, 85, 0.15);">
+              <svg viewBox="0 0 24 24" style="width: 15px; height: 15px; stroke: currentColor; stroke-width: 2.5; fill: none;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              <?php echo $edit_mode ? 'Update Record' : 'Save Expense'; ?>
             </button>
           </div>
         </form>

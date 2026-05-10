@@ -2,8 +2,12 @@
 session_start();
 
 // 1. Role Protection - Only accessible to Admin (role_id == '1')
-if (!isset($_SESSION['email']) || $_SESSION['role_id'] != '1') {
+if (!isset($_SESSION['email'])) {
     header("Location: login.php");
+    exit();
+}
+if (!isset($_SESSION['role_id']) || $_SESSION['role_id'] != '1') {
+    header("Location: employee_dashboard.php");
     exit();
 }
 
@@ -491,10 +495,10 @@ include_once "../includes/sidebar.php";
 
 .modern-input, .modern-select {
     width: 100%;
-    height: 38px;
-    padding: 0 16px;
+    height: 40px; /* Consistent with modern form height */
+    padding: 0 20px;
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
+    border-radius: 22px; /* Matched pill shape applied elsewhere */
     font-size: 14px;
     color: #1e293b;
     background: #fff;
@@ -685,35 +689,53 @@ include_once "../includes/sidebar.php";
   <?php endif; ?>
 
 
-  <!-- Compact Search Bar -->
-  <div class="rep-card" style="margin-top: 5px; margin-bottom: 20px; background: #f8fafc; border: 1px solid #e2e8f0;">
-      <div class="rep-card-body" style="padding: 10px 20px;">
-          <form method="GET" action="expense_reports.php" style="display: flex; align-items: center; gap: 24px; flex-wrap: wrap;">
-              
-              <!-- Report Type -->
-              <div style="display:flex; align-items:center; gap:8px;">
-                  <label style="font-size:10px; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Type:</label>
-                  <select name="report_type" id="report_type" class="modern-select" style="height:34px; width:170px; font-size:12px; border-color:#cbd5e1;" onchange="toggleFilterFields()" required>
-                      <option value="monthly" <?php echo ($report_type === 'monthly') ? 'selected' : ''; ?>>Monthly Detailed Report</option>
-                      <option value="yearly" <?php echo ($report_type === 'yearly') ? 'selected' : ''; ?>>Yearly Summary Report</option>
-                  </select>
+  <!-- Overhauled Filter Search Bar styled exactly like provided reference -->
+  <div class="widget-card" style="background: #ffffff; border-radius: 20px; border: 1px solid #eef2f6; box-shadow: 0 6px 25px rgba(0,0,0,0.03); margin-bottom: 28px; overflow: hidden;">
+      <!-- Clean Header mimicking screenshot with Right Toggle Arrow -->
+      <div class="widget-header" style="padding: 20px 24px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; background: #ffffff;">
+          <span style="font-size: 15px; font-weight: 700; color: #334155; text-transform: none; letter-spacing: 0;">System Expense Filter</span>
+          <div style="width: 28px; height: 28px; border-radius: 50%; background: #eff2f6; display: flex; align-items: center; justify-content: center; color: #475569;">
+            <svg viewBox="0 0 24 24" style="width: 14px; height: 14px; stroke: currentColor; stroke-width: 3; fill: none;"><path d="M18 15l-6-6-6 6"/></svg>
+          </div>
+      </div>
+      
+      <!-- Form Content explicitly separated from footer -->
+      <div class="widget-body" style="padding: 24px 24px 20px 24px;">
+          <form method="GET" action="expense_reports.php">
+              <!-- Field row using responsive grid seen in standard card structures -->
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 24px;">
+                  
+                  <!-- Report Type Component -->
+                  <div style="display: flex; flex-direction: column; gap: 8px;">
+                      <label style="font-size: 12.5px; font-weight: 700; color: #475569;">Report View Type</label>
+                      <select name="report_type" id="report_type" class="modern-select" style="width: 100%; border-color: #e2e8f0;" onchange="toggleFilterFields()" required>
+                          <option value="monthly" <?php echo ($report_type === 'monthly') ? 'selected' : ''; ?>>Monthly Detailed Report</option>
+                          <option value="yearly" <?php echo ($report_type === 'yearly') ? 'selected' : ''; ?>>Yearly Summary Report</option>
+                      </select>
+                  </div>
+
+                  <!-- Month Input Block -->
+                  <div id="month_field" style="display: flex; flex-direction: column; gap: 8px;">
+                      <label style="font-size: 12.5px; font-weight: 700; color: #475569;">Select Month</label>
+                      <input type="month" name="month" class="modern-input" style="width: 100%; border-color: #e2e8f0;" value="<?php echo htmlspecialchars($selected_month); ?>">
+                  </div>
+
+                  <!-- Year Input Block -->
+                  <div id="year_field" style="display: flex; flex-direction: column; gap: 8px;">
+                      <label style="font-size: 12.5px; font-weight: 700; color: #475569;">Select Year</label>
+                      <input type="number" name="year" class="modern-input" style="width: 100%; border-color: #e2e8f0;" min="2000" max="2100" value="<?php echo htmlspecialchars($selected_year); ?>">
+                  </div>
               </div>
 
-              <!-- Month Picker -->
-              <div id="month_field" style="display:flex; align-items:center; gap:8px;">
-                  <label style="font-size:10px; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Month:</label>
-                  <input type="month" name="month" class="modern-input" style="height:34px; width:150px; font-size:12px; border-color:#cbd5e1;" value="<?php echo htmlspecialchars($selected_month); ?>">
-              </div>
-
-              <!-- Year Picker -->
-              <div id="year_field" style="display:flex; align-items:center; gap:8px;">
-                  <label style="font-size:10px; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:0.5px;">Year:</label>
-                  <input type="number" name="year" class="modern-input" style="height:34px; width:110px; font-size:12px; border-color:#cbd5e1;" min="2000" max="2100" value="<?php echo htmlspecialchars($selected_year); ?>">
-              </div>
-
-              <div style="margin-left: auto; display: flex; gap: 8px;">
-                  <button type="submit" class="btn-primary-modern" style="padding: 8px 20px; font-size: 12px; box-shadow: 0 4px 10px rgba(24, 109, 85, 0.15);">Update Dashboard</button>
-                  <a href="expense_reports.php" class="btn-secondary-modern" style="padding: 8px 20px; font-size: 12px; background:#fff;">Reset</a>
+              <!-- Clean Bottom Separator containing standard action pill lineup -->
+              <div style="display: flex; justify-content: flex-end; gap: 12px; padding-top: 20px; border-top: 1px solid #f1f5f9;">
+                  <!-- Standard Outlined Secondary Reset -->
+                  <a href="expense_reports.php" style="display: flex; align-items: center; justify-content: center; height: 38px; padding: 0 32px; border-radius: 25px; border: 1.5px solid var(--brand-green); color: var(--brand-green); font-weight: 700; font-size: 13px; text-decoration: none; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">Reset Filter</a>
+                  
+                  <!-- High Impact Call-To-Action Primary -->
+                  <button type="submit" style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 38px; padding: 0 32px; border-radius: 25px; background: var(--brand-green); color: #ffffff; border: none; font-weight: 700; font-size: 13px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(24, 109, 85, 0.15);">
+                      Fetch Analytics
+                  </button>
               </div>
           </form>
       </div>
@@ -812,7 +834,7 @@ include_once "../includes/sidebar.php";
                                           <a href="expenses.php?edit=<?php echo $exp['id']; ?>" class="table-action-btn" title="Edit">
                                               <svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2.5;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                           </a>
-                                          <a href="expense_reports.php?delete=<?php echo $exp['id']; ?>&report_type=monthly&month=<?php echo $selected_month; ?>" class="table-action-btn delete" title="Delete" onclick="return confirm('Are you sure you want to delete this expense?')">
+                                          <a href="expense_reports.php?delete=<?php echo $exp['id']; ?>&report_type=monthly&month=<?php echo $selected_month; ?>" class="table-action-btn delete" title="Delete" onclick="return confirmCustomDelete(event, this.href);">
                                               <svg viewBox="0 0 24 24" style="width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2.5;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                                           </a>
                                       </div>
@@ -1144,5 +1166,50 @@ include_once "../includes/sidebar.php";
   });
   <?php endif; ?>
 </script>
+
+<!-- SweetAlert2 injection for Production-Grade Confirmations -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function confirmCustomDelete(event, deleteUrl) {
+    event.preventDefault(); // Stall regular loading
+    
+    Swal.fire({
+        title: '<span style="font-family: sans-serif; font-weight: 800; color: #1e293b;">Confirm Deletion?</span>',
+        html: '<p style="font-size: 14px; color: #64748b;">You are about to permanently purge this transaction record and any attached receipts from the central storage database. <br><br><strong>This action is non-reversible.</strong></p>',
+        icon: 'warning',
+        iconColor: '#ef4444',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444', // Red alert standard
+        cancelButtonColor: '#94a3b8', // Soft slate cancel
+        confirmButtonText: 'Proceed with Deletion',
+        cancelButtonText: 'Abort',
+        reverseButtons: true, // Modern side positioning
+        background: '#ffffff',
+        width: '420px',
+        padding: '24px'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Trigger visual processing before actual reload for production-grade illusion of power
+            Swal.fire({
+                title: 'Processing...',
+                text: 'Executing database command and flushing cache.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Now release the latch to PHP to fulfill standard deletion logic
+            window.location.href = deleteUrl;
+        }
+    });
+    
+    return false; 
+}
+</script>
+<style>
+  .swal2-popup { border-radius: 20px !important; box-shadow: 0 15px 50px rgba(0,0,0,0.15) !important; }
+  .swal2-styled.swal2-confirm, .swal2-styled.swal2-cancel { border-radius: 30px !important; font-weight: 700 !important; font-size: 13.5px !important; padding: 10px 24px !important; }
+</style>
 
 <?php include_once "../includes/footer.php"; ?>

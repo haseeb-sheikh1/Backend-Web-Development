@@ -143,6 +143,25 @@ class Payroll {
         return $yearly_data;
     }
 
+    public function getSalaryHistory($employee_id) {
+        $stmt = $this->db->prepare("SELECT id, payroll_month, base_salary_rs, net_payable_rs, status FROM payroll WHERE employee_id = ? ORDER BY payroll_month DESC");
+        $stmt->bind_param("i", $employee_id);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        
+        $history = [];
+        while ($row = $res->fetch_assoc()) {
+            $history[] = [
+                'id' => $row['id'],
+                'payroll_month' => $row['payroll_month'],
+                'base_salary' => (float)$row['base_salary_rs'],
+                'net_payable' => (float)$row['net_payable_rs'],
+                'status' => $row['status']
+            ];
+        }
+        return $history;
+    }
+
     public function getMonthlyPayrollStats($month) {
         $stats = [
             'gross_total' => 0,

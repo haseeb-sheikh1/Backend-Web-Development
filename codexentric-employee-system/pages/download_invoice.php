@@ -25,6 +25,11 @@ $payrollObj = new Payroll($connection);
 $selected_user_id = isset($_GET['employeeId']) ? (int)$_GET['employeeId'] : null;
 $selected_month   = isset($_GET['month'])      ? $_GET['month']             : date('Y-m');
 
+// Role Lock: Non-admins can only download their own slips
+if ($_SESSION['role_id'] != '1' && $selected_user_id != $_SESSION['user_id']) {
+    die("Access Denied: Security Restriction.");
+}
+
 if (!$selected_user_id) {
     die("Invalid Employee ID.");
 }

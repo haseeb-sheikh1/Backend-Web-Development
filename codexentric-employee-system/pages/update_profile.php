@@ -125,13 +125,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
 }
 
 .profile-avatar-wrapper {
-    width: 140px;
-    height: 140px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
     background: #f1f5f9;
-    padding: 5px;
+    padding: 4px;
     border: 1px solid #e2e8f0;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
     overflow: hidden;
 }
 
@@ -154,7 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
 .profile-sidebar p {
     font-size: 13px;
     color: #64748b;
-    margin-bottom: 30px;
+    margin-bottom: 16px;
 }
 
 .profile-nav {
@@ -194,12 +194,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     background: #fff;
     border-radius: 12px;
     border: 1px solid #e2e8f0;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
     overflow: hidden;
 }
 
 .section-header {
-    padding: 20px 24px;
+    padding: 14px 20px;
     border-bottom: 1px solid #f1f5f9;
 }
 
@@ -211,18 +211,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
 }
 
 .section-body {
-    padding: 24px;
+    padding: 16px 20px;
 }
 
 /* ── Modern Form Controls ── */
 .modern-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+    gap: 16px;
 }
 
 .form-field {
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 }
 
 .form-field.full {
@@ -234,7 +234,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     font-size: 13px;
     font-weight: 600;
     color: #64748b;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
 }
 
 .form-field label .req {
@@ -248,11 +248,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
 
 .modern-input, .modern-select {
     width: 100%;
-    height: 42px; /* Matching add_employee height */
-    padding: 0 16px;
+    height: 38px;
+    padding: 0 20px; /* Relaxed padding for pill architecture */
     border: 1px solid #e2e8f0;
-    border-radius: 10px; /* Matching modern 10px rounded corners */
-    font-size: 14px;
+    border-radius: 20px; /* True capsule/pill container shape */
+    font-size: 13.5px;
     color: #1e293b;
     background-color: #ffffff;
     font-family: inherit;
@@ -305,8 +305,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     background: var(--brand-green);
     color: #fff;
     border: none;
-    border-radius: 8px;
-    padding: 12px 24px;
+    border-radius: 25px; /* Matching pills exactly */
+    padding: 12px 28px;
     font-size: 14px;
     font-weight: 700;
     cursor: pointer;
@@ -323,10 +323,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
 
 .modern-btn-secondary {
     background: #fff;
-    color: #475569;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 12px 24px;
+    color: var(--brand-green); /* Replicate 'Reset' green text */
+    border: 1.5px solid var(--brand-green); /* Replicate 'Reset' thin border */
+    border-radius: 25px;
+    padding: 12px 28px;
     font-size: 14px;
     font-weight: 700;
     text-decoration: none;

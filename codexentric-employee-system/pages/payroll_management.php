@@ -5,6 +5,10 @@
         header("Location: login.php");
         exit();
     }
+    if (!isset($_SESSION['role_id']) || $_SESSION['role_id'] != '1') {
+        header("Location: employee_dashboard.php");
+        exit();
+    }
 
     require_once '../pages/Database.php';
     require_once '../pages/Employee.php';
@@ -93,7 +97,7 @@
 ?>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;500;600;700;800&display=swap');
 
 :root {
     --ox: #186D55;           /* CodeXentric Brand Green */
@@ -117,7 +121,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body, .payroll-root * {
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Nunito Sans', sans-serif;
 }
 
 .payroll-root {
@@ -355,7 +359,7 @@ body, .payroll-root * {
     padding: 0 14px;
     border: 1px solid var(--border);
     border-radius: 6px;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Nunito Sans', sans-serif;
     font-size: 14px;
     color: var(--text-h);
     background: #fff;
@@ -413,7 +417,7 @@ select.pr-input {
     width: 100%; height: 46px;
     background: var(--ox); color: #fff;
     border: none; border-radius: var(--radius);
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Nunito Sans', sans-serif;
     font-size: 14px; font-weight: 700;
     cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
     transition: background 0.15s, transform 0.1s;
@@ -446,7 +450,7 @@ select.pr-input {
     margin-top: 8px; padding: 10px 24px;
     background: var(--green-bg); color: var(--green);
     border: 1.5px solid var(--green); border-radius: var(--radius);
-    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700;
+    font-family: 'Nunito Sans', sans-serif; font-size: 14px; font-weight: 700;
     text-decoration: none; transition: all 0.15s;
 }
 .pr-invoice-btn:hover { background: var(--green); color: #fff; }
@@ -530,27 +534,26 @@ select.pr-input {
 </style>
 
 <div class="payroll-root">
-    <!-- Beautiful Month Selection Strip -->
-    <div style="background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; animation: fadeUp .3s ease both;">
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="background: var(--ox-light); color: var(--ox); width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+
+    <div class="pr-body" style="padding-top: 32px;">
+        <!-- Unified High-Fidelity Month Selection Strip -->
+        <div style="background: #ffffff; border: 1px solid #eef2f6; border-radius: 20px; padding: 22px 28px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); animation: fadeUp .3s ease both;">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <div style="background: rgba(24, 109, 85, 0.08); color: var(--ox); width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(24, 109, 85, 0.1);">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </div>
+                <div>
+                    <h2 style="font-size: 16.5px; font-weight: 800; color: #1e293b; margin: 0; letter-spacing: -0.2px;">Payroll Processing Period</h2>
+                    <p style="font-size: 12.5px; color: #64748b; margin: 4px 0 0 0; font-weight: 500;">Select the month you want to view, process, or edit salary records for.</p>
+                </div>
             </div>
-            <div>
-                <h2 style="font-size: 16px; font-weight: 700; color: var(--text-h); margin: 0;">Payroll Processing Period</h2>
-                <p style="font-size: 12.5px; color: var(--text-m); margin: 2px 0 0 0;">Select the month you want to view, process, or edit salary records for.</p>
-            </div>
+            <form method="GET" action="payroll_management.php" style="display: flex; align-items: center; gap: 10px;">
+                <?php if ($selected_emp_id): ?>
+                    <input type="hidden" name="emp_id" value="<?php echo htmlspecialchars($selected_emp_id); ?>">
+                <?php endif; ?>
+                <input type="month" name="month" value="<?php echo htmlspecialchars($selected_month); ?>" style="height: 42px; padding: 0 20px; border: 1.5px solid #e2e8f0; border-radius: 22px; font-size: 14px; font-weight: 700; color: #1e293b; outline: none; cursor: pointer; background:#fff; transition: all 0.2s;" onchange="this.form.submit()" onmouseover="this.style.borderColor='var(--ox)'" onmouseout="this.style.borderColor='#e2e8f0'">
+            </form>
         </div>
-        <form method="GET" action="payroll_management.php" style="display: flex; align-items: center; gap: 10px;">
-            <?php if ($selected_emp_id): ?>
-                <input type="hidden" name="emp_id" value="<?php echo htmlspecialchars($selected_emp_id); ?>">
-            <?php endif; ?>
-            <input type="month" name="month" value="<?php echo htmlspecialchars($selected_month); ?>" style="height: 40px; padding: 0 16px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 14px; font-weight: 600; color: var(--text-h); outline: none;" onchange="this.form.submit()">
-        </form>
-    </div>
-
-
-    <div class="pr-body">
 
         <!-- ── Stats ── -->
         <div class="pr-stats">

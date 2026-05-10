@@ -54,14 +54,15 @@ $role = $_SESSION['role_id'];
 .sidebar-brand {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 11px;
-    padding: 0 18px;
-    height: 60px;
-    min-height: 60px;
+    padding: 35px 0;
+    height: auto;
+    min-height: 100px;
     flex-shrink: 0;
     text-decoration: none;
     overflow: hidden;
-    border-bottom: none !important; /* Forces the horizontal black line to hide */
+    border-bottom: none !important; 
 }
 
 .sidebar-brand-icon {
@@ -227,7 +228,7 @@ $role = $_SESSION['role_id'];
 
     <!-- ── Brand ── -->
     <a href="<?php echo $role == '1' ? 'administrator_dashboard.php' : 'employee_dashboard.php'; ?>"
-       class="sidebar-brand" style="display: flex; align-items: center; justify-content: center; gap: 0; text-decoration: none; padding: 0; height: 60px; width: 100%;">
+       class="sidebar-brand" style="display: flex; align-items: center; justify-content: center; gap: 0; text-decoration: none; width: 100%;">
         <span style="color: #ff7b1d; font-family: 'Nunito Sans', sans-serif; font-weight: 800; font-size: 25px; margin-right: 1px;">&lt;</span>
         <span class="sidebar-brand-fullname" style="color: #186D55; font-family: 'Nunito Sans', sans-serif; font-weight: 800; font-size: 25px; letter-spacing: -0.5px;">code</span>
         <span style="position: relative; display: inline-block; width: 17px; height: 25px; margin: 0 2px; vertical-align: bottom;">
@@ -340,21 +341,15 @@ $role = $_SESSION['role_id'];
                 <span class="sidebar-label">Overview</span>
             </a>
 
-            <a href="attendance.php"
-               class="sidebar-link <?php echo ($current_page == 'attendance') ? 'active' : ''; ?>">
-                <svg viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10"/>
-                    <polyline points="12 6 12 12 16 14"/>
+            <a href="employee_payroll.php"
+               class="sidebar-link <?php echo ($current_page == 'employee_payroll') ? 'active' : ''; ?>">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                     <rect x="3" y="4" width="18" height="18" rx="2"/>
+                     <line x1="16" y1="2" x2="16" y2="6"/>
+                     <line x1="8" y1="2" x2="8" y2="6"/>
+                     <line x1="3" y1="10" x2="21" y2="10"/>
                 </svg>
-                <span class="sidebar-label">Attendance</span>
-            </a>
-
-            <a href="request_time_off.php"
-               class="sidebar-link <?php echo ($current_page == 'request_time_off') ? 'active' : ''; ?>">
-                <svg viewBox="0 0 24 24">
-                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
-                </svg>
-                <span class="sidebar-label">Request Time Off</span>
+                <span class="sidebar-label">My Payroll</span>
             </a>
 
         <?php endif; ?>

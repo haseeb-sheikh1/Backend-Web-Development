@@ -206,7 +206,13 @@ public function updateProfileImage($fileArray) {
     $destination = $uploadFolder . $newFileName;
 
     // 2. Security Check
-    if ($fileArray['size'] > 5000000) return "File too large.";
+    $allowedExts = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+    $fileExt = strtolower($fileExt);
+    if (!in_array($fileExt, $allowedExts)) {
+        return "Invalid file format. Only JPG, PNG, GIF, and WEBP are allowed.";
+    }
+
+    if ($fileArray['size'] > 5000000) return "File is too large. Max limit is 5MB.";
     
     // 3. Move File
     if (move_uploaded_file($fileArray['tmp_name'], $destination)) {

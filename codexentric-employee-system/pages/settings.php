@@ -105,13 +105,13 @@
 }
 
 .profile-avatar-wrapper {
-    width: 120px;
-    height: 120px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
     background: #f1f5f9;
     padding: 4px;
     border: 1px solid #e2e8f0;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
     overflow: hidden;
     position: relative;
 }
@@ -134,7 +134,7 @@
 .profile-sidebar p {
     font-size: 11px;
     color: #64748b;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-weight: 700;
@@ -176,14 +176,14 @@
     background: #fff;
     border-radius: 12px;
     border: 1px solid #e2e8f0;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
     overflow: hidden;
     box-shadow: 0 2px 10px rgba(0,0,0,0.02);
     scroll-margin-top: 20px;
 }
 
 .section-header {
-    padding: 20px 24px;
+    padding: 14px 20px;
     border-bottom: 1px solid #f1f5f9;
 }
 
@@ -195,18 +195,18 @@
 }
 
 .section-body {
-    padding: 24px;
+    padding: 16px 20px;
 }
 
 /* ── Modern Grid & Forms ── */
 .modern-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+    gap: 16px;
 }
 
 .form-field {
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 }
 
 .form-field.full {
@@ -218,16 +218,16 @@
     font-size: 13px;
     font-weight: 600;
     color: #64748b;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
 }
 
 .modern-input {
     width: 100%;
-    height: 44px;
-    padding: 0 16px;
+    height: 38px;
+    padding: 0 20px; /* Extended horizontal padding for capsule shape */
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 14px;
+    border-radius: 20px; /* Pill shaped fields like reference */
+    font-size: 13.5px;
     color: #1e293b;
     background: #fff;
     transition: all 0.2s;
@@ -250,8 +250,8 @@
     background: var(--brand-green);
     color: #fff;
     border: none;
-    border-radius: 8px;
-    padding: 12px 24px;
+    border-radius: 25px;
+    padding: 12px 28px; /* Widened padding slightly for nicer pill balance */
     font-size: 14px;
     font-weight: 700;
     cursor: pointer;

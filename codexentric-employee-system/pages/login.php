@@ -1,4 +1,15 @@
 <?php 
+    session_start();
+    // Anti-Nest Protection: If already logged in, bounce immediately to proper dashboard
+    if (isset($_SESSION['email'])) {
+        if (isset($_SESSION['role_id']) && $_SESSION['role_id'] == '1') {
+            header("Location: administrator_dashboard.php");
+        } else {
+            header("Location: employee_dashboard.php");
+        }
+        exit();
+    }
+
     $is_login_page = true;
     $extra_css = ""; 
     $title= "Login";

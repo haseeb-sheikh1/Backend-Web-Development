@@ -5,6 +5,10 @@ if (!isset($_SESSION['email'])) {
     header("Location: login.php");
     exit();
 }
+if (!isset($_SESSION['role_id']) || $_SESSION['role_id'] != '1') {
+    header("Location: employee_dashboard.php");
+    exit();
+}
 
 $current_page = "administrator_dashboard";
 $extra_css    = "admin_dashboard";
@@ -125,9 +129,16 @@ body {
 /* ── Dashboard Grid ── */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 20px;
-  margin-bottom: 20px;
+  grid-template-columns: 1fr 1fr; /* Fixed 2-column pair for desktop */
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+/* Responsive Stack Driver for Tablets/Mobile */
+@media (max-width: 950px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr; /* Force vertical stacking sooner */
+  }
 }
 
 /* ── Widget Cards ── */
@@ -142,10 +153,14 @@ body {
 }
 
 .widget-card.roster-card {
-  background: #ffffff; /* Uniform clean background */
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.03);
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+.widget-card.roster-card .widget-header,
+.widget-card.roster-card .widget-body {
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .widget-header {
@@ -211,6 +226,11 @@ body {
   grid-template-columns: repeat(3, 1fr);
   gap: 20px 10px;
 }
+@media (max-width: 400px) {
+  .quick-launch-grid { gap: 12px 8px; }
+  .ql-icon-wrapper { width: 46px !important; height: 46px !important; }
+  .ql-item { font-size: 11px !important; }
+}
 
 .ql-item {
   display: flex;
@@ -262,50 +282,63 @@ body {
 .minimal-table {
   width: 100%;
   border-collapse: separate;
-  border-spacing: 0 10px;
+  border-spacing: 0 12px;
   font-size: 14px;
   text-align: left;
-  margin-top: -10px; /* Offset the first row spacing */
+  margin-top: 0px;
 }
 
 .minimal-table thead th {
   background: transparent;
   padding: 12px 24px;
   font-weight: 700;
-  color: #475569;
-  font-size: 13px;
-  letter-spacing: 0.2px;
+  color: #64748b;
+  font-size: 12.5px;
+  letter-spacing: 0.5px;
   white-space: nowrap;
 }
 
+.th-content {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.header-sort-icon {
+  width: 12px;
+  height: 12px;
+  opacity: 0.5;
+}
+
 .minimal-table td {
-  padding: 14px 20px;
-  color: #64748b;
+  padding: 16px 24px;
+  color: #475569;
   background: #ffffff;
-  border-top: 1px solid #e2e8f0;
-  border-bottom: 1px solid #e2e8f0;
+  border-top: 1px solid rgba(0, 0, 0, 0.04);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
   vertical-align: middle;
-  transition: all 0.2s;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.015);
 }
 
 .minimal-table td:first-child {
-  border-left: 1px solid #e2e8f0;
-  border-top-left-radius: 50px;
-  border-bottom-left-radius: 50px;
-  padding-left: 30px;
+  border-left: 1px solid rgba(0, 0, 0, 0.04);
+  border-top-left-radius: 25px;
+  border-bottom-left-radius: 25px;
+  padding-left: 28px;
 }
 
 .minimal-table td:last-child {
-  border-right: 1px solid #e2e8f0;
-  border-top-right-radius: 50px;
-  border-bottom-right-radius: 50px;
-  padding-right: 30px;
+  border-right: 1px solid rgba(0, 0, 0, 0.04);
+  border-top-right-radius: 25px;
+  border-bottom-right-radius: 25px;
+  padding-right: 28px;
 }
 
 .minimal-table tr:hover td {
-  background-color: #f8fafc;
-  border-color: #cbd5e1;
+  background-color: #fafbfc;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.025);
 }
 
 .status-indicator {
@@ -313,9 +346,9 @@ body {
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  font-weight: 500;
-  color: #64748b;
-  text-transform: lowercase;
+  font-weight: 600;
+  color: #475569;
+  text-transform: capitalize;
 }
 
 .status-dot {
@@ -429,34 +462,12 @@ body {
         Quick Launch
       </div>
       <div class="widget-body" style="display: flex; align-items: center; justify-content: center;">
-        <div class="quick-launch-grid">
-          
-          <a href="manage_employee.php" class="ql-item">
+        <div class="quick-launch-grid" style="max-width: 320px; gap: 24px 20px;">
+          <a href="employees_list.php" class="ql-item">
             <div class="ql-icon-wrapper">
               <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             </div>
             <span>Directory</span>
-          </a>
-
-          <a href="payroll_management.php" class="ql-item">
-            <div class="ql-icon-wrapper">
-              <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
-            </div>
-            <span>Payroll</span>
-          </a>
-
-          <a href="attendance_record.php" class="ql-item">
-            <div class="ql-icon-wrapper">
-              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-            </div>
-            <span>Attendance</span>
-          </a>
-
-          <a href="settings.php" class="ql-item">
-            <div class="ql-icon-wrapper">
-              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M20 12h2M2 12h2M19.07 19.07l-1.41-1.41M4.93 19.07l1.41-1.41"/></svg>
-            </div>
-            <span>Settings</span>
           </a>
 
           <a href="add_employee.php" class="ql-item">
@@ -466,6 +477,33 @@ body {
             <span>Add User</span>
           </a>
 
+          <a href="payroll_management.php" class="ql-item">
+            <div class="ql-icon-wrapper">
+              <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+            </div>
+            <span>Payroll</span>
+          </a>
+
+          <a href="salary_reports.php" class="ql-item">
+            <div class="ql-icon-wrapper">
+              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <span>Salary Reports</span>
+          </a>
+
+          <a href="expenses.php" class="ql-item">
+            <div class="ql-icon-wrapper">
+              <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <span>Expenses</span>
+          </a>
+
+          <a href="settings.php" class="ql-item">
+            <div class="ql-icon-wrapper">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M20 12h2M2 12h2M19.07 19.07l-1.41-1.41M4.93 19.07l1.41-1.41"/></svg>
+            </div>
+            <span>Settings</span>
+          </a>
         </div>
       </div>
     </div>
@@ -484,10 +522,30 @@ body {
         <table class="minimal-table">
           <thead>
             <tr>
-              <th>Personnel</th>
-              <th>Role</th>
-              <th>Salary</th>
-              <th>Status</th>
+              <th>
+                <div class="th-content">
+                  Personnel
+                  <svg class="header-sort-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg>
+                </div>
+              </th>
+              <th>
+                <div class="th-content">
+                  Role
+                  <svg class="header-sort-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg>
+                </div>
+              </th>
+              <th>
+                <div class="th-content">
+                  Salary
+                  <svg class="header-sort-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg>
+                </div>
+              </th>
+              <th>
+                <div class="th-content">
+                  Status
+                  <svg class="header-sort-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg>
+                </div>
+              </th>
               <th style="text-align: right;">Action</th>
             </tr>
           </thead>

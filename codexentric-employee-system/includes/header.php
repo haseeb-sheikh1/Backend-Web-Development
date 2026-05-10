@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($title) ? $title : "CodeXentric HRM"; ?></title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../styles/global.css">
 
     <?php if (isset($extra_css) && !empty($extra_css)): ?>
@@ -62,7 +62,7 @@
         --sidebar-border: #17293f;
         --body-bg:      #f4f6f9;
         --text-primary: #111827;
-        --font:         'Source Sans 3', sans-serif;
+        --font:         'Nunito Sans', sans-serif;
     }
 
     html, body {
@@ -92,7 +92,7 @@
         position: fixed;
         top: 0;
         left: 0;
-        z-index: 200;
+        z-index: 500;
         border-right: 1px solid var(--sidebar-border);
         overflow-y: auto;
         overflow-x: hidden;
@@ -132,7 +132,7 @@
         flex-shrink: 0;
         position: sticky;
         top: 0;
-        z-index: 100;
+        z-index: 400;
         box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
 
@@ -257,22 +257,35 @@
    SUB-HEADER BAR
 ══════════════════════════════════ */
 .sub-header-bar {
-    height: 54px;
-    background: #ffffff;
-    border-bottom: 1px solid #e2e8f0;
+    height: 52px;
+    background: linear-gradient(to bottom, #fcfdfe, #f8fafc); /* Subtle premium sheen from image */
+    border-bottom: 1px solid #eef2f6;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    padding: 0 20px;
+    justify-content: space-between;
+    padding: 0 24px;
     flex-shrink: 0;
 }
 
+.sub-header-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--brand-green); /* Swapped to your signature green */
+    background: rgba(24, 109, 85, 0.08); /* Super soft pastel variant mimicking reference image */
+    padding: 6px 18px;
+    border-radius: 30px; /* Highly curved pill capsule */
+    letter-spacing: 0.2px;
+    display: inline-flex;
+    align-items: center;
+    box-shadow: inset 0 0 0 1px rgba(24, 109, 85, 0.05);
+}
+
 .help-btn {
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    background: #ffffff;
-    border: 1.5px solid #cbd5e1;
+    background: #eff2f6;
+    border: none;
     color: #64748b;
     font-size: 16px;
     font-weight: 700;
@@ -284,9 +297,8 @@
     transition: all 0.2s ease;
 }
 .help-btn:hover {
-    background: #f0fdf4;
-    border-color: var(--brand-green);
-    color: var(--brand-green);
+    background: #e2e8f0;
+    color: #475569;
 }
     .sidebar-link svg {
         width: 16px; height: 16px;
@@ -537,9 +549,12 @@
                 <button id="mobileSidebarToggle" class="mobile-toggle-btn" aria-label="Toggle sidebar">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                 </button>
-                <span class="topbar-page-title">
-                    <?php echo isset($title) ? htmlspecialchars($title) : 'Dashboard'; ?>
-                </span>
+                <div class="topbar-breadcrumb" style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 500; color: #94a3b8; letter-spacing: 0.4px;">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.8;"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    <span style="color: #475569; font-weight: 700; text-transform: none;">CodeXentric</span>
+                    <span style="color: #cbd5e1; font-weight: 300; font-size: 14px;">/</span>
+                    <span style="opacity: 0.8;">Portal</span>
+                </div>
             </div>
 
             <div class="topbar-right">
@@ -573,10 +588,12 @@
                         <svg class="dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                         Settings
                     </a>
-                    <a href="../pages/update_profile.php" class="dropdown-item">
-                        <svg class="dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                        Profile
+                    <?php if ($is_admin): ?>
+                    <a href="../pages/help.php" class="dropdown-item">
+                        <svg class="dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        Support
                     </a>
+                    <?php endif; ?>
                     <div class="dropdown-divider"></div>
                     <a href="../pages/logout.php" class="dropdown-item dropdown-item-danger">
                         <svg class="dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
@@ -585,10 +602,15 @@
                 </div>
             </div>
         </header>
-        <!-- SUB-HEADER BAR -->
-<div class="sub-header-bar">
-    <a href="../pages/help.php" class="help-btn" title="System Help Center">?</a>
-</div>
+        <!-- SUB-HEADER BAR - Global dynamic integration -->
+        <div class="sub-header-bar">
+            <h1 class="sub-header-title">
+                <?php echo isset($title) ? htmlspecialchars($title) : 'System Overview'; ?>
+            </h1>
+            <?php if ($is_admin): ?>
+            <a href="../pages/help.php" class="help-btn" title="System Help Center">?</a>
+            <?php endif; ?>
+        </div>
 
         <!-- MAIN CONTENT -->
         <main class="main-content" role="main">

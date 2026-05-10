@@ -2,9 +2,13 @@
     session_start();
 
     if (!isset($_SESSION['email'])) {
-    header("Location: login.php");
-    exit();
-}
+        header("Location: login.php");
+        exit();
+    }
+    if (!isset($_SESSION['role_id']) || $_SESSION['role_id'] != '1') {
+        header("Location: employee_dashboard.php");
+        exit();
+    }
 
     $user_role = "admin"; 
     $current_page = "payroll";

@@ -4,6 +4,10 @@
         header("Location: login.php");
         exit();
     }
+    if (!isset($_SESSION['role_id']) || $_SESSION['role_id'] != '1') {
+        header("Location: employee_dashboard.php");
+        exit();
+    }
 
     $title     = "Salary Reports";
     $extra_css = "salary_reports";
@@ -305,6 +309,7 @@
 .action-trigger-group {
   display: flex;
   justify-content: flex-end;
+  gap: 8px; /* Space between multiple icons */
 }
 
 .action-icon-btn {
@@ -438,8 +443,11 @@
                                 <td class="val-net">Rs <?php echo number_format($row_net); ?></td>
                                 <td>
                                     <div class="action-trigger-group">
-                                        <a href="salary_invoice.php?employeeId=<?php echo urlencode($row['user_id']); ?>&month=<?php echo urlencode(date('Y-m', strtotime($row['payroll_month']))); ?>" class="action-icon-btn" title="View Salary Slip" target="_blank">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                        <a href="salary_invoice.php?employeeId=<?php echo urlencode($row['user_id']); ?>&month=<?php echo urlencode(date('Y-m', strtotime($row['payroll_month']))); ?>" class="action-icon-btn" title="View Details" target="_blank">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        </a>
+                                        <a href="download_invoice.php?employeeId=<?php echo urlencode($row['user_id']); ?>&month=<?php echo urlencode(date('Y-m', strtotime($row['payroll_month']))); ?>" class="action-icon-btn" title="Download HD PDF">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                                         </a>
                                     </div>
                                 </td>
@@ -503,8 +511,11 @@
                                 <td class="val-net">Rs <?php echo number_format($row['base_salary'] + $row['total_bonuses'] + $row_allowances - $row['total_deductions']); ?></td>
                                 <td>
                                     <div class="action-trigger-group">
-                                        <a href="salary_invoice.php?employeeId=<?php echo urlencode($selected_user_id); ?>&month=<?php echo urlencode(date('Y-m', strtotime($row['payroll_month']))); ?>" class="action-icon-btn" title="View Salary Slip">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                        <a href="salary_invoice.php?employeeId=<?php echo urlencode($selected_user_id); ?>&month=<?php echo urlencode(date('Y-m', strtotime($row['payroll_month']))); ?>" class="action-icon-btn" title="View Details" target="_blank">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        </a>
+                                        <a href="download_invoice.php?employeeId=<?php echo urlencode($selected_user_id); ?>&month=<?php echo urlencode(date('Y-m', strtotime($row['payroll_month']))); ?>" class="action-icon-btn" title="Download HD PDF">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                                         </a>
                                     </div>
                                 </td>

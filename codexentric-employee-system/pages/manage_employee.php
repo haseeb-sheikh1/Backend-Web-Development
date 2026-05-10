@@ -1,5 +1,14 @@
 <?php
 session_start();
+
+if (!isset($_SESSION['email'])) {
+    header("Location: login.php");
+    exit();
+}
+if (!isset($_SESSION['role_id']) || $_SESSION['role_id'] != '1') {
+    header("Location: employee_dashboard.php");
+    exit();
+}
     $current_page = "manage_employees";
     $extra_css    = "manage_employee";
     $title        = "Manage Employee - CodeXentric";
@@ -336,18 +345,18 @@ session_start();
 }
 
 .profile-avatar-wrapper {
-    width: 120px;
-    height: 120px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
     background: #186D55;
     color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 36px;
+    font-size: 32px;
     font-weight: 700;
     border: 1px solid #e2e8f0;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 }
 
 .profile-sidebar h2 {
@@ -361,7 +370,7 @@ session_start();
 .profile-sidebar p {
     font-size: 11px;
     color: #64748b;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-weight: 700;
@@ -403,14 +412,14 @@ session_start();
     background: #fff;
     border-radius: 12px;
     border: 1px solid #e2e8f0;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
     overflow: hidden;
     box-shadow: 0 2px 10px rgba(0,0,0,0.02);
     scroll-margin-top: 20px;
 }
 
 .section-header {
-    padding: 20px 24px;
+    padding: 14px 20px;
     border-bottom: 1px solid #f1f5f9;
 }
 
@@ -422,18 +431,18 @@ session_start();
 }
 
 .section-body {
-    padding: 24px;
+    padding: 16px 20px;
 }
 
 /* ── Modern Grid & Forms ── */
 .modern-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+    gap: 16px;
 }
 
 .form-field {
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 }
 
 .form-field.full {
@@ -445,16 +454,16 @@ session_start();
     font-size: 13px;
     font-weight: 600;
     color: #64748b;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
 }
 
 .modern-input {
     width: 100%;
-    height: 44px;
-    padding: 0 16px;
+    height: 38px;
+    padding: 0 20px;
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 14px;
+    border-radius: 20px; /* Sleek rounded pill profile */
+    font-size: 13.5px;
     color: #1e293b;
     background: #f8fafc;
     transition: all 0.2s;
@@ -465,8 +474,8 @@ session_start();
 
 .btn-hero {
   height: 40px;
-  padding: 0 16px;
-  border-radius: 8px;
+  padding: 0 24px; /* Wider padding for capsules */
+  border-radius: 25px; /* Rounded pills matching reference */
   font-size: 13px;
   font-weight: 700;
   display: inline-flex;
@@ -478,14 +487,14 @@ session_start();
 }
 
 .btn-hero-primary {
-  background: var(--brand-orange);
+  background: var(--brand-green); /* Switching to uniform brand green */
   color: #fff;
   border: none;
-  box-shadow: 0 4px 12px rgba(255, 123, 29, 0.15);
+  box-shadow: 0 4px 12px rgba(24, 109, 85, 0.15);
 }
 
 .btn-hero-primary:hover {
-  background: var(--brand-orange-hover);
+  background: #125542;
   transform: translateY(-1px);
 }
 
@@ -493,6 +502,7 @@ session_start();
   background: #fff;
   color: #ef4444;
   border: 1px solid #fee2e2;
+  border-radius: 25px; /* Also rounding the warning pill */
 }
 
 .btn-hero-warn:hover {
@@ -572,17 +582,17 @@ session_start();
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .emp-stat {
   background: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 18px 24px;
+  padding: 12px 20px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.02);
 }
 

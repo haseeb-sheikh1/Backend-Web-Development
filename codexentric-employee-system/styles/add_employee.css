@@ -66,9 +66,9 @@
 /* ── Form Grid ── */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-  margin-bottom: 20px;
+  grid-template-columns: 1fr; /* Stack widgets vertically, make them wide like reference */
+  gap: 24px;
+  margin-bottom: 24px;
 }
 
 @media (max-width: 900px) {
@@ -114,24 +114,24 @@
 /* ── Form Elements ── */
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(3, 1fr); /* High density grid row matching screenshot */
+  gap: 20px 24px; /* Horizontal and vertical spacing precisely tuned */
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px; /* Slightly larger vertical gap between label and input like reference */
 }
 
 .form-group.span-full {
-  grid-column: span 2;
+  grid-column: span 3;
 }
 
 .form-group label {
   font-size: 13px;
-  font-weight: 700;
-  color: var(--text-main);
+  font-weight: 600; /* Semi-bold and sleek like screenshot */
+  color: #4f5e6d; /* The specific softer slate-grey used in enterprise HRM systems */
 }
 
 .form-group .req {
@@ -139,14 +139,14 @@
 }
 
 .form-input, .form-select {
-  height: 44px; /* Perfectly matched to global premium heights */
-  padding: 0 16px;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 22px; /* Beautifully aligned rounded profiles */
+  height: 38px;
+  padding: 0 14px;
+  border: 1px solid #dce1e9; /* Refined lighter border profile */
+  border-radius: 12px; /* Fully realized soft corners from the reference image */
   font-size: 13.5px;
   color: var(--text-main);
   background-color: #ffffff;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.25s ease;
   width: 100%;
   box-sizing: border-box;
 }
@@ -155,11 +155,12 @@
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  /* Using the custom 'island-box' SVG icon to perfectly match reference */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Crect x='1' y='1' width='30' height='30' rx='8' fill='%23eff2f6'/%3E%3Cpath d='M11 14l5 5 5-5' stroke='%2364748b' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 14px center;
-  background-size: 15px;
-  padding-right: 38px;
+  background-position: right 4px center;
+  background-size: 30px 30px;
+  padding-right: 40px;
   cursor: pointer;
 }
 
@@ -182,24 +183,26 @@
 /* ── Production Grade Calendar Picker Indicator ── */
 .form-input[type="date"] {
   position: relative;
+  padding-right: 6px;
   cursor: pointer;
 }
 
 .form-input[type="date"]::-webkit-calendar-picker-indicator {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23186D55' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23556479' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-size: 16px;
+  background-size: 14px;
   background-position: center;
+  background-color: #eff2f6; /* Matching the box in reference image */
   cursor: pointer;
-  width: 18px;
-  height: 18px;
-  opacity: 0.85;
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  margin: 0;
+  transition: background-color 0.15s ease;
 }
 
 .form-input[type="date"]::-webkit-calendar-picker-indicator:hover {
-  opacity: 1;
-  transform: scale(1.05);
+  background-color: #e2e8f0;
 }
 
 /* ── Alerts ── */
@@ -233,30 +236,32 @@
 /* ── Form Footer ── */
 .form-footer {
   display: flex;
-  justify-content: flex-start;
-  padding-top: 10px;
+  justify-content: flex-end; /* Aligned right like the reference image */
+  padding-top: 20px;
+  gap: 12px;
 }
 
 .btn-brand {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 24px;
-  background: var(--brand-green);
+  justify-content: center;
+  gap: 10px; /* Perfectly spaced icon and text */
+  height: 38px;
+  padding: 0 32px;
+  background: var(--brand-green); /* Restore to company logo green */
   color: #fff;
   border: none;
-  border-radius: 10px;
+  border-radius: 25px; /* Keeps the elegant capsule profile */
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 4px 12px rgba(24, 109, 85, 0.15);
+  transition: all 0.2s ease;
 }
 
 .btn-brand:hover {
-  background: #11523F;
+  background: #125542; /* Darkened brand green for hover depth */
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(24, 109, 85, 0.25);
+  box-shadow: 0 4px 12px rgba(24, 109, 85, 0.3);
 }
 
 @media (max-width: 600px) {
