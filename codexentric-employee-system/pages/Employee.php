@@ -133,7 +133,7 @@ class Employee
   }
   public function getBasicEmployeeDetails()
   {
-    $query = "SELECT u.first_name, u.last_name, u.email, e.position_title, e.department, e.status, e.date_of_joining, u.user_id
+    $query = "SELECT u.first_name, u.last_name, u.email, e.position_title, e.department, e.status, e.date_of_joining, e.base_salary_rs, u.user_id
           From users u
           JOIN employees e ON u.user_id = e.user_id";
 
@@ -372,7 +372,7 @@ class Employee
 }
 
    public function searchEmployee($keyword = "", $department = "", $status = "", $limit = 3, $offset = 0) {
-    $query = "SELECT u.user_id, u.first_name, u.last_name, u.email, e.position_title, e.department, e.status, e.date_of_joining 
+    $query = "SELECT u.user_id, u.first_name, u.last_name, u.email, e.position_title, e.department, e.status, e.date_of_joining, e.base_salary_rs 
               FROM users u
               JOIN employees e ON u.user_id = e.user_id
               WHERE 1=1";

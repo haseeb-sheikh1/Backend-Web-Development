@@ -17,6 +17,36 @@
         <link rel="stylesheet" href="../styles/<?php echo htmlspecialchars($extra_css); ?>.css">
     <?php endif; ?>
 
+    <!-- Production Grade Calendar Architecture Assets -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
+    <style>
+        /* Flatpickr Overrides to enforce User Green Theme */
+        .flatpickr-calendar {
+            border-radius: 14px !important;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.12) !important;
+            border: 1px solid rgba(0,0,0,0.05) !important;
+            font-family: 'Nunito Sans', sans-serif !important;
+            padding: 8px;
+        }
+        .flatpickr-day.selected, .flatpickr-day.selected:hover {
+            background: #186D55 !important;
+            border-color: #186D55 !important;
+            color: #fff !important;
+        }
+        .flatpickr-months .flatpickr-month { background: #fff !important; color: #1e293b !important; }
+        .flatpickr-current-month .flatpickr-monthDropdown-months { font-weight: 700 !important; }
+        .flatpickr-weekday { color: #64748b !important; font-weight: 700 !important; font-size: 12px !important; }
+        .flatpickr-day.today { border-color: #186D55 !important; color: #186D55 !important; }
+        
+        /* Month Plugin Override */
+        .flatpickr-monthSelect-month.selected {
+            background: #186D55 !important;
+            border-color: #186D55 !important;
+            color: #fff !important;
+        }
+    </style>
+
     <style>
     /* ═══════════════════════════════════════════════
        RESET & ROOT
@@ -30,7 +60,7 @@
         --topbar-h:     66px; /* Updated to 66px (50px content + 8px top/bottom padding) */
         --sidebar-bg:   #0f1c2e;
         --sidebar-border: #17293f;
-        --body-bg:      #f0f4fa;
+        --body-bg:      #f4f6f9;
         --text-primary: #111827;
         --font:         'Source Sans 3', sans-serif;
     }
@@ -329,46 +359,105 @@
     }
     .topbar-user[aria-expanded="true"] .topbar-chevron { transform: rotate(180deg); }
 
-    /* Dropdown */
+    /* Dropdown CSS Redesign */
     .dropdown-menu {
-        display: none;
+        display: block;
+        opacity: 0;
+        transform: translateY(10px) scale(0.95);
+        pointer-events: none;
         position: absolute;
         top: calc(100% + 8px);
         right: 0;
-        background: #fff;
-        border: 1px solid #e5eaf2;
-        border-radius: 10px;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-        width: 210px;
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        border-radius: 14px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.02);
+        width: 215px;
         overflow: hidden;
         z-index: 300;
+        transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .dropdown-menu.show { display: block; }
+    .dropdown-menu.show {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+    }
 
     .dropdown-header {
-        padding: 14px 16px 12px;
-        background: #f8fafc;
-        border-bottom: 1px solid #eef1f6;
+        padding: 18px 18px 14px;
+        background: linear-gradient(135deg, rgba(24, 109, 85, 0.04) 0%, rgba(24, 109, 85, 0.005) 100%);
+        border-bottom: 1px solid #eef2f6;
     }
-    .dropdown-header .user-name  { font-size: 14px; font-weight: 600; color: #111827; }
-    .dropdown-header .user-role  { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--brand-green); margin-top: 3px; }
-    .dropdown-header .user-id    { font-size: 11.5px; color: #9ca3af; margin-top: 3px; }
+    .dropdown-header .user-name {
+        font-size: 15px;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+        line-height: 1.2;
+    }
+    .dropdown-header .user-role {
+        display: inline-block;
+        font-size: 9px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        color: var(--brand-green);
+        background: rgba(24, 109, 85, 0.08);
+        padding: 2.5px 8px;
+        border-radius: 6px;
+        margin-top: 6px;
+        line-height: 1;
+    }
+    .dropdown-header .user-id {
+        font-size: 11px;
+        font-weight: 600;
+        color: #94a3b8;
+        margin-top: 6px;
+        margin-bottom: 0;
+        line-height: 1;
+    }
 
     .dropdown-item {
         display: flex;
         align-items: center;
-        gap: 9px;
-        padding: 10px 16px;
-        color: #374151;
+        gap: 10px;
+        padding: 11px 18px;
+        color: #475569;
         text-decoration: none;
-        font-size: 13px;
-        font-weight: 500;
-        transition: background .12s;
+        font-size: 13.5px;
+        font-weight: 600;
+        transition: all 0.15s ease;
     }
-    .dropdown-item:hover { background: #f5f7fb; }
-    .dropdown-divider { height: 1px; background: #eef1f6; }
-    .dropdown-item-danger { color: #dc2626; }
-    .dropdown-item-danger:hover { background: #fef2f2; color: #b91c1c; }
+    
+    .dropdown-icon {
+        width: 15px;
+        height: 15px;
+        stroke: currentColor;
+        stroke-width: 2.2;
+        flex-shrink: 0;
+        transition: transform 0.15s ease;
+    }
+
+    .dropdown-item:hover {
+        background: #f8fafc;
+        color: var(--brand-green);
+    }
+    .dropdown-item:hover .dropdown-icon {
+        transform: translateX(1.5px);
+    }
+
+    .dropdown-divider {
+        height: 1px;
+        background: #eef2f6;
+    }
+    
+    .dropdown-item-danger {
+        color: #ef4444;
+    }
+    .dropdown-item-danger:hover {
+        background: #fef2f2;
+        color: #dc2626;
+    }
 
     /* ══════════════════════════════════
        MOBILE  
@@ -480,10 +569,19 @@
                             <p class="user-id">CEMS-<?php echo htmlspecialchars($_SESSION['user_id']); ?></p>
                         <?php endif; ?>
                     </div>
-                    <a href="../pages/settings.php" class="dropdown-item">Settings</a>
-                    <a href="../pages/update_profile.php" class="dropdown-item">Profile</a>
+                    <a href="../pages/settings.php" class="dropdown-item">
+                        <svg class="dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                        Settings
+                    </a>
+                    <a href="../pages/update_profile.php" class="dropdown-item">
+                        <svg class="dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        Profile
+                    </a>
                     <div class="dropdown-divider"></div>
-                    <a href="../pages/logout.php" class="dropdown-item dropdown-item-danger">Logout</a>
+                    <a href="../pages/logout.php" class="dropdown-item dropdown-item-danger">
+                        <svg class="dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        Logout
+                    </a>
                 </div>
             </div>
         </header>

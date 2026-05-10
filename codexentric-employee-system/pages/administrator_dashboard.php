@@ -32,15 +32,15 @@ include_once "../includes/sidebar.php";
 <style>
 /* ── OrangeHRM Style Token System ── */
 :root {
-  --bg: #f1f5f9; /* Slightly different neutral shade */
+  --bg: #f4f6f9; /* Crisp, premium light grey-blue background from reference */
   --card-bg: #ffffff;
-  --border: #e2e8f0;
+  --border: #eef2f6; /* Very soft, clean border */
   --text-main: #334155;
   --text-muted: #64748b;
   --brand-orange: #ff7b1d;
   --brand-orange-hover: #e66a15;
   --brand-green: #186D55;
-  --icon-bg: #f1f5f9;
+  --icon-bg: #f4f6f9;
   --font-body: 'Nunito Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
@@ -133,29 +133,31 @@ body {
 /* ── Widget Cards ── */
 .widget-card {
   background: var(--card-bg);
-  border-radius: 12px;
+  border-radius: 20px; /* Highly rounded corners to match reference */
   border: 1px solid var(--border);
-  box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.03); /* Soft, elegant shadow to match reference */
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
 .widget-card.roster-card {
-  background: #f8fafc; /* Subtle gray to make white pills pop */
-  border: none;
-  box-shadow: none;
+  background: #ffffff; /* Uniform clean background */
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.03);
 }
 
 .widget-header {
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border);
+  padding: 20px 24px;
+  background: #ffffff; /* Transparent/white header from reference */
+  border-bottom: 1px solid #f8fafc;
   display: flex;
   align-items: center;
   gap: 10px;
   font-size: 14px;
-  font-weight: 600;
-  color: #4a5568;
+  font-weight: 700;
+  color: #1e293b;
 }
 
 .widget-header svg {
@@ -167,7 +169,7 @@ body {
 }
 
 .widget-body {
-  padding: 20px;
+  padding: 24px;
   flex: 1;
 }
 

@@ -1,8 +1,8 @@
 /* ── Company Expense Manager Stylesheet ── */
 :root {
-  --bg: #f1f5f9;
+  --bg: #f4f6f9;
   --card-bg: #ffffff;
-  --border: #e2e8f0;
+  --border: #eef2f6;
   --text-main: #334155;
   --text-muted: #64748b;
   --brand-orange: #186D55; /* Now using green for brand consistency */
@@ -35,10 +35,10 @@
 
 .summary-card {
   background: var(--card-bg);
-  border-radius: 12px;
+  border-radius: 20px; /* Highly rounded corners */
   border: 1px solid var(--border);
   padding: 20px 24px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.03); /* Soft premium shadow */
   display: flex;
   align-items: center;
   gap: 16px;
@@ -110,17 +110,17 @@
 /* ── Widget Card styling ── */
 .widget-card {
   background: var(--card-bg);
-  border-radius: 12px;
+  border-radius: 20px; /* Highly rounded corners */
   border: 1px solid var(--border);
-  box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.03); /* Soft premium shadow */
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
 .widget-header {
-  background: #f8fafc;
-  padding: 14px 20px;
+  background: #ffffff; /* White header background */
+  padding: 20px 24px;
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
@@ -147,7 +147,7 @@
 }
 
 .widget-body {
-  padding: 20px;
+  padding: 24px; /* Generous padding */
 }
 
 /* ── Add Bill Form ── */

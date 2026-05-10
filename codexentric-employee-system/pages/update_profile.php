@@ -246,42 +246,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     position: relative;
 }
 
-.modern-input {
+.modern-input, .modern-select {
     width: 100%;
-    height: 44px;
+    height: 42px; /* Matching add_employee height */
     padding: 0 16px;
     border: 1px solid #e2e8f0;
-    border-radius: 8px;
+    border-radius: 10px; /* Matching modern 10px rounded corners */
     font-size: 14px;
     color: #1e293b;
+    background-color: #ffffff;
     font-family: inherit;
-    transition: all 0.2s;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-sizing: border-box;
 }
 
-.modern-input:focus {
+.modern-input:focus, .modern-select:focus {
     border-color: var(--brand-green);
-    box-shadow: 0 0 0 3px rgba(24, 109, 85, 0.1);
+    box-shadow: 0 0 0 3px rgba(24, 109, 85, 0.12);
     outline: none;
 }
 
 .modern-select {
-    width: 100%;
-    height: 44px;
-    padding: 0 16px;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 14px;
-    color: #1e293b;
-    background: #fff;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 12px center;
+    background-position: right 14px center;
+    background-size: 15px;
+    padding-right: 38px;
+    cursor: pointer;
 }
 
-.modern-select:focus {
-    border-color: var(--brand-green);
-    outline: none;
+/* ── Calendar Picker Indicator Styling ── */
+.modern-input[type="date"] {
+    position: relative;
+    cursor: pointer;
+}
+
+.modern-input[type="date"]::-webkit-calendar-picker-indicator {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23186D55' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: 16px;
+    background-position: center;
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    opacity: 0.85;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.modern-input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+    transform: scale(1.05);
 }
 
 .modern-btn-primary {
@@ -504,16 +521,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
                         <div class="modern-grid">
                             <div class="form-field">
                                 <label>Position Title <span class="req">*</span></label>
-                                <input type="text" name="position_title" class="modern-input" value="<?php echo htmlspecialchars($employee['position_title']); ?>" required>
+                                <select name="position_title" class="modern-select" required>
+                                    <option value="Backend Developer" <?php echo ($employee['position_title'] == 'Backend Developer') ? 'selected' : ''; ?>>Backend Developer</option>
+                                    <option value="Frontend Developer" <?php echo ($employee['position_title'] == 'Frontend Developer') ? 'selected' : ''; ?>>Frontend Developer</option>
+                                    <option value="Backend intern" <?php echo ($employee['position_title'] == 'Backend intern') ? 'selected' : ''; ?>>Backend intern</option>
+                                    <option value="Senior Backend Developer" <?php echo ($employee['position_title'] == 'Senior Backend Developer') ? 'selected' : ''; ?>>Senior Backend Developer</option>
+                                </select>
                             </div>
                             <div class="form-field">
                                 <label>Department <span class="req">*</span></label>
                                 <select name="department" class="modern-select" required>
                                     <option value="Software Engineering" <?php echo ($employee['department'] == 'Software Engineering') ? 'selected' : ''; ?>>Software Engineering</option>
-                                    <option value="Marketing"            <?php echo ($employee['department'] == 'Marketing')            ? 'selected' : ''; ?>>Marketing</option>
                                     <option value="Design"               <?php echo ($employee['department'] == 'Design')               ? 'selected' : ''; ?>>Design</option>
-                                    <option value="Human Resources"      <?php echo ($employee['department'] == 'Human Resources')      ? 'selected' : ''; ?>>Human Resources</option>
-                                    <option value="Quality Assurance"    <?php echo ($employee['department'] == 'Quality Assurance')    ? 'selected' : ''; ?>>Quality Assurance</option>
                                 </select>
                             </div>
                             <div class="form-field">
@@ -522,15 +541,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
                                     <option value="Full-time"  <?php echo ($employee['employment_type'] == 'Full-time')  ? 'selected' : ''; ?>>Full-time</option>
                                     <option value="Part-time"  <?php echo ($employee['employment_type'] == 'Part-time')  ? 'selected' : ''; ?>>Part-time</option>
                                     <option value="Contract"   <?php echo ($employee['employment_type'] == 'Contract')   ? 'selected' : ''; ?>>Contract</option>
-                                    <option value="Temporary"  <?php echo ($employee['employment_type'] == 'Temporary')  ? 'selected' : ''; ?>>Temporary</option>
                                 </select>
                             </div>
                             <div class="form-field">
                                 <label>Employment Status <span class="req">*</span></label>
                                 <select name="status" class="modern-select" required>
-                                    <option value="ACTIVE"     <?php echo ($employee['status'] == 'ACTIVE')     ? 'selected' : ''; ?>>Active</option>
-                                    <option value="ON_LEAVE"   <?php echo ($employee['status'] == 'ON_LEAVE')   ? 'selected' : ''; ?>>On Leave</option>
-                                    <option value="TERMINATED" <?php echo ($employee['status'] == 'TERMINATED') ? 'selected' : ''; ?>>Terminated</option>
+                                    <option value="Active"       <?php echo (strtolower($employee['status']) == 'active') ? 'selected' : ''; ?>>Active</option>
+                                    <option value="De-activated" <?php echo (strtolower($employee['status']) == 'de-activated' || strtolower($employee['status']) == 'deactivated') ? 'selected' : ''; ?>>De-activated</option>
                                 </select>
                             </div>
                         </div>

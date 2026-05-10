@@ -194,7 +194,7 @@ $html = '
                 </td>
                 <td class="invoice-details">
                     <strong>DATE:</strong> ' . date('M d, Y') . '<br>
-                    <strong>INVOICE NO:</strong> EMP-' . str_pad($selected_user_id, 4, '0', STR_PAD_LEFT) . '-' . date('mY', strtotime($selected_month . '-01')) . '<br>
+                    <strong>PAYSLIP NO:</strong> EMP-' . str_pad($selected_user_id, 4, '0', STR_PAD_LEFT) . '-' . date('mY', strtotime($selected_month . '-01')) . '<br>
                     <strong>PERIOD:</strong> ' . date('M Y', strtotime($selected_month . '-01')) . '
                 </td>
             </tr>

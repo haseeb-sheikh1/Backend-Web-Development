@@ -663,7 +663,7 @@ select.pr-input {
                                     <span class="badge badge-paid" style="padding:5px 14px;font-size:12px;">✓ Salary Disbursed</span>
                                     <a href="salary_invoice.php?employeeId=<?php echo urlencode($selected_employee_data['id']); ?>&month=<?php echo urlencode(date('Y-m', strtotime($current_payroll_month))); ?>" class="badge" style="padding:5px 14px;font-size:12px; background:#f0fdf4; border:1px solid #bbf7d0; color:#166534; text-decoration:none; display:inline-flex; align-items:center; gap:5px;" target="_blank">
                                         <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                                        View Invoice
+                                        Payroll Slip
                                     </a>
                                 <?php else: ?>
                                     <span class="badge badge-draft" style="padding:5px 14px;font-size:12px;">Pending</span>

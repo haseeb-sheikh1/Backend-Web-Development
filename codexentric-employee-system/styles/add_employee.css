@@ -2,9 +2,9 @@
 
 /* ── Style Tokens ── */
 :root {
-  --bg: #f1f5f9;
+  --bg: #f4f6f9;
   --card-bg: #ffffff;
-  --border: #e2e8f0;
+  --border: #eef2f6;
   --text-main: #334155;
   --text-muted: #64748b;
   --brand-orange: #ff7b1d;
@@ -80,15 +80,15 @@
 /* ── Widget Cards ── */
 .widget-card {
   background: var(--card-bg);
-  border-radius: 12px;
+  border-radius: 20px; /* Rounded corners like reference */
   border: 1px solid var(--border);
-  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.03); /* Soft elegant shadow */
   display: flex;
   flex-direction: column;
 }
 
 .widget-header {
-  padding: 16px 20px;
+  padding: 20px 24px;
   border-bottom: 1px solid var(--border);
   font-size: 14px;
   font-weight: 700;
@@ -96,8 +96,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #fcfcfd;
-  border-radius: 12px 12px 0 0;
+  background: #ffffff; /* White background to match reference */
+  border-radius: 20px 20px 0 0;
 }
 
 .widget-header svg {
@@ -107,7 +107,7 @@
 }
 
 .widget-body {
-  padding: 18px 20px;
+  padding: 24px; /* Generous padding */
   flex: 1;
 }
 
@@ -139,26 +139,67 @@
 }
 
 .form-input, .form-select {
-  height: 38px;
-  padding: 0 14px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 14px;
+  height: 44px; /* Perfectly matched to global premium heights */
+  padding: 0 16px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 22px; /* Beautifully aligned rounded profiles */
+  font-size: 13.5px;
   color: var(--text-main);
-  background: #fff;
-  transition: all 0.2s;
+  background-color: #ffffff;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   width: 100%;
   box-sizing: border-box;
+}
+
+.form-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 15px;
+  padding-right: 38px;
+  cursor: pointer;
+}
+
+.form-input:hover, .form-select:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
 }
 
 .form-input:focus, .form-select:focus {
   outline: none;
   border-color: var(--brand-green);
-  box-shadow: 0 0 0 3px rgba(24, 109, 85, 0.15);
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(24, 109, 85, 0.12), 0 4px 12px rgba(24, 109, 85, 0.05);
 }
 
 .form-input::placeholder {
   color: #cbd5e1;
+}
+
+/* ── Production Grade Calendar Picker Indicator ── */
+.form-input[type="date"] {
+  position: relative;
+  cursor: pointer;
+}
+
+.form-input[type="date"]::-webkit-calendar-picker-indicator {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23186D55' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: 16px;
+  background-position: center;
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  opacity: 0.85;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.form-input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  transform: scale(1.05);
 }
 
 /* ── Alerts ── */

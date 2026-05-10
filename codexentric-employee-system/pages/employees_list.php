@@ -48,33 +48,28 @@ $totalPages = ceil($total_employees / $limit);
         <!-- Search Section (Directory Style) -->
         <section class="search-section" aria-labelledby="directory-heading">
             <div class="search-card">
-                <div class="search-card-header">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brand-green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                    <h2 id="directory-heading">Employee Search</h2>
+                <div class="search-card-header" style="justify-content: space-between; width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brand-green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        <h2 id="directory-heading">Employees</h2>
+                    </div>
+                    <button type="button" class="collapse-btn-circle" style="background: #f1f5f9; border: none; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #475569;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+                    </button>
                 </div>
                 <div class="search-card-body">
                     <form method="GET" action="">
-                        <div class="search-grid">
+                        <div class="search-grid" style="grid-template-columns: repeat(3, 1fr);">
                             <div class="search-field">
-                                <label for="keyword">Employee Name</label>
+                                <label for="keyword">Keyword</label>
                                 <div class="input-wrap">
                                     <input 
                                         type="text" 
                                         name="keyword" 
                                         id="keyword" 
-                                        placeholder="Type for hints..."
+                                        placeholder="Name, Position, Status"
                                         value="<?php echo htmlspecialchars($_GET['keyword'] ?? ''); ?>"
                                     >
-                                </div>
-                            </div>
-                            <div class="search-field">
-                                <label for="status">Status</label>
-                                <div class="input-wrap">
-                                    <select name="status" id="status">
-                                        <option value="">-- Select --</option>
-                                        <option value="Active" <?php echo (isset($_GET['status']) && $_GET['status'] == 'Active') ? 'selected' : ''; ?>>Active</option>
-                                        <option value="Onboarding" <?php echo (isset($_GET['status']) && $_GET['status'] == 'Onboarding') ? 'selected' : ''; ?>>Onboarding</option>
-                                    </select>
                                 </div>
                             </div>
                             <div class="search-field">
@@ -84,8 +79,16 @@ $totalPages = ceil($total_employees / $limit);
                                         <option value="">-- Select --</option>
                                         <option value="Software Engineering" <?php echo (isset($_GET['department']) && $_GET['department'] == 'Software Engineering') ? 'selected' : ''; ?>>Software Engineering</option>
                                         <option value="Design" <?php echo (isset($_GET['department']) && $_GET['department'] == 'Design') ? 'selected' : ''; ?>>Design</option>
-                                        <option value="Quality Assurance" <?php echo (isset($_GET['department']) && $_GET['department'] == 'Quality Assurance') ? 'selected' : ''; ?>>Quality Assurance</option>
-                                        <option value="Human Resources" <?php echo (isset($_GET['department']) && $_GET['department'] == 'Human Resources') ? 'selected' : ''; ?>>Human Resources</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="search-field">
+                                <label for="status">Status</label>
+                                <div class="input-wrap">
+                                    <select name="status" id="status">
+                                        <option value="">-- Select --</option>
+                                        <option value="Active" <?php echo (isset($_GET['status']) && $_GET['status'] == 'Active') ? 'selected' : ''; ?>>Active</option>
+                                        <option value="De-activated" <?php echo (isset($_GET['status']) && $_GET['status'] == 'De-activated') ? 'selected' : ''; ?>>De-activated</option>
                                     </select>
                                 </div>
                             </div>
@@ -101,38 +104,67 @@ $totalPages = ceil($total_employees / $limit);
 
 
 
+        <!-- Actions pill-row and table -->
+        <div class="table-header-action-bar">
+            <a href="add_employee.php" class="btn-add-pill">+ Add</a>
+            <span class="records-count">(<?php echo $total_employees; ?>) Records Found</span>
+        </div>
+
         <!-- Employees Table -->
-        <section class="employees-section" style="margin-top: 40px;">
+        <section class="employees-section" style="margin-top: 10px;">
             <div class="table-wrapper">
                 <table class="employees-table" role="table" aria-label="Employees list">
                     <thead>
                         <tr>
+                            <th scope="col" class="check-col">
+                                <label class="custom-check-container">
+                                    <input type="checkbox">
+                                    <span class="checkmark"></span>
+                                </label>
+                            </th>
                             <th scope="col">
                                 <div class="th-content">
-                                    Personnel
-                                    <div class="sort-icon">
-                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
-                                    </div>
+                                    Employee Name
+                                    <svg class="header-sort-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg>
                                 </div>
                             </th>
-                            <th scope="col">Email</th>
-                            <th scope="col">Role</th>
-                            <th scope="col">Department</th>
-                            <th scope="col">Status</th>
+                            <th scope="col">
+                                <div class="th-content">
+                                    Position
+                                    <svg class="header-sort-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg>
+                                </div>
+                            </th>
+                            <th scope="col">
+                                <div class="th-content">
+                                    Base Salary
+                                    <svg class="header-sort-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg>
+                                </div>
+                            </th>
+                            <th scope="col">
+                                <div class="th-content">
+                                    Status
+                                    <svg class="header-sort-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg>
+                                </div>
+                            </th>
                             <th scope="col" style="text-align: right;">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="employeesTableBody">
                         <?php foreach ($allEmployees as $emp): ?>
                             <tr class="employee-row">
+                                <td class="check-col">
+                                    <label class="custom-check-container">
+                                        <input type="checkbox">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                </td>
                                 <td>
                                     <div class="emp-main-cell">
                                         <div class="emp-name-text"><?php echo htmlspecialchars($emp['first_name'] . ' ' . $emp['last_name']); ?></div>
                                     </div>
                                 </td>
-                                <td><?php echo htmlspecialchars($emp['email']); ?></td>
                                 <td><?php echo htmlspecialchars($emp['position_title'] ?? 'Staff'); ?></td>
-                                <td><?php echo htmlspecialchars($emp['department'] ?? 'General'); ?></td>
+                                <td>Rs <?php echo number_format((float)($emp['base_salary_rs'] ?? 0)); ?></td>
                                 <td>
                                     <?php 
                                         $raw_status = strtolower($emp['status'] ?? 'active');
@@ -154,8 +186,11 @@ $totalPages = ceil($total_employees / $limit);
                                 </td>
                                 <td style="text-align: right;">
                                     <div class="action-trigger-group">
-                                        <a href="manage_employee.php?id=<?php echo $emp['user_id'] ?? ''; ?>" class="action-icon-btn" title="Edit">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                                        <button type="button" class="action-icon-btn delete" title="Delete">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                                        </button>
+                                        <a href="manage_employee.php?id=<?php echo $emp['user_id'] ?? ''; ?>" class="action-icon-btn edit" title="Edit">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
                                         </a>
                                     </div>
                                 </td>
@@ -230,142 +265,129 @@ $totalPages = ceil($total_employees / $limit);
 
 <style>
 :root {
-  --bg: #f8fafc;
+  --bg: #f4f6f9;
   --card-bg: #ffffff;
-  --border: #e2e8f0;
+  --border: rgba(0, 0, 0, 0.05);
   --text-main: #334155;
   --text-muted: #64748b;
   --brand-orange: #ff7b1d;
-  --brand-orange-hover: #e66a15;
   --brand-green: #186D55;
   --font-body: 'Nunito Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
-.dashboard-container {
-  max-width: 1140px;
+.emp-list-page {
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px 24px 24px;
   font-family: var(--font-body);
 }
 
-/* ── Minimal Header ── */
-.dash-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center; /* Matches admin dashboard centering */
-  margin-bottom: 24px;
-}
-
-#search-heading {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--text-main);
-  margin: 0;
-  letter-spacing: -0.5px;
-}
-
-.dash-subtitle {
-  font-size: 14px;
-  color: var(--text-muted);
-  margin: 5px 0 0 0;
-}
-
-.btn-minimal {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  color: var(--text-main);
-  font-size: 13px;
-  font-weight: 700;
-  text-decoration: none;
-  transition: all 0.2s;
-}
-
-.btn-minimal:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-}
-
-/* ── Directory Search Card ── */
+/* ── Search Card ── */
 .search-card {
   background: var(--card-bg);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-  overflow: hidden;
-}
-
-
-#directory-heading {
-  font-size: 14px;
-  font-weight: 700;
-  color: #334155;
-  margin: 0;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+  overflow: visible; /* Permit floating dropdown lists */
+  position: relative;
+  z-index: 100;
 }
 
 .search-card-header {
-  padding: 16px 20px;
-  border-bottom: 1px solid #e2e8f0;
+  padding: 20px 24px;
+  border-bottom: 1px solid #f1f5f9;
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: #fcfcfd;
+  background: #ffffff;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+}
+
+#directory-heading {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
 }
 
 .search-card-body {
-  padding: 16px 20px;
+  padding: 24px;
 }
 
 .search-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin-bottom: 0;
+  grid-template-columns: repeat(3, 1fr); /* 3 columns precisely like reference image */
+  gap: 20px;
 }
 
 .search-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .search-field label {
   font-size: 13px;
-  font-weight: 700;
-  color: #475569;
-  margin-bottom: 8px;
+  font-weight: 600;
+  color: #64748b;
   display: block;
-}
-
-.input-wrap {
-  position: relative;
 }
 
 .search-field input,
 .search-field select {
   width: 100%;
-  height: 38px;
-  padding: 0 12px;
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-size: 14px;
+  height: 44px;
+  padding: 0 16px;
+  background: #fcfdfd;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 22px;
+  font-size: 13.5px;
+  font-weight: 500;
   color: #1e293b;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+}
+
+.search-field input:hover,
+.search-field select:hover {
+  border-color: #cbd5e1;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+
+.search-field select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 14px;
+  padding-right: 40px;
+  cursor: pointer;
+  accent-color: var(--brand-green);
+}
+
+.search-field select option {
+  background-color: #ffffff;
+  color: #1e293b;
+}
+
+.search-field select option:checked {
+  background-color: var(--brand-green) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 10px 100px var(--brand-green) inset; /* Comprehensive browser fill support */
 }
 
 .search-field input::placeholder {
-  color: #94a3b8;
+  color: #cbd5e1;
 }
 
 .search-field input:focus,
 .search-field select:focus {
   border-color: var(--brand-green);
-  box-shadow: 0 0 0 3px rgba(24, 109, 85, 0.1);
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(24, 109, 85, 0.12), 0 4px 12px rgba(24, 109, 85, 0.05);
   outline: none;
 }
 
@@ -373,60 +395,150 @@ $totalPages = ceil($total_employees / $limit);
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  padding-top: 16px;
-  margin-top: 16px;
-  border-top: 1px solid #f1f5f9;
+  margin-top: 24px;
+}
+
+.btn-reset {
+  background: #ffffff;
+  color: var(--brand-green);
+  border: 1px solid var(--brand-green);
+  border-radius: 20px;
+  padding: 10px 28px;
+  font-size: 13.5px;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.btn-reset:hover {
+  background: rgba(24, 109, 85, 0.05);
+  transform: translateY(-1px);
 }
 
 .btn-search {
   background: var(--brand-green);
-  color: #fff;
+  color: #ffffff;
   border: none;
-  border-radius: 6px;
-  padding: 8px 20px;
-  font-size: 13px;
+  border-radius: 20px;
+  padding: 10px 28px;
+  font-size: 13.5px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .btn-search:hover {
-  background: #125542;
+  background: #11523f;
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(24, 109, 85, 0.15);
 }
 
-.btn-reset {
-  background: #fff;
-  color: #64748b;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  padding: 8px 20px;
-  font-size: 13px;
-  font-weight: 700;
+/* ── Actions Row (Add Pill & Records Count) ── */
+.table-header-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 32px;
+  margin-bottom: 16px;
+  padding: 0 4px;
+}
+
+.btn-add-pill {
+  background: var(--brand-green);
+  color: #ffffff;
   text-decoration: none;
+  border-radius: 20px;
+  padding: 8px 24px;
+  font-size: 13.5px;
+  font-weight: 700;
   display: inline-flex;
   align-items: center;
+  gap: 6px;
   transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(24, 109, 85, 0.15);
 }
 
-.btn-reset:hover {
-  background: rgba(124, 179, 66, 0.05);
+.btn-add-pill:hover {
+  background: #11523f;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(24, 109, 85, 0.25);
 }
 
-/* ── Minimal Table ── */
+.records-count {
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* ── Custom Checkbox ── */
+.custom-check-container {
+  display: block;
+  position: relative;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.custom-check-container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0; width: 0;
+}
+
+.checkmark {
+  position: absolute;
+  top: 0; left: 0;
+  height: 18px; width: 18px;
+  background-color: #ffffff;
+  border: 2px solid #cbd5e1;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.custom-check-container:hover input ~ .checkmark {
+  border-color: var(--brand-green);
+}
+
+.custom-check-container input:checked ~ .checkmark {
+  background-color: var(--brand-green);
+  border-color: var(--brand-green);
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.custom-check-container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+.custom-check-container .checkmark:after {
+  left: 5px; top: 1.5px;
+  width: 4px; height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* ── Table Layout Overhaul ── */
 .table-wrapper {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  overflow: visible;
 }
 
 .employees-table {
   width: 100%;
   border-collapse: separate;
-  border-spacing: 0 10px;
-  margin-top: -10px;
+  border-spacing: 0 12px; /* Gap between separate rows exactly like screenshot */
 }
 
 .employees-table thead tr {
@@ -434,77 +546,61 @@ $totalPages = ceil($total_employees / $limit);
 }
 
 .employees-table th {
-  padding: 12px 20px;
+  padding: 12px 24px;
   text-align: left;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 700;
   color: #64748b;
   letter-spacing: 0.5px;
-  text-transform: uppercase;
-  border-bottom: none;
 }
 
 .th-content {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
-.sort-icon {
-  display: flex;
-  flex-direction: column;
-  opacity: 0.4;
+.header-sort-icon {
+  width: 12px;
+  height: 12px;
+  opacity: 0.5;
 }
 
 .employees-table td {
-  padding: 14px 20px;
-  color: #64748b;
+  padding: 16px 24px;
+  color: #475569;
   background: #ffffff;
-  border-top: 1px solid #e2e8f0;
-  border-bottom: 1px solid #e2e8f0;
+  border-top: 1px solid rgba(0, 0, 0, 0.04);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
   vertical-align: middle;
-  font-size: 13px;
+  font-size: 13.5px;
+  font-weight: 600;
   transition: all 0.2s;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.015);
 }
 
 .employees-table td:first-child {
-  border-left: 1px solid #e2e8f0;
-  border-top-left-radius: 50px;
-  border-bottom-left-radius: 50px;
-  padding-left: 30px;
+  border-left: 1px solid rgba(0, 0, 0, 0.04);
+  border-top-left-radius: 25px; /* Highly rounded row left edge exactly like screenshot */
+  border-bottom-left-radius: 25px;
+  padding-left: 28px;
 }
 
 .employees-table td:last-child {
-  border-right: 1px solid #e2e8f0;
-  border-top-right-radius: 50px;
-  border-bottom-right-radius: 50px;
-  padding-right: 30px;
+  border-right: 1px solid rgba(0, 0, 0, 0.04);
+  border-top-right-radius: 25px; /* Highly rounded row right edge exactly like screenshot */
+  border-bottom-right-radius: 25px;
+  padding-right: 28px;
 }
 
 .employees-table tbody tr:hover td {
-  background: #fcfcfd;
+  background: #fafbfc;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.025);
 }
 
 .check-col {
-  width: 50px;
-}
-
-.custom-check {
-  width: 18px;
-  height: 18px;
-  border-radius: 4px;
-  border: 2px solid #cbd5e1;
-  background: #fff;
-  cursor: pointer;
-}
-
-.employees-table tbody tr:hover {
-  background: #fcfcfd;
-}
-
-.employees-table tr:last-child td {
-  border-bottom: none;
+  width: 40px;
 }
 
 /* ── Employee Cell ── */
@@ -512,17 +608,6 @@ $totalPages = ceil($total_employees / $limit);
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-.emp-avatar-circle {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .emp-name-text {
@@ -537,9 +622,9 @@ $totalPages = ceil($total_employees / $limit);
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  font-weight: 500;
-  color: #64748b; /* Neutral text color */
-  text-transform: lowercase;
+  font-weight: 600;
+  color: #475569;
+  text-transform: capitalize;
 }
 
 .status-dot {
@@ -550,36 +635,41 @@ $totalPages = ceil($total_employees / $limit);
 }
 
 .status-indicator.active .status-dot { background: var(--brand-green); }
-.status-indicator.on-leave .status-dot { background: #ff7b1d; } /* Vibrant Brand Orange */
+.status-indicator.on-leave .status-dot { background: #ff7b1d; }
 .status-indicator.deactivated .status-dot { background: #ef4444; }
 
-/* ── Action Eye Icon ── */
+/* ── Action Buttons ── */
 .action-trigger-group {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 10px;
 }
 
 .action-icon-btn {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: #f1f5f9;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #64748b;
+  color: #475569;
   text-decoration: none;
-  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
 }
 
-.action-icon-btn:hover {
-  background: var(--brand-green);
-  color: #fff;
+.action-icon-btn.edit:hover {
+  background: #eaf5f2;
+  color: var(--brand-green);
+  transform: scale(1.08);
 }
 
 .action-icon-btn.delete:hover {
-  background: #ef4444;
+  background: #fef2f2;
+  color: #ef4444;
+  transform: scale(1.08);
 }
 
 /* ── Pagination (Screenshot Style) ── */
@@ -704,39 +794,39 @@ $totalPages = ceil($total_employees / $limit);
     background: none !important;
   }
   
-  /* First Cell (Employee Name) */
+  /* First Cell (Checkbox) */
   .employees-table td:nth-child(1) {
+    display: none !important;
+  }
+  
+  /* Second Cell (Employee Name) */
+  .employees-table td:nth-child(2) {
     border-bottom: 1px solid #f1f5f9 !important;
     padding-bottom: 12px !important;
     margin-bottom: 4px !important;
   }
   
   /* Dynamic labels matching screenshot exactly */
-  .employees-table td:nth-child(1)::before {
+  .employees-table td:nth-child(2)::before {
     content: "Employee Name" !important;
   }
   
-  .employees-table td:nth-child(2)::before {
-    content: "Username" !important;
+  .employees-table td:nth-child(3)::before {
+    content: "Position" !important;
   }
   
-  .employees-table td:nth-child(3)::before {
-    content: "User Role" !important;
+  .employees-table td:nth-child(4)::before {
+    content: "Base Salary" !important;
   }
   
   .employees-table td:nth-child(5)::before {
     content: "Status" !important;
   }
   
-  /* Hidden columns (like Department) on mobile for a clean look */
-  .employees-table td:nth-child(4) {
-    display: none !important;
-  }
-  
   /* Common label styles */
-  .employees-table td:nth-child(1)::before,
   .employees-table td:nth-child(2)::before,
   .employees-table td:nth-child(3)::before,
+  .employees-table td:nth-child(4)::before,
   .employees-table td:nth-child(5)::before {
     font-size: 11px !important;
     font-weight: 700 !important;
@@ -754,8 +844,9 @@ $totalPages = ceil($total_employees / $limit);
     color: #1e293b !important;
   }
   
-  .employees-table td:nth-child(2),
-  .employees-table td:nth-child(3) {
+  .employees-table td:nth-child(3),
+  .employees-table td:nth-child(4),
+  .employees-table td:nth-child(5) {
     font-size: 14px !important;
     color: #475569 !important;
     font-weight: 600 !important;
@@ -805,4 +896,5 @@ $totalPages = ceil($total_employees / $limit);
   }
 }
 </style>
+
 <?php include_once "../includes/footer.php"; ?>

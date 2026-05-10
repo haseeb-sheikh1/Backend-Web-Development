@@ -35,8 +35,8 @@ session_start();
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
                     </div>
-                    <h2>Account Deactivated</h2>
-                    <p>The employee account has been successfully deactivated and removed from active rosters.</p>
+                    <h2>Employee Deleted</h2>
+                    <p>The employee record has been successfully deleted and removed from the system.</p>
                     <a href="employees_list.php" class="feedback-btn success">
                         Back to Employee List
                     </a>
@@ -148,8 +148,8 @@ session_start();
                             <line x1="6" y1="6" x2="18" y2="18"></line>
                         </svg>
                     </div>
-                    <h2>Deactivation Failed</h2>
-                    <p>There was an unexpected error processing this employee deactivation. Please try again.</p>
+                    <h2>Deletion Failed</h2>
+                    <p>There was an unexpected error processing this employee deletion. Please try again.</p>
                     <a href="employees_list.php" class="feedback-btn error">
                         Back to Employee List
                     </a>
@@ -671,10 +671,10 @@ session_start();
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                   Update Profile
               </a>
-              <form action="" method="POST" style="width: 100%; margin: 0;">
-                  <button type="submit" class="btn-hero btn-hero-warn" name="deactivate" style="justify-content: center; width: 100%;">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-                      Deactivate Account
+              <form action="" method="POST" style="width: 100%; margin: 0;" id="delete-emp-form">
+                  <button type="submit" class="btn-hero btn-hero-warn" style="justify-content: center; width: 100%;">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                      Delete Employee
                   </button>
               </form>
           </div>
@@ -835,8 +835,120 @@ session_start();
                   }
               });
           });
+          // Modal functionality
+          const deleteForm = document.getElementById('delete-emp-form');
+          const deleteModal = document.getElementById('delete-modal');
+          const cancelBtn = document.getElementById('cancel-delete-btn');
+          const confirmBtn = document.getElementById('confirm-delete-btn');
+
+          if (deleteForm && deleteModal) {
+              deleteForm.addEventListener('submit', function(e) {
+                  e.preventDefault();
+                  deleteModal.style.display = 'flex';
+              });
+
+              cancelBtn.addEventListener('click', () => {
+                  deleteModal.style.display = 'none';
+              });
+
+              confirmBtn.addEventListener('click', () => {
+                  confirmBtn.innerHTML = '<span style="display:flex;align-items:center;gap:8px;justify-content:center;">Processing...</span>';
+                  confirmBtn.style.opacity = '0.7';
+                  confirmBtn.style.pointerEvents = 'none';
+                  
+                  const hiddenInp = document.createElement('input');
+                  hiddenInp.type = 'hidden';
+                  hiddenInp.name = 'deactivate';
+                  hiddenInp.value = '1';
+                  deleteForm.appendChild(hiddenInp);
+                  deleteForm.submit();
+              });
+
+              deleteModal.addEventListener('click', (e) => {
+                  if (e.target === deleteModal) deleteModal.style.display = 'none';
+              });
+          }
       });
   </script>
+
+  <!-- Production Modal Template -->
+  <div id="delete-modal" class="custom-modal-overlay" style="display:none;">
+      <div class="custom-modal-card">
+          <div class="custom-modal-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <h3 class="custom-modal-title">Delete Employee?</h3>
+          <p class="custom-modal-desc">
+              You are about to permanently delete <strong><?php echo htmlspecialchars($employee['first_name'] . ' ' . $employee['last_name']); ?></strong>. 
+              All records will be erased and this action cannot be reversed.
+          </p>
+          <div class="custom-modal-actions">
+              <button type="button" class="c-btn-cancel" id="cancel-delete-btn">Keep Employee</button>
+              <button type="button" class="c-btn-danger" id="confirm-delete-btn">Confirm Delete</button>
+          </div>
+      </div>
+  </div>
+
+  <style>
+      .custom-modal-overlay {
+          position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+          background: rgba(15, 23, 42, 0.65);
+          backdrop-filter: blur(6px);
+          display: flex; align-items: center; justify-content: center;
+          z-index: 9999;
+          animation: cFadeIn 0.2s ease-out;
+          font-family: 'Nunito Sans', sans-serif;
+      }
+      .custom-modal-card {
+          background: #ffffff; border-radius: 16px; padding: 32px;
+          width: 100%; max-width: 400px; text-align: center;
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+          border: 1px solid rgba(255,255,255,0.1);
+          animation: cSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          margin: 20px;
+      }
+      .custom-modal-icon {
+          width: 60px; height: 60px; border-radius: 50%;
+          background: #fef2f2; color: #dc2626;
+          display: flex; align-items: center; justify-content: center;
+          margin: 0 auto 20px auto;
+      }
+      .custom-modal-title {
+          font-size: 20px; font-weight: 800; color: #0f172a;
+          margin: 0 0 10px 0;
+      }
+      .custom-modal-desc {
+          font-size: 14px; color: #64748b; line-height: 1.6;
+          margin: 0 0 28px 0;
+      }
+      .custom-modal-actions {
+          display: flex; gap: 12px;
+      }
+      .c-btn-cancel, .c-btn-danger {
+          flex: 1; height: 46px; border-radius: 10px; font-size: 14px;
+          font-weight: 700; border: none; cursor: pointer;
+          transition: all 0.2s ease;
+      }
+      .c-btn-cancel {
+          background: #f1f5f9; color: #475569;
+      }
+      .c-btn-cancel:hover {
+          background: #e2e8f0; color: #1e293b;
+      }
+      .c-btn-danger {
+          background: #dc2626; color: #ffffff;
+          box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+      }
+      .c-btn-danger:hover {
+          background: #b91c1c; transform: translateY(-1px);
+          box-shadow: 0 6px 15px rgba(220, 38, 38, 0.35);
+      }
+      @keyframes cFadeIn { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes cSlideUp {
+          from { opacity: 0; transform: translateY(20px) scale(0.95); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+  </style>
 
 </div><!-- /.dashboard-container -->
 

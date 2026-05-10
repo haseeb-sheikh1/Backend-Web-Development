@@ -280,21 +280,21 @@ include_once "../includes/sidebar.php";
    Pill-Row Table Styles matching Salary Reports
    ══════════════════════════════════════════ */
 .rep-card {
-    background: #fff;
-    border-radius: 12px;
-    border: 1px solid #e2e8f0;
+    background: transparent;
+    border: none;
     margin-bottom: 24px;
-    overflow: hidden;
+    overflow: visible;
+    box-shadow: none;
     animation: fadeUp 0.3s ease both;
 }
 
 .rep-card-header {
-    padding: 12px 20px;
-    border-bottom: 1px solid #f1f5f9;
+    padding: 12px 0;
+    border-bottom: none;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: #fff;
+    background: transparent;
 }
 
 .rep-card-header .icon-brand {
@@ -312,7 +312,7 @@ include_once "../includes/sidebar.php";
     letter-spacing: 1px;
 }
 
-.rep-card-body { padding: 24px; }
+.rep-card-body { padding: 20px 0; }
 
 /* ── Container Override ── */
 .expenses-container {
@@ -549,9 +549,9 @@ include_once "../includes/sidebar.php";
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 20px;
-    background: #fff;
-    border-bottom: 1px solid #f1f5f9;
+    padding: 12px 0px;
+    background: transparent;
+    border-bottom: none;
 }
 
 .meta-person {
@@ -576,16 +576,17 @@ include_once "../includes/sidebar.php";
 }
 
 /* ── Pill-Row Table ── */
+/* ── Overhauled Premium Pill-Row Table ── */
 .rep-table {
     width: 100%;
-    border-spacing: 0 8px;
+    border-spacing: 0 12px;
     border-collapse: separate;
 }
 
 .rep-table thead th {
-    padding: 10px 20px;
+    padding: 12px 24px;
     text-align: left;
-    font-size: 11px;
+    font-size: 12.5px;
     font-weight: 800;
     color: #64748b;
     text-transform: uppercase;
@@ -593,40 +594,65 @@ include_once "../includes/sidebar.php";
 }
 
 .rep-table tbody tr {
-    background: #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
     transition: all 0.2s;
 }
 
-.rep-table tbody tr:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
-
 .rep-table td {
-    padding: 12px 20px;
-    border: 1px solid #e2e8f0;
-    border-left: none;
-    border-right: none;
-    font-size: 13.5px;
+    padding: 16px 24px;
+    background: #ffffff;
+    border-top: 1px solid rgba(0, 0, 0, 0.04);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
     color: #475569;
+    font-size: 13.5px;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.015);
+    vertical-align: middle;
+    transition: all 0.2s;
 }
 
 .rep-table td:first-child { 
-    border-left: 1px solid #e2e8f0;
-    border-radius: 12px 0 0 12px; 
-    padding-left: 25px;
+    border-left: 1px solid rgba(0, 0, 0, 0.04);
+    border-top-left-radius: 25px; 
+    border-bottom-left-radius: 25px; 
+    padding-left: 28px;
     font-weight: 700;
     color: #1e293b;
 }
 
 .rep-table td:last-child { 
-    border-right: 1px solid #e2e8f0;
-    border-radius: 0 12px 12px 0; 
-    padding-right: 25px;
+    border-right: 1px solid rgba(0, 0, 0, 0.04);
+    border-top-right-radius: 25px; 
+    border-bottom-right-radius: 25px; 
+    padding-right: 28px;
 }
 
-.val-net { color: var(--brand-orange); font-weight: 800; }
+.rep-table tbody tr:hover td {
+    background: #fafbfc;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.025);
+}
+
+/* Total Calculation Row (Footer Overhaul) */
+.rep-table tfoot tr td {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    font-weight: 800 !important;
+    color: #334155 !important;
+    box-shadow: none !important;
+    padding: 16px 24px;
+}
+.rep-table tfoot tr td:first-child {
+    border-top-left-radius: 25px;
+    border-bottom-left-radius: 25px;
+    border-right: none !important;
+}
+.rep-table tfoot tr td:last-child {
+    border-top-right-radius: 25px;
+    border-bottom-right-radius: 25px;
+    border-left: none !important;
+}
+
+.val-net { color: #1e293b; font-weight: 800; }
 .val-positive { color: #059669; }
 .val-negative { color: #ef4444; }
 
@@ -695,131 +721,7 @@ include_once "../includes/sidebar.php";
 
   <?php if ($report_generated): ?>
 
-  <!-- ── Modern Charts Row ── -->
-  <div class="chart-grid">
-      
-      <!-- 1. Burn Rate Trend Over Time (Line) -->
-      <div class="chart-card">
-          <div class="chart-card-header">
-              <span class="chart-card-title">6-Month Burn Rate Trend</span>
-              <div class="chart-legend">
-                  <div class="legend-item"><span class="dot" style="background:#186D55"></span> Actual Spend</div>
-                  <div class="legend-item"><span class="dot" style="background:rgba(199, 210, 254, 0.5)"></span> Avg. Area</div>
-              </div>
-          </div>
-          <div class="trend-stats">
-              <!-- Outflow / Burn -->
-              <div style="display:flex; align-items:center;">
-                  <div class="t-line" style="background:#186D55"></div>
-                  <div class="t-stat">
-                      <span class="t-label">Total Outflow</span>
-                      <span class="t-val">Rs <?php echo number_format($burn_rate); ?></span>
-                  </div>
-              </div>
-              <!-- Operating Expense -->
-              <div style="display:flex; align-items:center; border-left: 1px solid #f1f5f9; padding-left: 20px;">
-                  <div class="t-line" style="background:#C7D2FE"></div>
-                  <div class="t-stat">
-                      <span class="t-label">Operating spend</span>
-                      <span class="t-val">Rs <?php echo number_format($monthly_spend); ?></span>
-                  </div>
-              </div>
-              <!-- Pending -->
-              <div style="display:flex; align-items:center; border-left: 1px solid #f1f5f9; padding-left: 20px;">
-                  <div class="t-line" style="background:#ef4444"></div>
-                  <div class="t-stat">
-                      <span class="t-label">Pending Payments</span>
-                      <span class="t-val">Rs <?php echo number_format($pending_payments); ?></span>
-                  </div>
-              </div>
-              <!-- Top Category -->
-              <div style="display:flex; align-items:center; border-left: 1px solid #f1f5f9; padding-left: 20px;">
-                  <div class="t-line" style="background:#F59E0B"></div>
-                  <div class="t-stat">
-                      <span class="t-label">Top Category</span>
-                      <span class="t-val" style="font-size: 15px;"><?php echo htmlspecialchars($highest_expense_cat); ?></span>
-                  </div>
-              </div>
-          </div>
-          <div style="height: 120px; width: 100%;">
-              <canvas id="burnTrendChart"></canvas>
-          </div>
-      </div>
 
-      <!-- 2. Premium Monthly Expense Card -->
-      <div class="premium-card">
-          <div class="prem-header">
-              <div>
-                  <h2 class="prem-title"><?php echo ($report_type === 'monthly') ? 'Monthly' : 'Yearly'; ?> Expense</h2>
-                  <p class="prem-subtitle">
-                      <?php echo ($report_type === 'monthly') ? date('j - t M, Y', strtotime($selected_month . "-01")) : "FY " . $selected_year; ?>
-                  </p>
-              </div>
-              <a href="#" class="btn-view-report">View Report</a>
-          </div>
-
-          <div class="bubble-pack-container">
-              <?php 
-                  // Prepare Top 4 categories for the premium view
-                  arsort($dist_values);
-                  $top4 = array_slice($dist_values, 0, 4, true);
-                  $total_top = array_sum($dist_values);
-                  
-                  $bubble_classes = ['b-main', 'b-second', 'b-third', 'b-fourth'];
-                  $bubble_colors = [
-                      ['bg'=>'#EEF2FF', 'text'=>'#6366F1', 'dot'=>'#6366F1'], // Purple
-                      ['bg'=>'#ECFDF5', 'text'=>'#10B981', 'dot'=>'#10B981'], // Green
-                      ['bg'=>'#FDF2F8', 'text'=>'#EC4899', 'dot'=>'#EC4899'], // Pink
-                      ['bg'=>'#FFFBEB', 'text'=>'#F59E0B', 'dot'=>'#F59E0B']  // Orange
-                  ];
-                  
-                  $legend_data = [];
-                  $idx = 0;
-                  foreach ($top4 as $key => $val):
-                      $perc = ($total_top > 0) ? round(($val / $total_top) * 100) : 0;
-                      $label = $dist_labels[$key];
-                      $style = $bubble_colors[$idx % 4];
-                      $class = $bubble_classes[$idx % 4];
-                      
-                      $legend_data[] = [
-                          'label' => $label,
-                          'val'   => $val,
-                          'dot'   => $style['dot']
-                      ];
-              ?>
-                  <div class="prem-bubble <?php echo $class; ?>" 
-                       style="background: <?php echo $style['bg']; ?>; color: <?php echo $style['text']; ?>;">
-                      <?php echo $perc; ?>%
-                  </div>
-              <?php 
-                  $idx++; 
-                  endforeach; 
-                  if (empty($top4)):
-              ?>
-                  <div style="color:#94a3b8; font-size:14px; font-weight:600;">No distribution data</div>
-              <?php endif; ?>
-          </div>
-
-          <div class="prem-legend">
-              <?php 
-              $chunks = array_chunk($legend_data, 2);
-              foreach ($chunks as $row): 
-              ?>
-              <div class="leg-row">
-                  <?php foreach ($row as $leg): ?>
-                  <div class="leg-item">
-                      <div class="leg-dot" style="background: <?php echo $leg['dot']; ?>;"></div>
-                      <div class="leg-info">
-                          <span class="leg-cat" style="color: <?php echo $leg['dot']; ?>;"><?php echo htmlspecialchars($leg['label']); ?></span>
-                          <span class="leg-val">Rs <?php echo number_format($leg['val']); ?></span>
-                      </div>
-                  </div>
-                  <?php endforeach; ?>
-              </div>
-              <?php endforeach; ?>
-          </div>
-      </div>
-  </div>
 
   <!-- Detailed Results Card (Stlyed exactly like Salary Reports with Pill-Rows) -->
   <div class="rep-card" style="margin-top: 24px;">
@@ -919,14 +821,14 @@ include_once "../includes/sidebar.php";
                               <?php endforeach; ?>
                           </tbody>
                           <tfoot>
-                              <tr style="background: #f8fafc; font-weight: 800;">
-                                  <td style="color:#334155; border-radius: 50px 0 0 50px;">MONTH TOTAL</td>
+                              <tr>
+                                  <td>MONTH TOTAL</td>
                                   <td></td>
                                   <td></td>
                                   <td></td>
                                   <td></td>
                                   <td class="val-net" style="font-size:14px;">Rs <?php echo number_format($sum_amount, 2); ?></td>
-                                  <td style="border-radius: 0 50px 50px 0;"></td>
+                                  <td></td>
                               </tr>
                           </tfoot>
                       </table>
@@ -994,18 +896,92 @@ include_once "../includes/sidebar.php";
                           <?php endforeach; ?>
                       </tbody>
                       <tfoot>
-                          <tr style="background: #f8fafc; font-weight: 800;">
-                              <td style="color:#334155; border-radius: 50px 0 0 50px;">YEAR TOTAL</td>
+                          <tr>
+                              <td>YEAR TOTAL</td>
                               <td>Rs <?php echo number_format($sum_op, 2); ?></td>
                               <td>Rs <?php echo number_format($sum_sal, 2); ?></td>
                               <td class="val-net" style="font-size:14px;">Rs <?php echo number_format($sum_flow, 2); ?></td>
                               <td></td>
-                              <td style="border-radius: 0 50px 50px 0;"></td>
+                              <td></td>
                           </tr>
                       </tfoot>
                   </table>
               </div>
           <?php endif; ?>
+      </div>
+  </div>
+
+  <!-- 2. Premium Monthly Expense Card (Relocated Below Table) -->
+  <div class="premium-card" style="max-width: 460px; margin-top: 30px;">
+      <div class="prem-header">
+          <div>
+              <h2 class="prem-title"><?php echo ($report_type === 'monthly') ? 'Monthly' : 'Yearly'; ?> Expense</h2>
+              <p class="prem-subtitle">
+                  <?php echo ($report_type === 'monthly') ? date('j - t M, Y', strtotime($selected_month . "-01")) : "FY " . $selected_year; ?>
+              </p>
+          </div>
+          <a href="#" class="btn-view-report">View Report</a>
+      </div>
+
+      <div class="bubble-pack-container">
+          <?php 
+              // Prepare Top 4 categories for the premium view
+              arsort($dist_values);
+              $top4 = array_slice($dist_values, 0, 4, true);
+              $total_top = array_sum($dist_values);
+              
+              $bubble_classes = ['b-main', 'b-second', 'b-third', 'b-fourth'];
+              $bubble_colors = [
+                  ['bg'=>'#EEF2FF', 'text'=>'#6366F1', 'dot'=>'#6366F1'], // Purple
+                  ['bg'=>'#ECFDF5', 'text'=>'#10B981', 'dot'=>'#10B981'], // Green
+                  ['bg'=>'#FDF2F8', 'text'=>'#EC4899', 'dot'=>'#EC4899'], // Pink
+                  ['bg'=>'#FFFBEB', 'text'=>'#F59E0B', 'dot'=>'#F59E0B']  // Orange
+              ];
+              
+              $legend_data = [];
+              $idx = 0;
+              foreach ($top4 as $key => $val):
+                  $perc = ($total_top > 0) ? round(($val / $total_top) * 100) : 0;
+                  $label = $dist_labels[$key];
+                  $style = $bubble_colors[$idx % 4];
+                  $class = $bubble_classes[$idx % 4];
+                  
+                  $legend_data[] = [
+                      'label' => $label,
+                      'val'   => $val,
+                      'dot'   => $style['dot']
+                  ];
+          ?>
+              <div class="prem-bubble <?php echo $class; ?>" 
+                   style="background: <?php echo $style['bg']; ?>; color: <?php echo $style['text']; ?>;">
+                  <?php echo $perc; ?>%
+              </div>
+          <?php 
+              $idx++; 
+              endforeach; 
+              if (empty($top4)):
+          ?>
+              <div style="color:#94a3b8; font-size:14px; font-weight:600;">No distribution data</div>
+          <?php endif; ?>
+      </div>
+
+      <div class="prem-legend">
+          <?php 
+          $chunks = array_chunk($legend_data, 2);
+          foreach ($chunks as $row): 
+          ?>
+          <div class="leg-row">
+              <?php foreach ($row as $leg): ?>
+              <div class="leg-item">
+                  <div class="leg-dot" style="background: <?php echo $leg['dot']; ?>;"></div>
+                  <div class="leg-info">
+                      <span class="leg-cat" style="color: <?php echo $leg['dot']; ?>;"><?php echo htmlspecialchars($leg['label']); ?></span>
+                      <span class="leg-val">Rs <?php echo number_format($leg['val']); ?></span>
+                  </div>
+              </div>
+              <?php endforeach; ?>
+          </div>
+          <?php endforeach; ?>
       </div>
   </div>
   <?php else: ?>
@@ -1081,49 +1057,7 @@ include_once "../includes/sidebar.php";
 
   <?php if ($report_generated): ?>
   document.addEventListener("DOMContentLoaded", function() {
-      // 1. Burn Rate Trend Chart (Line with area)
-      const burnCtx = document.getElementById('burnTrendChart').getContext('2d');
-      const gradient = burnCtx.createLinearGradient(0, 0, 0, 200);
-      gradient.addColorStop(0, 'rgba(24, 109, 85, 0.2)');
-      gradient.addColorStop(1, 'rgba(24, 109, 85, 0)');
 
-      new Chart(burnCtx, {
-          type: 'line',
-          data: {
-              labels: <?php echo json_encode($trend_labels); ?>,
-              datasets: [{
-                  label: 'Actual Outflow',
-                  data: <?php echo json_encode($trend_values); ?>,
-                  borderColor: '#186D55',
-                  backgroundColor: gradient,
-                  borderWidth: 3,
-                  fill: true,
-                  tension: 0.4,
-                  pointBackgroundColor: '#fff',
-                  pointBorderColor: '#186D55',
-                  pointBorderWidth: 2,
-                  pointRadius: 4,
-                  pointHoverRadius: 6
-              }]
-          },
-          options: {
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: { legend: { display: false } },
-              scales: {
-                  y: {
-                      beginAtZero: true,
-                      grid: { color: '#f1f5f9', borderDash: [5, 5] },
-                      ticks: {
-                          color: '#94a3b8',
-                          font: { size: 10, weight: '600' },
-                          callback: value => 'Rs ' + (value/1000) + 'k'
-                      }
-                  },
-                  x: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10, weight: '600' } } }
-              }
-          }
-      });
 
       // 2. Cost Centers Comparison Chart (Horizontal Bar)
       const costCtx = document.getElementById('costComparisonChart').getContext('2d');

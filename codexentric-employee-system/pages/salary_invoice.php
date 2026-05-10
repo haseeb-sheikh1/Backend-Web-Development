@@ -500,7 +500,7 @@ if ($selected_user_id) {
             </div>
             <div class="inv-date-no">
                 <strong>DATE:</strong> <?php echo date('F d, Y'); ?><br>
-                <strong>INVOICE NO:</strong> EMP-<?php echo str_pad($selected_user_id, 4, '0', STR_PAD_LEFT); ?>-<?php echo date('mY', strtotime($selected_month . '-01')); ?><br>
+                <strong>PAYSLIP NO:</strong> EMP-<?php echo str_pad($selected_user_id, 4, '0', STR_PAD_LEFT); ?>-<?php echo date('mY', strtotime($selected_month . '-01')); ?><br>
                 <strong>PERIOD:</strong> <?php echo date('F Y', strtotime($selected_month . '-01')); ?>
             </div>
         </div>

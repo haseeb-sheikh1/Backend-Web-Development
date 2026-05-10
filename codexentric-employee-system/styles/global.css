@@ -6,6 +6,9 @@
     --admin-primary-light: #3b82f6;
     --admin-secondary: #64748b;
     --admin-accent: #f59e0b;
+    --light-bg: #f4f6f9;
+    --card-bg: #ffffff;
+    --border-color: #eef2f6;
 
     /* Status Colors */
     --status-active: #10b981;
