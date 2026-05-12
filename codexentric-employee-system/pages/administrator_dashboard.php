@@ -428,6 +428,94 @@ body {
   color: var(--text-muted);
   font-size: 14px;
 }
+
+/* ── MOBILE VIEW OVERHAUL ── */
+@media (max-width: 768px) {
+  .minimal-table thead {
+    display: none; /* Hide original headers */
+  }
+  
+  .minimal-table, .minimal-table tbody, .minimal-table tr {
+    display: block;
+    width: 100%;
+  }
+  
+  .minimal-table tr {
+    background: #ffffff;
+    border: 1px solid #eef2f6;
+    border-radius: 24px;
+    margin-bottom: 20px;
+    padding: 24px;
+    position: relative;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.02);
+    box-sizing: border-box;
+  }
+  
+  /* Remove standard hover translation on mobile to ensure tap stability */
+  .minimal-table tr:hover td { transform: none; background: transparent; }
+  .minimal-table tr:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.03); transition: all 0.3s; }
+
+  .minimal-table td {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100% !important;
+    box-sizing: border-box;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    margin-bottom: 20px;
+  }
+  
+  /* Reintroduce Labels via CSS Content */
+  .minimal-table td[data-label]:not([data-label=""])::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+
+  /* Target Name Row to render large and separated at top */
+  .minimal-table td[data-label="Employee Name"] {
+    border-bottom: 1px solid #f1f5f9 !important;
+    padding-bottom: 20px !important;
+    margin-bottom: 20px;
+  }
+  .minimal-table td[data-label="Employee Name"] span {
+    font-size: 18px;
+    font-weight: 800 !important;
+    color: #1e293b;
+  }
+
+  /* Last data entry spacing */
+  .minimal-table td:nth-last-child(2) { margin-bottom: 0px; }
+
+  /* Float the action buttons top-right precisely like user mockup */
+  .minimal-table td:last-child {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    width: auto !important;
+    margin: 0 !important;
+  }
+  
+  .action-trigger-group {
+    flex-direction: row-reverse;
+    gap: 10px;
+  }
+  
+  .action-icon-btn {
+    width: 38px;
+    height: 38px;
+    background: #f8fafc;
+    border: 1px solid #edf2f7;
+  }
+}
 </style>
 
 <div class="cx-dash">
@@ -559,14 +647,14 @@ body {
                 }
             ?>
             <tr>
-              <td>
+              <td data-label="Employee Name">
                 <div class="emp-name-cell">
                   <span style="font-weight: 700; color: #1e293b;"><?php echo htmlspecialchars($employee['name']); ?></span>
                 </div>
               </td>
-              <td><span class="role-tag"><?php echo htmlspecialchars($employee['role']); ?></span></td>
-              <td><span class="salary-text"><?php echo htmlspecialchars($employee['salary']); ?> <span style="font-size: 10px; color: #94a3b8;">/mo</span></span></td>
-              <td>
+              <td data-label="Position"><span class="role-tag" style="background: transparent; padding: 0; color: #1e293b; font-weight: 600; font-size: 14px;"><?php echo htmlspecialchars($employee['role']); ?></span></td>
+              <td data-label="Base Salary"><span class="salary-text" style="font-weight: 600; color: #1e293b; font-size: 15px;"><?php echo htmlspecialchars($employee['salary']); ?></span></td>
+              <td data-label="Status">
                 <?php 
                   $raw_status = strtolower($employee['status'] ?? 'active');
                   $status_class = str_replace('_', '-', $raw_status);
@@ -574,15 +662,18 @@ body {
                   if ($raw_status === 'onboarding') { $status_class = 'on-leave'; $display_label = 'on leave'; }
                   elseif ($raw_status === 'terminated') { $status_class = 'deactivated'; $display_label = 'terminated'; }
                 ?>
-                <div class="status-indicator <?php echo $status_class; ?>">
+                <div class="status-indicator <?php echo $status_class; ?>" style="margin-top: 2px;">
                   <span class="status-dot"></span>
-                  <span class="status-text"><?php echo htmlspecialchars($display_label); ?></span>
+                  <span class="status-text" style="color: #1e293b; font-weight: 600;"><?php echo htmlspecialchars($display_label); ?></span>
                 </div>
               </td>
               <td style="text-align: right;">
                 <div class="action-trigger-group">
                   <a href="manage_employee.php?id=<?php echo $employee['user_id']; ?>" class="action-icon-btn" title="Edit">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                  </a>
+                  <a href="#" class="action-icon-btn delete" title="Delete" onclick="alert('Delete operations must be confirmed from main directory management.'); return false;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                   </a>
                 </div>
               </td>

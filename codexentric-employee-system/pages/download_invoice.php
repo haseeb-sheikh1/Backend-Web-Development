@@ -34,7 +34,7 @@ if (!$selected_user_id) {
     die("Invalid Employee ID.");
 }
 
-// 4. Fetch Data (Mirror logic from salary_invoice.php)
+// 4. Fetch Data
 $employee_name = '';
 $employee_role = '';
 $employee_bank = '';
@@ -67,7 +67,7 @@ if (!$monthly_data) {
     die("No salary record found for this month.");
 }
 
-// 5. Build HTML for mPDF
+// 5. Compute totals
 $total_earnings = $monthly_data['base_salary'];
 foreach ($monthly_data['bonuses'] as $b)    $total_earnings += $b['amount'];
 foreach ($monthly_data['allowances'] as $a) $total_earnings += $a['amount'];
@@ -75,126 +75,197 @@ $total_deductions = 0;
 if (!empty($monthly_data['deductions']))
     foreach ($monthly_data['deductions'] as $d) $total_deductions += $d['amount'];
 
+$net_payable = $total_earnings - $total_deductions;
+
+// 6. Build HTML for mPDF
 $html = '
 <!DOCTYPE html>
 <html>
 <head>
     <style>
+        /* ── Page reset ── */
         @page {
+            margin-top: 0;
+            margin-left: 0;
+            margin-right: 0;
+            margin-bottom: 30px;
+        }
+        body {
+            font-family: "Helvetica", "Arial", sans-serif;
+            color: #1e293b;
+            line-height: 1.4;
             margin: 0;
             padding: 0;
         }
-        body { 
-            font-family: "Helvetica", "Arial", sans-serif; 
-            color: #1e293b; 
-            line-height: 1.4; 
-            margin: 0;
-            padding: 0;
-        }
-        .top-bar { height: 12px; background: #186D55; width: 100%; }
-        .bottom-bar { height: 12px; background: #186D55; width: 100%; position: absolute; bottom: 0; }
-        
-        .container { padding: 40px 50px; }
-        
-        .header-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        .header-title { font-size: 36px; font-family: "Arial Black", "Helvetica", sans-serif; font-weight: 900; color: #1e293b; letter-spacing: -1.5px; text-transform: uppercase; }
-        
-        .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-        .sender-info { font-size: 13px; color: #475569; line-height: 1.4; }
-        .sender-info strong { color: #1e293b; font-size: 15px; font-family: "Arial Black", sans-serif; font-weight: 900; }
-        .invoice-details { text-align: right; font-size: 11px; color: #64748b; line-height: 1.6; }
-        .invoice-details strong { color: #334155; font-weight: 900; }
-        
-        .billing-table { width: 100%; border-collapse: collapse; background: #f8fafc; margin-bottom: 30px; }
-        .billing-col { width: 50%; padding: 20px 25px; vertical-align: top; }
-        .billing-col h4 { font-size: 11px; font-weight: 900; text-transform: uppercase; color: #186D55; margin: 0 0 8px 0; }
-        .billing-col p { font-size: 13px; color: #334155; margin: 0; line-height: 1.5; }
-        .billing-col strong { color: #0f172a; font-weight: 900; }
-        
-        .status-pill { 
-            display: inline-block;
-            background: #ffffff; 
-            color: #059669; 
-            border: 1.5px solid #a7f3d0; 
-            padding: 2px 8px; 
-            border-radius: 4px; 
-            font-size: 9px; 
-            font-weight: 800; 
-        }
-        .status-dot { color: #059669; font-size: 14px; margin-right: 4px; vertical-align: middle; }
 
-        .main-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        .main-table th { 
-            background: #186D55; 
-            color: #ffffff; 
-            font-size: 10px; 
-            font-weight: 800; 
-            text-transform: uppercase; 
-            padding: 12px 16px; 
-            text-align: left;
-            border-right: 1px solid rgba(255,255,255,0.2);
+        /* ── Accent bars ── */
+        .top-bar    { height: 12px; background: #186D55; width: 100%; display: block; }
+
+        /* ── Main content wrapper ── */
+        .container  { padding: 36px 50px 20px 50px; }
+
+        /* ── Header: title + logo ── */
+        .header-table { width: 100%; border-collapse: collapse; margin-bottom: 36px; }
+        .header-title {
+            font-size: 34px;
+            font-family: "Arial Black", "Helvetica", sans-serif;
+            font-weight: 900;
+            color: #1e293b;
+            letter-spacing: -1.5px;
+            text-transform: uppercase;
         }
-        .main-table th:last-child { border-right: none; }
-        .main-table td { padding: 14px 16px; font-size: 12px; color: #475569; border-bottom: 1px solid #f1f5f9; }
-        .main-table td.amount { text-align: right; font-weight: 700; color: #1e293b; }
-        
-        .totals-container { width: 100%; margin-top: 25px; text-align: right; }
-        .totals-wrapper { width: 220px; display: inline-block; text-align: right; }
-        .totals-table { width: 100%; border-collapse: collapse; }
-        .totals-table td { padding: 6px 0; font-size: 11px; color: #64748b; font-weight: 700; text-align: right; }
-        .totals-table td.val { font-weight: 800; color: #1e293b; font-size: 13px; width: 100px; }
-        
-        .balance-box { 
-            border-top: 2.5px solid #186D55; 
-            border-bottom: 2.5px solid #186D55; 
-            margin-top: 10px;
-            padding: 12px 0;
+
+        /* ── Sender / invoice meta ── */
+        .meta-table   { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+        .sender-info  { font-size: 12px; color: #475569; line-height: 1.5; }
+        .sender-info strong { color: #1e293b; font-size: 14px; font-weight: 900; }
+        .invoice-details {
+            text-align: right;
+            font-size: 11px;
+            color: #64748b;
+            line-height: 1.8;
+            vertical-align: top;
+        }
+        .invoice-details strong { color: #334155; font-weight: 900; }
+
+        /* ── Billing / disbursement block ── */
+        .billing-table { width: 100%; border-collapse: collapse; background: #f8fafc; margin-bottom: 28px; }
+        .billing-col   { width: 50%; padding: 18px 24px; vertical-align: top; }
+        .billing-col h4 {
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
             color: #186D55;
+            margin: 0 0 8px 0;
+            letter-spacing: 0.5px;
         }
-        .balance-table { width: 100%; border-collapse: collapse; }
-        .balance-table td { color: #186D55; font-weight: 900; font-size: 13px; line-height: 1.2; text-align: right; vertical-align: top; }
-        .balance-label { text-align: right !important; padding-right: 15px; }
-        .balance-currency { font-size: 11px; width: 80px; padding-bottom: 5px; }
-        .balance-amount { font-size: 22px; font-family: "Arial Black", sans-serif; width: 80px; }
-        
-        .footer { text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 15px; }
-        .clear { clear: both; }
+        .billing-col p  { font-size: 12px; color: #334155; margin: 0; line-height: 1.6; }
+        .billing-col strong { color: #0f172a; font-weight: 900; }
+
+        /* ── Line-items table ── */
+        .main-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+        .main-table th {
+            background: #186D55;
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 12px 10px;
+            text-align: left;
+            border-left: none !important;
+            border-right: none !important;
+        }
+        .main-table th:last-child  { text-align: right; }
+        .main-table td             { padding: 12px 10px; font-size: 12px; color: #475569; border-bottom: 1px solid #f1f5f9; }
+        .main-table td.amount      { text-align: right; font-weight: 700; color: #1e293b; }
+        .main-table td.deduction   { text-align: right; font-weight: 700; color: #ef4444; }
+
+        /* ── Totals block ── */
+        .totals-outer { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .totals-spacer { }   /* left empty cell */
+        .totals-inner {
+            width: 400px;
+            border-collapse: collapse;
+        }
+        .totals-inner td {
+            font-size: 12px;
+            color: #64748b;
+            padding: 7px 0;
+            white-space: nowrap;
+        }
+        .totals-inner td.lbl  { text-align: right; padding-right: 20px; width: 65%; }
+        .totals-inner td.val  { text-align: right; font-weight: 700; color: #1e293b; width: 35%; }
+        .totals-inner td.val-red  { text-align: right; font-weight: 700; color: #ef4444; width: 35%; }
+
+        /* Balance Due row */
+        .bal-lbl {
+            text-align: right;
+            padding-right: 20px;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            font-size: 14px;
+            font-weight: 900;
+            color: #186D55;
+            border-top: 2px solid #186D55;
+            border-bottom: 2.5px double #186D55;
+            white-space: nowrap;
+            width: 65%;
+        }
+        .bal-val {
+            text-align: right;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            font-size: 14px;
+            font-weight: 900;
+            color: #186D55;
+            border-top: 2px solid #186D55;
+            border-bottom: 2.5px double #186D55;
+            white-space: nowrap;
+            width: 35%;
+        }
+
+        /* ── Page footer (mPDF named footer) ── */
+        .footer-content {
+            text-align: center;
+            font-size: 10px;
+            color: #94a3b8;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* ── Bottom green bar rendered as last element in body ── */
+        .bottom-bar { height: 12px; background: #186D55; width: 100%; display: block; margin: 0; padding: 0; }
     </style>
 </head>
 <body>
+
+    <!-- mPDF named footer -->
     <htmlpagefooter name="myfooter">
-        <div class="footer">
-            <p style="margin-bottom: 5px;">This is a computer-generated salary invoice. No signature required.</p>
-            <p>&copy; ' . date('Y') . ' CodeXentric HRM. All rights reserved.</p>
+        <div style="padding-left: 50px; padding-right: 50px;">
+            <div class="footer-content">
+                <p style="margin:0 0 4px 0;">This is a computer-generated salary invoice. No signature required.</p>
+                <p style="margin:0;">&copy; ' . date('Y') . ' CodeXentric HRM. All rights reserved.</p>
+            </div>
         </div>
+        <div class="bottom-bar"></div>
     </htmlpagefooter>
     <sethtmlpagefooter name="myfooter" value="on" />
 
+    <!-- TOP GREEN BAR -->
     <div class="top-bar"></div>
-    
+
     <div class="container">
-        <table class="header-table" style="margin-bottom: 40px;">
+
+        <!-- ══ HEADER ══ -->
+        <table class="header-table">
             <tr>
                 <td class="header-title">SALARY REPORT</td>
-                <td style="text-align: right;">
-                    <svg viewBox="0 0 260 80" width="160" height="50">
-                        <path d="M 25 25 L 10 40 L 25 55" fill="none" stroke="#f97316" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+                <td style="text-align:right; vertical-align:middle;">
+                    <!--
+                        mPDF has limited SVG support. We render the logo as inline SVG.
+                        If SVG does not render correctly, replace with an <img> tag
+                        pointing to a pre-exported PNG logo.
+                    -->
+                    <svg viewBox="0 0 260 80" width="160" height="50" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M 25 25 L 10 40 L 25 55" fill="none" stroke="#f97316" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
                         <text x="36" y="49" font-family="Helvetica" font-weight="bold" font-size="28" fill="#186D55">code</text>
-                        <line x1="110" y1="28" x2="128" y2="52" stroke="#186D55" stroke-width="7" stroke-linecap="round" />
-                        <line x1="110" y1="52" x2="128" y2="24" stroke="#f97316" stroke-width="7" stroke-linecap="round" />
+                        <line x1="110" y1="28" x2="128" y2="52" stroke="#186D55" stroke-width="7" stroke-linecap="round"/>
+                        <line x1="110" y1="52" x2="128" y2="24" stroke="#f97316" stroke-width="7" stroke-linecap="round"/>
                         <text x="132" y="49" font-family="Helvetica" font-weight="bold" font-size="28" fill="#186D55">entric</text>
-                        <path d="M 235 25 L 250 40 L 235 55" fill="none" stroke="#f97316" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M 235 25 L 250 40 L 235 55" fill="none" stroke="#f97316" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </td>
             </tr>
         </table>
-        
+
+        <!-- ══ SENDER + INVOICE META ══ -->
         <table class="meta-table">
             <tr>
-                <td class="sender-info">
+                <td class="sender-info" style="vertical-align:top;">
                     <strong>codeXentric</strong><br>
                     First Floor, Sardar Plaza, Qilla road,<br>
-                    Muzaffarabad, Azad Jammu & Kashmir<br>
+                    Muzaffarabad, Azad Jammu &amp; Kashmir<br>
                     hr@codexentric.com
                 </td>
                 <td class="invoice-details">
@@ -204,10 +275,11 @@ $html = '
                 </td>
             </tr>
         </table>
-        
+
+        <!-- ══ BILLING / DISBURSEMENT ══ -->
         <table class="billing-table">
             <tr>
-                <td class="billing-col" style="border-right: 1px solid #e2e8f0;">
+                <td class="billing-col" style="border-right:1px solid #e2e8f0;">
                     <h4>BILL TO (EMPLOYEE)</h4>
                     <p>
                         <strong>' . htmlspecialchars($employee_name) . '</strong><br>
@@ -217,21 +289,31 @@ $html = '
                 </td>
                 <td class="billing-col">
                     <h4>SHIP TO (DISBURSEMENT)</h4>
-                    <p>
-                        Bank Account: ' . htmlspecialchars($employee_bank ?: 'Not Provided') . '<br>
-                        Status: <span class="status-pill"><span class="status-dot">&bull;</span>' . htmlspecialchars($monthly_data['status']) . '</span><br>
+                    <p style="margin-bottom: 4px;">
+                        Bank Account: ' . htmlspecialchars($employee_bank ?: 'Not Provided') . '
+                    </p>
+                    <table style="border-collapse: collapse; margin-bottom: 4px;">
+                        <tr>
+                            <td style="font-size: 12px; color: #334155; padding-right: 6px; padding-bottom: 0; padding-top: 0;">Status:</td>
+                            <td style="background: #ffffff; color: #059669; border: 1.5px solid #a7f3d0; padding: 3px 8px; border-radius: 4px; font-size: 9px; font-weight: bold;">
+                                <strong>&#9679; ' . htmlspecialchars($monthly_data['status']) . '</strong>
+                            </td>
+                        </tr>
+                    </table>
+                    <p style="margin-top: 0;">
                         Disbursed On: ' . date('d M, Y') . '
                     </p>
                 </td>
             </tr>
         </table>
-        
+
+        <!-- ══ LINE ITEMS ══ -->
         <table class="main-table">
             <thead>
                 <tr>
-                    <th style="width: 50%;">DESCRIPTION</th>
-                    <th style="width: 25%;">CATEGORY</th>
-                    <th style="width: 25%; text-align: right;">AMOUNT (RS)</th>
+                    <th style="width:50%;"><strong>DESCRIPTION</strong></th>
+                    <th style="width:25%;"><strong>CATEGORY</strong></th>
+                    <th style="width:25%; text-align:right;"><strong>AMOUNT (RS)</strong></th>
                 </tr>
             </thead>
             <tbody>
@@ -257,71 +339,71 @@ foreach ($monthly_data['allowances'] as $a) {
               </tr>';
 }
 
-
 if (!empty($monthly_data['deductions'])) {
     foreach ($monthly_data['deductions'] as $d) {
         $html .= '<tr>
                     <td>Deduction Retainment - ' . htmlspecialchars($d['name']) . '</td>
                     <td>Deduction</td>
-                    <td class="amount" style="color: #ef4444;">- Rs ' . number_format($d['amount'], 2) . '</td>
+                    <td class="deduction">- Rs ' . number_format($d['amount'], 2) . '</td>
                   </tr>';
     }
 }
 
-$html .= '  </tbody>
+$html .= '      </tbody>
         </table>
-        
-        <div class="totals-container">
-            <div class="totals-wrapper">
-                <table class="totals-table">
-                    <tr>
-                        <td>SUBTOTAL (Gross Earnings)</td>
-                        <td class="val">Rs ' . number_format($total_earnings, 2) . '</td>
-                    </tr>
-                    <tr>
-                        <td style="padding-bottom: 5px;">DEDUCTIONS RETAINED</td>
-                        <td class="val" style="color: #ef4444; padding-bottom: 5px;">- Rs ' . number_format($total_deductions, 2) . '</td>
-                    </tr>
-                </table>
-                <div class="balance-box">
-                    <table class="balance-table">
-                        <tr>
-                            <td class="balance-label" style="font-family: \'Arial Black\', sans-serif;">Balance Due<br>(Net Payable)</td>
-                            <td class="balance-currency">Rs</td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td class="balance-amount">' . number_format($total_earnings - $total_deductions, 2) . '</td>
-                        </tr>
+
+        <!-- ══ TOTALS ══
+             We use a two-column outer table:
+               col 1 (left spacer) = auto width
+               col 2 (totals)      = 300px fixed
+             This is the reliable mPDF way to right-align a block.
+        -->
+        <table class="totals-outer">
+            <tr>
+                <td class="totals-spacer">&nbsp;</td>
+                <td style="width:400px; vertical-align:top; padding:0;">
+                    <table class="totals-inner" style="width:100%;">
+                        <tbody>
+                            <tr>
+                                <td class="lbl">SUBTOTAL (Gross Earnings)</td>
+                                <td class="val">Rs ' . number_format($total_earnings, 2) . '</td>
+                            </tr>
+                            <tr>
+                                <td class="lbl">DEDUCTIONS RETAINED</td>
+                                <td class="val-red">- Rs ' . number_format($total_deductions, 2) . '</td>
+                            </tr>
+                            <tr>
+                                <td class="bal-lbl"><strong>Balance Due (Net Payable)</strong></td>
+                                <td class="bal-val"><strong>Rs ' . number_format($net_payable, 2) . '</strong></td>
+                            </tr>
+                        </tbody>
                     </table>
-                </div>
-            </div>
-            <div class="clear"></div>
-        </div>
-    </div>
-    
-    <div class="bottom-bar"></div>
+                </td>
+            </tr>
+        </table>
+
+    </div><!-- /.container -->
+
 </body>
 </html>';
 
-// 6. Initialize mPDF and Generate
+// 7. Initialize mPDF and Generate
 try {
     $mpdf = new \Mpdf\Mpdf([
-        'mode' => 'utf-8',
-        'format' => 'A4',
-        'margin_left' => 0,
-        'margin_right' => 0,
-        'margin_top' => 0,
-        'margin_bottom' => 30, // Room for footer
+        'mode'          => 'utf-8',
+        'format'        => 'A4',
+        'margin_left'   => 0,
+        'margin_right'  => 0,
+        'margin_top'    => 0,
+        'margin_bottom' => 30,  // Space reserved for the named footer
+        'margin_footer' => 0,   // Force footer to bottom of page
     ]);
 
     $mpdf->SetDisplayMode('fullpage');
     $mpdf->WriteHTML($html);
-    
-    $filename = "Salary_Invoice_" . str_replace(' ', '_', $employee_name) . "_" . $selected_month . ".pdf";
-    $mpdf->Output($filename, 'D'); // 'D' forces download
+
+    $filename = 'Salary_Invoice_' . str_replace(' ', '_', $employee_name) . '_' . $selected_month . '.pdf';
+    $mpdf->Output($filename, 'D'); // 'D' = force download
 } catch (\Exception $e) {
-    die("PDF Generation Error: " . $e->getMessage());
+    die('PDF Generation Error: ' . $e->getMessage());
 }
-
-

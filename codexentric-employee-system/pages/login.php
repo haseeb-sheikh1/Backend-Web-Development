@@ -224,7 +224,7 @@ body { font-family: 'Nunito', sans-serif; }
 .login-form .field-icon {
   position: absolute;
   left: 14px;
-  top: 50%;
+  top: 26px;
   transform: translateY(-50%);
   color: var(--cx-muted);
   display: flex;
@@ -306,6 +306,16 @@ body { font-family: 'Nunito', sans-serif; }
   font-size: 14px;
 }
 
+/* Inline Field Error */
+.field-error {
+  display: block;
+  font-size: 12.5px;
+  color: var(--cx-error);
+  font-weight: 700;
+  margin-top: 6px;
+  margin-left: 2px;
+}
+
 /* Footer text */
 .login-footer-text {
   margin-top: 20px;
@@ -325,36 +335,56 @@ body { font-family: 'Nunito', sans-serif; }
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
   .login-left { display: none; }
+  
   .login-right { 
-    padding: 20px 20px 40px 20px; 
-    justify-content: flex-start;
+    padding: 24px 20px; 
+    justify-content: center; /* Forces visual centering regardless of device height */
+    min-height: 100vh;
     overflow-x: hidden;
   }
   
-  /* Orange header area for mobile */
+  /* High-End Dynamic Mobile Backdrop */
   .login-right::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
-    height: 180px;
+    height: 40vh; /* Dynamic upper cover */
     background: var(--cx-orange);
-    clip-path: polygon(0 0, 100% 0, 100% 65%, 0 100%);
+    /* Distinct modern angle */
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
     z-index: 0;
+    box-shadow: inset 0 -10px 20px rgba(0,0,0,0.05);
   }
   
   .login-logo-card { 
-    margin-top: 220px;
+    margin-top: 0 !important;
+    margin-bottom: 20px !important;
     min-width: unset; 
     width: 100%; 
-    max-width: 380px; 
+    max-width: 400px; 
     position: relative;
-    z-index: 1;
+    z-index: 2;
+    border-radius: 16px !important;
+    padding: 18px 24px !important;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1) !important;
   }
   
   .login-card {
     position: relative;
-    z-index: 1;
-    margin-top: 45px;
+    z-index: 2;
+    margin-top: 0 !important;
+    width: 100%;
+    max-width: 400px;
+    background: var(--cx-white) !important; /* Prevents transparency and backdrop bleed */
+    border-radius: 20px !important;
+    padding: 28px 24px !important;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.07) !important;
+  }
+
+  /* Refine Input Fields slightly for easier tapping */
+  input[type="text"], input[type="password"] {
+    height: 50px !important;
+    font-size: 16px !important; /* Stops iOS auto-zoom on input */
   }
 }
 </style>
@@ -365,12 +395,11 @@ body { font-family: 'Nunito', sans-serif; }
   <aside class="login-left">
     <div class="login-left-circle">
       <div class="login-left-circle-inner">
-        <!-- Minimal <C> Logo -->
-        <div style="font-family: 'Sora', sans-serif; font-size: 132px; font-weight: 900; line-height: 1; display: flex; align-items: center; gap: 4px; margin-bottom: 0;">
-          <span style="color: var(--cx-orange); font-weight: 900;">&lt;</span>
-          <span style="color: var(--cx-teal); font-weight: 900; transform: translateY(-6px);">C</span>
-          <span style="color: var(--cx-orange); font-weight: 900;">&gt;</span>
-        </div>
+        <!-- Branded X Icon -->
+        <svg width="70" height="90" viewBox="0 0 22 28" style="display: block; margin-bottom: 4px;">
+           <path d="M5 6 L17 22" stroke="var(--cx-teal)" stroke-width="4" stroke-linecap="round"/>
+           <path d="M19 3 L3 25" stroke="var(--cx-orange)" stroke-width="6" stroke-linecap="round"/>
+        </svg>
         <span style="font-size: 11px; letter-spacing: 5px; font-weight: 800; color: var(--cx-teal); margin-top: -5px; margin-left: 5px;">EMS</span>
       </div>
     </div>
@@ -397,11 +426,10 @@ body { font-family: 'Nunito', sans-serif; }
       <form action="login_process.php" method="POST" class="login-form">
 
         <?php
-        if (isset($user->errors) && count($user->errors) > 0 && isset($user->errors['general'])) {
+        // Show real server errors (like credentials) but skip the generic 'Fix errors below' since they're now inline
+        if (isset($user->errors['general']) && $user->errors['general'] !== "Fix the errors below.") {
             echo '<div class="error-messages">';
-            foreach ($user->errors as $error) {
-                echo '<p>' . htmlspecialchars($error) . '</p>';
-            }
+            echo '<p>' . htmlspecialchars($user->errors['general']) . '</p>';
             echo '</div>';
         }
         ?>
@@ -413,7 +441,10 @@ body { font-family: 'Nunito', sans-serif; }
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
           </span>
-          <input type="email" id="email" name="email" placeholder="Email Address">
+          <input type="email" id="email" name="email" placeholder="Email Address" <?php echo isset($user->errors['email']) ? 'style="border-color: var(--cx-error); background: var(--cx-error-bg);"' : ''; ?>>
+          <?php if (isset($user->errors['email'])): ?>
+            <span class="field-error"><?php echo htmlspecialchars($user->errors['email']); ?></span>
+          <?php endif; ?>
         </div>
 
         <div class="form-group">
@@ -423,7 +454,10 @@ body { font-family: 'Nunito', sans-serif; }
               <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
             </svg>
           </span>
-          <input type="password" id="password" name="password" placeholder="Password">
+          <input type="password" id="password" name="password" placeholder="Password" <?php echo isset($user->errors['password']) ? 'style="border-color: var(--cx-error); background: var(--cx-error-bg);"' : ''; ?>>
+          <?php if (isset($user->errors['password'])): ?>
+            <span class="field-error"><?php echo htmlspecialchars($user->errors['password']); ?></span>
+          <?php endif; ?>
         </div>
 
         <button type="submit" class="btn-primary" name="login">
@@ -435,7 +469,7 @@ body { font-family: 'Nunito', sans-serif; }
       </form>
 
       <div class="login-footer-text">
-        CodeXentric HRM &bull; All rights reserved.
+        CodeXentric &bull; All rights reserved.
       </div>
     </div>
 

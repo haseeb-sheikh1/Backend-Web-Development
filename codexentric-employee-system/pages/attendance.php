@@ -13,7 +13,7 @@
 
     // Load styles
     $extra_css = "attendance";
-    $title = "Attendance Tracker - CodeXentric";
+    $title = "Attendance Records";
     include_once "../includes/header.php";
 ?>
 <style>

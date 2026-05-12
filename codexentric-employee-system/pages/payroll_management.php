@@ -531,13 +531,95 @@ select.pr-input {
 .custom-modal-btn.cancel:hover { background: #e2e8f0; }
 .custom-modal-btn.confirm { background: var(--ox); color: #ffffff; }
 .custom-modal-btn.confirm:hover { background: var(--ox-hover); }
+
+@media (max-width: 768px) {
+    .pr-body {
+        padding: 16px 12px !important;
+        gap: 12px !important;
+    }
+    
+    .pr-page-header {
+        padding: 16px 20px !important;
+    }
+    
+    .pr-top-selection-card {
+        padding: 18px 16px !important;
+        border-radius: 16px !important;
+    }
+
+    .pr-stat {
+        padding: 16px !important;
+    }
+    
+    .pr-stats {
+        gap: 12px !important;
+    }
+    
+    .pr-card-head {
+        padding: 12px 16px !important;
+    }
+    
+    /* ── Dynamic Form Matrix Overhaul for Touch Formats ── */
+    .pr-top-selection-card form { 
+        width: 100% !important; 
+    }
+    .pr-top-selection-card input[type="month"] { 
+        width: 100% !important; 
+        font-size: 15px !important;
+        padding: 0 16px !important;
+    }
+    
+    .pr-detail-body { 
+        padding: 20px 16px !important; 
+    }
+    
+    /* Re-flow high-density horizontal data pods into relaxed vertical stacks */
+    .pr-base-box { 
+        flex-direction: column; 
+        align-items: flex-start !important; 
+        gap: 4px; 
+        padding: 14px 16px !important;
+    }
+    
+    /* Switch from Grid to Flex-Wrap for unconditional mobile reliability */
+    .pr-dyn-row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+        margin-bottom: 16px !important;
+        border-bottom: 1px dashed #f1f5f9;
+        padding-bottom: 16px;
+    }
+    /* Expand dropdown across full top tier */
+    .pr-dyn-row > select,
+    .pr-dyn-row > .pr-input:first-child {
+        flex: 0 0 100% !important;
+        width: 100% !important;
+    }
+    /* Let Amount box dynamically fill bottom tier remaining scale */
+    .pr-dyn-row .pr-amount-wrap {
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+    }
+    /* Constrain action icon to precise static touch square */
+    .pr-dyn-row .pr-btn-sq {
+        flex: 0 0 42px !important;
+        height: 42px !important;
+    }
+    
+    /* Handle potential badges wrapping */
+    .pr-detail-info > div[style*="display:flex"] {
+        flex-wrap: wrap !important;
+        margin-top: 8px;
+    }
+}
 </style>
 
 <div class="payroll-root">
 
     <div class="pr-body" style="padding-top: 32px;">
         <!-- Unified High-Fidelity Month Selection Strip -->
-        <div style="background: #ffffff; border: 1px solid #eef2f6; border-radius: 20px; padding: 22px 28px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); animation: fadeUp .3s ease both;">
+        <div class="pr-top-selection-card" style="background: #ffffff; border: 1px solid #eef2f6; border-radius: 20px; padding: 22px 28px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); animation: fadeUp .3s ease both;">
             <div style="display: flex; align-items: center; gap: 16px;">
                 <div style="background: rgba(24, 109, 85, 0.08); color: var(--ox); width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(24, 109, 85, 0.1);">
                     <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -688,6 +770,7 @@ select.pr-input {
                         <form method="POST" id="salaryForm">
                             <input type="hidden" name="emp_id" value="<?php echo $selected_employee_data['id']; ?>">
                             <input type="hidden" name="payroll_month" value="<?php echo $current_payroll_month; ?>">
+                            <input type="hidden" name="process_salary" value="1">
 
                             <!-- Base Salary -->
                             <div class="pr-form-section">

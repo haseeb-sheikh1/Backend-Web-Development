@@ -1,12 +1,16 @@
 <?php
 session_start();
 
-// 1. Role Protection - Only accessible to Admin (role_id == '1')
+// 1. Role Protection - Only accessible to Admin (role_id == '1') or employees with add_expense permission
 if (!isset($_SESSION['email'])) {
     header("Location: login.php");
     exit();
 }
-if (!isset($_SESSION['role_id']) || $_SESSION['role_id'] != '1') {
+
+$is_admin = (isset($_SESSION['role_id']) && $_SESSION['role_id'] == '1');
+$has_expense_perm = (isset($_SESSION['permissions']) && in_array('add_expense', $_SESSION['permissions']));
+
+if (!$is_admin && !$has_expense_perm) {
     header("Location: employee_dashboard.php");
     exit();
 }
@@ -159,23 +163,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_expense'])) {
             $attachment_name = $edit_data['attachment_path'];
         }
 
-        if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] === UPLOAD_ERR_OK) {
-            $file_tmp = $_FILES['attachment']['tmp_name'];
-            $file_orig_name = $_FILES['attachment']['name'];
-            $file_ext = strtolower(pathinfo($file_orig_name, PATHINFO_EXTENSION));
-            
-            $allowed_exts = ['pdf', 'jpg', 'jpeg', 'png'];
-            if (!in_array($file_ext, $allowed_exts)) {
-                $error_message = "Invalid file type. Only PDFs and Images (JPG, PNG) are allowed.";
-            } elseif ($_FILES['attachment']['size'] > 5000000) {
-                $error_message = "Attachment is too large. Max limit is 5MB.";
-            } else {
-                // Success
-                if ($edit_mode && $attachment_name && file_exists($upload_dir . $attachment_name)) {
-                    unlink($upload_dir . $attachment_name);
+        if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] !== UPLOAD_ERR_NO_FILE) {
+            if ($_FILES['attachment']['error'] === UPLOAD_ERR_OK) {
+                $file_tmp = $_FILES['attachment']['tmp_name'];
+                $file_orig_name = $_FILES['attachment']['name'];
+                $file_ext = strtolower(pathinfo($file_orig_name, PATHINFO_EXTENSION));
+                
+                $allowed_exts = ['pdf', 'jpg', 'jpeg', 'png'];
+                if (!in_array($file_ext, $allowed_exts)) {
+                    $error_message = "Invalid file type. Only PDFs and Images (JPG, PNG) are allowed.";
+                } elseif ($_FILES['attachment']['size'] > 5000000) {
+                    $error_message = "Attachment is too large. Max limit is 5MB.";
+                } else {
+                    // Success - Move file
+                    if ($edit_mode && $attachment_name && file_exists($upload_dir . $attachment_name)) {
+                        unlink($upload_dir . $attachment_name);
+                    }
+                    $attachment_name = uniqid('receipt_', true) . '.' . $file_ext;
+                    move_uploaded_file($file_tmp, $upload_dir . $attachment_name);
                 }
-                $attachment_name = uniqid('receipt_', true) . '.' . $file_ext;
-                move_uploaded_file($file_tmp, $upload_dir . $attachment_name);
+            } else {
+                // Catch error levels like UPLOAD_ERR_INI_SIZE (1), etc.
+                $error_code = $_FILES['attachment']['error'];
+                if ($error_code === 1 || $error_code === 2) {
+                    $error_message = "The file is too large for the server's configuration.";
+                } else {
+                    $error_message = "An error occurred during file upload (Error Code $error_code).";
+                }
             }
         }
     }
@@ -262,6 +276,12 @@ $where_clauses = [];
 $params = [];
 $types = '';
 
+if (!$is_admin) {
+    $where_clauses[] = "e.admin_id = ?";
+    $params[] = $_SESSION['user_id'];
+    $types .= 'i';
+}
+
 if (!empty($search_query)) {
     $where_clauses[] = "(e.description LIKE ?)";
     $search_param = '%' . $search_query . '%';
@@ -294,28 +314,39 @@ $offset = ($page - 1) * $limit;
 // Count query for total pages
 $count_query = "SELECT COUNT(*) as total FROM expenses e $where_sql";
 $count_stmt = $conn->prepare($count_query);
-if (count($params) > 0) {
-    $count_stmt->bind_param($types, ...$params);
+if ($count_stmt === false) {
+    // Table may not exist yet or SQL error — default to 0
+    $total_rows = 0;
+    $total_pages = 0;
+    $expenses_res = null;
+} else {
+    if (count($params) > 0) {
+        $count_stmt->bind_param($types, ...$params);
+    }
+    $count_stmt->execute();
+    $total_rows = $count_stmt->get_result()->fetch_assoc()['total'];
+    $total_pages = ceil($total_rows / $limit);
+    $count_stmt->close();
+
+    // Fetch Data
+    $query = "SELECT e.*, ec.category_name 
+              FROM expenses e 
+              JOIN expense_categories ec ON e.category_id = ec.id 
+              $where_sql 
+              ORDER BY e.bill_date DESC 
+              LIMIT ? OFFSET ?";
+    $fetch_stmt = $conn->prepare($query);
+
+    if ($fetch_stmt === false) {
+        $expenses_res = null;
+    } else {
+        $bind_params = array_merge($params, [$limit, $offset]);
+        $bind_types = $types . 'ii';
+        $fetch_stmt->bind_param($bind_types, ...$bind_params);
+        $fetch_stmt->execute();
+        $expenses_res = $fetch_stmt->get_result();
+    }
 }
-$count_stmt->execute();
-$total_rows = $count_stmt->get_result()->fetch_assoc()['total'];
-$total_pages = ceil($total_rows / $limit);
-$count_stmt->close();
-
-// Fetch Data
-$query = "SELECT e.*, ec.category_name 
-          FROM expenses e 
-          JOIN expense_categories ec ON e.category_id = ec.id 
-          $where_sql 
-          ORDER BY e.bill_date DESC 
-          LIMIT ? OFFSET ?";
-$fetch_stmt = $conn->prepare($query);
-
-$bind_params = array_merge($params, [$limit, $offset]);
-$bind_types = $types . 'ii';
-$fetch_stmt->bind_param($bind_types, ...$bind_params);
-$fetch_stmt->execute();
-$expenses_res = $fetch_stmt->get_result();
 
 // ─── CHARTS DATA AGGREGATION ───
 
@@ -361,6 +392,60 @@ include_once "../includes/header.php";
 include_once "../includes/sidebar.php";
 ?>
 
+<style>
+.expenses-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px 24px 24px;
+}
+.expense-grid-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px 28px;
+}
+.form-group-span-all {
+  grid-column: span 2;
+}
+.form-footer-actions {
+  grid-column: span 2;
+  margin-top: 12px;
+  padding-top: 24px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .expenses-container {
+    padding: 0 12px 12px 12px !important;
+  }
+  .widget-header {
+    padding: 16px 18px !important;
+  }
+  .widget-body {
+    padding: 20px 16px !important;
+  }
+  .expense-grid-form {
+    grid-template-columns: 1fr !important;
+    gap: 18px !important;
+  }
+  .form-group-span-all {
+    grid-column: span 1 !important;
+  }
+  .form-footer-actions {
+    grid-column: span 1 !important;
+    flex-direction: column-reverse !important;
+    gap: 12px !important;
+  }
+  .form-footer-actions a,
+  .form-footer-actions button {
+    width: 100% !important;
+    height: 44px !important; /* Bigger touch targets */
+  }
+}
+</style>
+
 <div class="expenses-container">
 
   <!-- Alert System -->
@@ -392,7 +477,7 @@ include_once "../includes/sidebar.php";
         </div>
       </div>
       <div class="widget-body" style="padding: 28px;">
-        <form action="expenses.php<?php echo $edit_mode ? '?edit=' . $edit_data['id'] : ''; ?>" method="POST" enctype="multipart/form-data" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px 28px;">
+        <form action="expenses.php<?php echo $edit_mode ? '?edit=' . $edit_data['id'] : ''; ?>" method="POST" enctype="multipart/form-data" class="expense-grid-form">
           
           <!-- Category -->
           <div class="form-group" style="margin: 0;">
@@ -454,7 +539,7 @@ include_once "../includes/sidebar.php";
           <div class="form-group" style="margin: 0;">
             <label>Attach Receipt (PDF / Image)</label>
             <div class="upload-zone" style="height: 44px; padding: 0 16px; display: flex; align-items: center; justify-content: center; gap: 10px;">
-              <input type="file" name="attachment" class="upload-file-input" onchange="updateFileName(this)">
+              <input type="file" name="attachment" class="upload-file-input" accept=".pdf,image/*" style="z-index: 10;" onchange="updateFileName(this)">
               <div class="upload-zone-icon" style="margin: 0;">
                 <svg viewBox="0 0 24 24" style="width: 18px; height: 18px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
               </div>
@@ -465,13 +550,13 @@ include_once "../includes/sidebar.php";
           </div>
 
           <!-- Description -->
-          <div class="form-group" style="grid-column: span 2; margin: 0;">
+          <div class="form-group form-group-span-all" style="margin: 0;">
             <label>Description / Notes</label>
             <textarea name="description" class="form-textarea" style="height: 80px; padding: 12px 16px;" placeholder="Provide details about the expense..."><?php echo $edit_mode ? htmlspecialchars($edit_data['pure_description']) : ''; ?></textarea>
           </div>
 
           <!-- Footer Separator & Action Layout modeled exactly from reference image -->
-          <div style="grid-column: span 2; margin-top: 12px; padding-top: 24px; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; gap: 12px;">
+          <div class="form-footer-actions">
             <!-- Secondary Outline Pill -->
             <a href="expenses.php" style="display: flex; align-items: center; justify-content: center; height: 38px; padding: 0 32px; border-radius: 25px; border: 1.5px solid var(--brand-green); color: var(--brand-green); font-weight: 700; font-size: 13px; text-decoration: none; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">Reset</a>
             
@@ -506,7 +591,7 @@ include_once "../includes/sidebar.php";
 <script>
   // Update file name in upload zone
   function updateFileName(input) {
-      const display = document.getElementById('file-upload-name');
+      const display = document.getElementById('file-upload-text');
       if (input.files && input.files.length > 0) {
           display.textContent = "Selected: " + input.files[0].name;
       }

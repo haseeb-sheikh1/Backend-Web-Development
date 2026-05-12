@@ -7,7 +7,7 @@ $role = $_SESSION['role_id'];
 ?>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&family=Sora:wght@800&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -21,7 +21,7 @@ $role = $_SESSION['role_id'];
     display: flex;
     flex-direction: column;
     font-family: 'Nunito Sans', sans-serif;
-    z-index: 200;
+    z-index: 600;
     overflow: visible;          /* let toggle button hang outside */
     transition: width 0.25s cubic-bezier(.4,0,.2,1);
     border-right: 1px solid #e2e8f0 !important;
@@ -215,6 +215,69 @@ $role = $_SESSION['role_id'];
 .sidebar.collapsed .sidebar-toggle svg {
     transform: rotate(180deg);
 }
+
+/* ─── Environmental Blur Overlay (Mobile) ──────────────── */
+.mobile-sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(15, 23, 42, 0.4); /* Deep Slate dimming */
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 9998; /* Sits exactly between sidebar and content */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Mobile Overlay Hardening ─────────────────────── */
+@media (max-width: 900px) {
+    .sidebar {
+        transform: translateX(-100%);
+        width: 260px !important;
+        box-shadow: 10px 0 40px rgba(0,0,0,0.12) !important;
+        z-index: 9999 !important;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        border-right: none !important;
+    }
+    
+    .sidebar.open {
+        transform: translateX(0) !important;
+    }
+
+    /* Pure CSS Engine: Hook adjacent sibling overlay to active sidebar state */
+    .mobile-sidebar-overlay {
+        display: block;
+    }
+    .sidebar.open + .mobile-sidebar-overlay {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* The desktop pill toggle is inactive on mobile viewport */
+    .sidebar-toggle {
+        display: none !important;
+    }
+
+    /* Guarantee full element rendering regardless of inherited desktop collapsed state */
+    .sidebar.collapsed {
+        width: 260px !important;
+    }
+    .sidebar.collapsed .sidebar-label,
+    .sidebar.collapsed .sidebar-brand-name,
+    .sidebar.collapsed .sidebar-brand-fullname,
+    .sidebar.collapsed .sidebar-search-input {
+        display: block !important;
+    }
+    .sidebar.collapsed .sidebar-brand-sub {
+        display: block !important;
+    }
+    .sidebar.collapsed .sidebar-search {
+        justify-content: flex-start !important;
+        padding: 0 18px !important;
+    }
+}
 </style>
 
 <aside class="sidebar" id="appSidebar">
@@ -229,16 +292,16 @@ $role = $_SESSION['role_id'];
     <!-- ── Brand ── -->
     <a href="<?php echo $role == '1' ? 'administrator_dashboard.php' : 'employee_dashboard.php'; ?>"
        class="sidebar-brand" style="display: flex; align-items: center; justify-content: center; gap: 0; text-decoration: none; width: 100%;">
-        <span style="color: #ff7b1d; font-family: 'Nunito Sans', sans-serif; font-weight: 800; font-size: 25px; margin-right: 1px;">&lt;</span>
-        <span class="sidebar-brand-fullname" style="color: #186D55; font-family: 'Nunito Sans', sans-serif; font-weight: 800; font-size: 25px; letter-spacing: -0.5px;">code</span>
-        <span style="position: relative; display: inline-block; width: 17px; height: 25px; margin: 0 2px; vertical-align: bottom;">
-            <!-- Backward slash \ (teal/green #186D55) -->
-            <span style="position: absolute; top: 1px; left: 6px; width: 4.5px; height: 21px; background-color: #186D55; transform: rotate(-30deg); border-radius: 2px;"></span>
-            <!-- Forward slash / (brand orange #ff7b1d) -->
-            <span style="position: absolute; top: 1px; left: 6px; width: 4.5px; height: 21px; background-color: #ff7b1d; transform: rotate(30deg); border-radius: 2px;"></span>
+        <span style="color: #ff7b1d; font-family: 'Sora', sans-serif; font-weight: 800; font-size: 27px; margin-right: -1px;">&lt;</span>
+        <span class="sidebar-brand-fullname" style="color: #186D55; font-family: 'Sora', sans-serif; font-weight: 800; font-size: 26px; letter-spacing: -0.8px;">code</span>
+        <span style="display: inline-flex; align-items: center; justify-content: center; margin: 0 -2px; vertical-align: middle;">
+            <svg width="20" height="26" viewBox="0 0 22 28" style="display:block;">
+                <path d="M5 6 L17 22" stroke="#186D55" stroke-width="4.5" stroke-linecap="round"/>
+                <path d="M19 3 L3 25" stroke="#ff7b1d" stroke-width="6.5" stroke-linecap="round"/>
+            </svg>
         </span>
-        <span class="sidebar-brand-fullname" style="color: #186D55; font-family: 'Nunito Sans', sans-serif; font-weight: 800; font-size: 25px; letter-spacing: -0.5px;">entric</span>
-        <span style="color: #ff7b1d; font-family: 'Nunito Sans', sans-serif; font-weight: 800; font-size: 25px; margin-left: 1px;">&gt;</span>
+        <span class="sidebar-brand-fullname" style="color: #186D55; font-family: 'Sora', sans-serif; font-weight: 800; font-size: 26px; letter-spacing: -0.8px;">entric</span>
+        <span style="color: #ff7b1d; font-family: 'Sora', sans-serif; font-weight: 800; font-size: 27px; margin-left: -1px;">&gt;</span>
     </a>
 
     <!-- ── Search ── -->
@@ -329,7 +392,9 @@ $role = $_SESSION['role_id'];
 
 
         <?php else: ?>
-
+            <?php 
+                $has_expense_perm = (isset($_SESSION['permissions']) && in_array('add_expense', $_SESSION['permissions']));
+            ?>
             <a href="employee_dashboard.php"
                class="sidebar-link <?php echo ($current_page == 'employee_dashboard') ? 'active' : ''; ?>">
                 <svg viewBox="0 0 24 24">
@@ -351,7 +416,17 @@ $role = $_SESSION['role_id'];
                 </svg>
                 <span class="sidebar-label">My Payroll</span>
             </a>
-
+            
+            <?php if ($has_expense_perm): ?>
+                <a href="expenses.php"
+                   class="sidebar-link <?php echo ($current_page == 'expenses') ? 'active' : ''; ?>">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                         <line x1="12" y1="1" x2="12" y2="23"/>
+                         <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                    </svg>
+                    <span class="sidebar-label">Add Expense</span>
+                </a>
+            <?php endif; ?>
         <?php endif; ?>
 
         <!-- Always visible -->
@@ -376,3 +451,4 @@ $role = $_SESSION['role_id'];
     </nav>
 
 </aside>
+<div class="mobile-sidebar-overlay"></div>

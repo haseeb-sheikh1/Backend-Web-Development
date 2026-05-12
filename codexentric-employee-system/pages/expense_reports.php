@@ -102,10 +102,6 @@ if ($report_type === 'monthly') {
     $payroll_stmt->execute();
     $payroll_amt = floatval($payroll_stmt->get_result()->fetch_assoc()['total']);
     $payroll_stmt->close();
-    if ($payroll_amt == 0) {
-        $emp_salary_stmt = $conn->query("SELECT SUM(base_salary_rs) as total FROM employees WHERE status = 'Active'");
-        $payroll_amt = floatval($emp_salary_stmt->fetch_assoc()['total']);
-    }
     $burn_rate = $payroll_amt + $monthly_spend;
 } else {
     // Yearly Summary Cards calculation
@@ -149,10 +145,6 @@ if ($report_type === 'monthly') {
     $payroll_stmt->execute();
     $payroll_amt = floatval($payroll_stmt->get_result()->fetch_assoc()['total']);
     $payroll_stmt->close();
-    if ($payroll_amt == 0) {
-        $emp_salary_stmt = $conn->query("SELECT SUM(base_salary_rs) as total FROM employees WHERE status = 'Active'");
-        $payroll_amt = floatval($emp_salary_stmt->fetch_assoc()['total']) * 12; // annualized fallback
-    }
     $burn_rate = $payroll_amt + $monthly_spend;
 }
 
@@ -193,10 +185,6 @@ if ($report_type === 'monthly') {
         $stmt->execute();
         $salaries = floatval($stmt->get_result()->fetch_assoc()['total']);
         $stmt->close();
-        if ($salaries == 0) {
-            $emp_salary_stmt = $conn->query("SELECT SUM(base_salary_rs) as total FROM employees WHERE status = 'Active'");
-            $salaries = floatval($emp_salary_stmt->fetch_assoc()['total']);
-        }
 
         // Count pending vs paid bills for status summary
         $stmt = $conn->prepare("SELECT COUNT(*) as count, status FROM expenses WHERE DATE_FORMAT(bill_date, '%Y-%m') = ? GROUP BY status");
@@ -673,6 +661,173 @@ include_once "../includes/sidebar.php";
     from { opacity: 0; transform: translateY(10px); }
     to   { opacity: 1; transform: translateY(0); }
 }
+
+/* ══════════════════════════════════════════
+   Elite Mobile Responsive Overrides
+   ══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .expenses-container {
+    padding: 0 12px 24px 12px !important;
+  }
+  
+  .widget-header { padding: 16px 18px !important; }
+  .widget-body { padding: 20px 16px !important; }
+  
+  .widget-body form > div:first-child {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  
+  .widget-body form > div:last-child {
+    flex-direction: column-reverse !important;
+    gap: 12px !important;
+  }
+  
+  .widget-body form > div:last-child a,
+  .widget-body form > div:last-child button {
+    width: 100% !important;
+    height: 44px !important;
+  }
+  
+  /* Table To Cards */
+  .rep-table, .rep-table thead, .rep-table tbody, .rep-table tr, .rep-table td {
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  
+  .rep-table thead { display: none !important; }
+  .rep-table { border-spacing: 0 !important; border-collapse: collapse !important; }
+  
+  .rep-table tbody tr {
+    background: #ffffff !important;
+    border: 1px solid #eef2f6 !important;
+    border-radius: 20px !important;
+    padding: 20px !important;
+    margin-bottom: 16px !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.02) !important;
+    position: relative !important;
+  }
+  
+  .rep-table td {
+    padding: 0 !important;
+    margin-bottom: 12px !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    background: transparent !important;
+  }
+  .rep-table td:first-child, .rep-table td:last-child { padding-left: 0 !important; padding-right: 0 !important; }
+  
+  /* Set Title styling to specific row elements */
+  .rep-table td:first-child {
+    border-bottom: 1px solid #f1f5f9 !important;
+    padding-bottom: 12px !important;
+    margin-bottom: 16px !important;
+    font-size: 16px !important;
+  }
+  
+  /* Set Floating Actions for Action Group row */
+  .rep-table td:last-child {
+    position: absolute !important;
+    top: 16px !important;
+    right: 16px !important;
+    width: auto !important;
+    margin: 0 !important;
+  }
+  
+  .rep-table td[data-label]::before {
+    content: attr(data-label);
+    display: block !important;
+    font-size: 10.5px !important;
+    font-weight: 800 !important;
+    color: #94a3b8 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.6px !important;
+    margin-bottom: 3px !important;
+  }
+  
+  /* Premium Footer Overhaul mimicking Salary Reports perfectly */
+  .rep-table tfoot tr {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    padding: 0 !important;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.04) !important;
+    border-radius: 20px !important;
+    margin-top: 28px !important;
+    overflow: hidden !important;
+    display: block !important;
+  }
+  
+  .rep-table tfoot tr td {
+    margin-bottom: 0 !important;
+    padding: 14px 24px !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    font-size: 14px !important;
+    border-radius: 0 !important;
+  }
+  .rep-table tfoot tr td:empty { display: none !important; }
+  
+  /* Row Separators */
+  .rep-table tfoot tr td:not(:first-child):not(.val-net):not(:last-child) {
+    border-bottom: 1px solid #f1f5f9 !important;
+  }
+  
+  .rep-table tfoot tr td[data-label]::before {
+    content: attr(data-label);
+    display: block !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    color: #64748b !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+  }
+
+  /* Corporate Tinted Header Strip */
+  .rep-table tfoot tr td:first-child {
+    background: rgba(24, 109, 85, 0.06) !important;
+    color: var(--brand-green) !important;
+    border-bottom: 1px solid rgba(24, 109, 85, 0.08) !important;
+    padding: 16px 24px !important;
+    font-size: 15px !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.8px !important;
+    text-transform: uppercase;
+    width: 100% !important;
+    margin-bottom: 8px !important;
+    border-radius: 0 !important;
+  }
+  
+  /* Floating Elevated Aggregate Capsule */
+  .rep-table tfoot tr td.val-net {
+    border: none !important;
+    margin: 12px 20px 20px 20px !important;
+    padding: 16px !important;
+    background: #f8fafc !important;
+    border-radius: 12px !important;
+    font-size: 17px !important;
+    font-weight: 800 !important;
+    width: auto !important;
+  }
+  .rep-table tfoot tr td.val-net::before {
+    color: #1e293b !important;
+    font-weight: 700 !important;
+  }
+  
+  /* Fix Bubble Legend stack */
+  .prem-legend, .leg-row {
+    grid-template-columns: 1fr !important;
+  }
+}
 </style>
 
 <!-- Chart.js Library -->
@@ -813,17 +968,17 @@ include_once "../includes/sidebar.php";
                                       }
                               ?>
                               <tr>
-                                  <td style="font-weight:700; color:#1e293b;"><?php echo date('M d, Y', strtotime($exp['bill_date'])); ?></td>
-                                  <td><span style="font-weight: 700; color: #475569;"><?php echo htmlspecialchars($exp['category_name']); ?></span></td>
-                                  <td><span style="font-family: monospace; font-weight: 600; color: #64748b;"><?php echo !empty($exp['invoice_number']) ? htmlspecialchars($exp['invoice_number']) : 'N/A'; ?></span></td>
-                                  <td><div style="max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; color: #64748b;"><?php echo $display_desc; ?></div></td>
-                                  <td>
+                                  <td data-label="Date" style="font-weight:700; color:#1e293b;"><?php echo date('M d, Y', strtotime($exp['bill_date'])); ?></td>
+                                  <td data-label="Category"><span style="font-weight: 700; color: #475569;"><?php echo htmlspecialchars($exp['category_name']); ?></span></td>
+                                  <td data-label="Invoice / Ref"><span style="font-family: monospace; font-weight: 600; color: #64748b;"><?php echo !empty($exp['invoice_number']) ? htmlspecialchars($exp['invoice_number']) : 'N/A'; ?></span></td>
+                                  <td data-label="Description"><div style="max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; color: #64748b;"><?php echo $display_desc; ?></div></td>
+                                  <td data-label="Status">
                                       <span class="status-badge <?php echo strtolower($exp['status']); ?>">
                                           <span class="dot"></span>
                                           <?php echo htmlspecialchars($exp['status']); ?>
                                       </span>
                                   </td>
-                                  <td class="val-net">Rs <?php echo number_format($exp['amount'], 2); ?></td>
+                                  <td data-label="Amount" class="val-net">Rs <?php echo number_format($exp['amount'], 2); ?></td>
                                   <td style="text-align:right;">
                                       <div class="table-action-group" style="justify-content: flex-end; display: flex; gap: 8px;">
                                           <?php if (!empty($exp['attachment_path'])): ?>
@@ -849,7 +1004,7 @@ include_once "../includes/sidebar.php";
                                   <td></td>
                                   <td></td>
                                   <td></td>
-                                  <td class="val-net" style="font-size:14px;">Rs <?php echo number_format($sum_amount, 2); ?></td>
+                                  <td data-label="Grand Total Expense" class="val-net" style="font-size:14px;">Rs <?php echo number_format($sum_amount, 2); ?></td>
                                   <td></td>
                               </tr>
                           </tfoot>
@@ -888,10 +1043,10 @@ include_once "../includes/sidebar.php";
                                   $sum_flow += $sum_row['total_flow'];
                           ?>
                           <tr>
-                              <td style="font-weight:700; color:#1e293b;"><?php echo $sum_row['month_label']; ?></td>
-                              <td>Rs <?php echo number_format($sum_row['op_expense'], 2); ?></td>
-                              <td>Rs <?php echo number_format($sum_row['salaries'], 2); ?></td>
-                              <td class="val-net">Rs <?php echo number_format($sum_row['total_flow'], 2); ?></td>
+                              <td data-label="Month" style="font-weight:700; color:#1e293b;"><?php echo $sum_row['month_label']; ?></td>
+                              <td data-label="Operating Expenses">Rs <?php echo number_format($sum_row['op_expense'], 2); ?></td>
+                              <td data-label="Payroll Salaries">Rs <?php echo number_format($sum_row['salaries'], 2); ?></td>
+                              <td data-label="Total Outflow" class="val-net">Rs <?php echo number_format($sum_row['total_flow'], 2); ?></td>
                               <td>
                                   <?php if ($sum_row['op_expense'] == 0): ?>
                                       <span style="color: #94a3b8; font-weight: 600;">No bills</span>
@@ -920,9 +1075,9 @@ include_once "../includes/sidebar.php";
                       <tfoot>
                           <tr>
                               <td>YEAR TOTAL</td>
-                              <td>Rs <?php echo number_format($sum_op, 2); ?></td>
-                              <td>Rs <?php echo number_format($sum_sal, 2); ?></td>
-                              <td class="val-net" style="font-size:14px;">Rs <?php echo number_format($sum_flow, 2); ?></td>
+                              <td data-label="Total Operations">Rs <?php echo number_format($sum_op, 2); ?></td>
+                              <td data-label="Total Salaries">Rs <?php echo number_format($sum_sal, 2); ?></td>
+                              <td data-label="Total Outflow" class="val-net" style="font-size:14px;">Rs <?php echo number_format($sum_flow, 2); ?></td>
                               <td></td>
                               <td></td>
                           </tr>

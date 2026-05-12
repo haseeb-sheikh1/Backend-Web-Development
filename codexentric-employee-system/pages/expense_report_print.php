@@ -54,10 +54,6 @@ if ($report_type === 'monthly') {
         $stmt->execute();
         $salaries = floatval($stmt->get_result()->fetch_assoc()['total']);
         $stmt->close();
-        if ($salaries == 0) {
-            $emp_salary_stmt = $conn->query("SELECT SUM(base_salary_rs) as total FROM employees WHERE status = 'Active'");
-            $salaries = floatval($emp_salary_stmt->fetch_assoc()['total']);
-        }
 
         $yearly_months_summary[] = [
             'month_label' => $month_label,
@@ -77,7 +73,6 @@ if ($report_type === 'monthly') {
 
 .inv-wrap {
     width: 210mm;
-    min-height: 297mm;
     margin: 0 auto;
     padding: 0;
     font-family: 'Inter', sans-serif;
@@ -99,6 +94,7 @@ if ($report_type === 'monthly') {
     padding: 60px 0;
     display: flex;
     justify-content: center;
+    align-items: flex-start;
 }
 
 @media print {
@@ -203,7 +199,7 @@ if ($report_type === 'monthly') {
     padding: 12px 0 !important;
 }
 
-.inv-card-bottom-bar { height: 12px; background: #186D55; width: 100%; margin-top: auto; }
+.inv-card-bottom-bar { height: 12px; background: #186D55; width: 100%; }
 
 @media print {
     body * { visibility: hidden; }
@@ -250,7 +246,7 @@ if ($report_type === 'monthly') {
             </div>
             <div class="inv-date-no">
                 <strong>DATE:</strong> <?php echo date('F d, Y'); ?><br>
-                <strong>INVOICE NO:</strong> EXP-<?php echo ($report_type === 'monthly') ? date('mY', strtotime($selected_month . '-01')) : $selected_year; ?><br>
+                <strong>REPORT ID:</strong> EXP-<?php echo ($report_type === 'monthly') ? date('mY', strtotime($selected_month . '-01')) : $selected_year; ?><br>
                 <strong>PERIOD:</strong> <?php echo ($report_type === 'monthly') ? date('F Y', strtotime($selected_month . '-01')) : "Year " . $selected_year; ?>
             </div>
         </div>
@@ -266,7 +262,7 @@ if ($report_type === 'monthly') {
                 </p>
             </div>
             <div class="billing-col">
-                <h4 style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #186D55; margin: 0 0 10px 0;">Payment Summary</h4>
+                <h4 style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #186D55; margin: 0 0 10px 0;">Audit Summary</h4>
                 <p style="font-size: 13px; line-height: 1.6; color: #475569; margin: 0;">
                     Status: <span style="display: inline-flex; align-items: center; gap: 6px; background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; padding: 2px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase;">● AUDITED</span><br>
                     Generated On: <?php echo date('d M, Y'); ?>

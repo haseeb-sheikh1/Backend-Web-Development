@@ -61,12 +61,29 @@ class Users {
                         $_SESSION['profile_image'] = $row['profile_image'];
                         $_SESSION['logged_in']  = true;
 
+                        // Fetch user permissions
+                        $permQuery = "SELECT p.name FROM user_permissions up JOIN permissions p ON up.permission_id = p.id WHERE up.user_id = ?";
+                        $permStmt = $this->connection->prepare($permQuery);
+                        if ($permStmt) {
+                            $permStmt->bind_param("i", $row['user_id']);
+                            $permStmt->execute();
+                            $permRes = $permStmt->get_result();
+                            $permissions = [];
+                            while ($p = $permRes->fetch_assoc()) {
+                                $permissions[] = $p['name'];
+                            }
+                            $_SESSION['permissions'] = $permissions;
+                            $permStmt->close();
+                        } else {
+                            $_SESSION['permissions'] = [];
+                        }
+
                         if ($_SESSION['role_id'] == '1') {
                             header("Location:administrator_dashboard.php"); 
                         } else {
                             header("Location: employee_dashboard.php"); 
                         }
-                        exit(); 
+                        exit();
                     } else {
                         $this->errors['general'] = "Invalid email or password.";  
                     }

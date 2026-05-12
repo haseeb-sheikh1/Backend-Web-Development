@@ -175,7 +175,7 @@
 
 .currency-prefix {
   position: absolute;
-  left: 14px;
+  left: 18px; /* Shifted right for pill shape */
   font-size: 13.5px;
   font-weight: 700;
   color: var(--text-muted);
@@ -183,20 +183,37 @@
 }
 
 .form-input-prefix {
-  padding-left: 36px !important;
+  padding-left: 42px !important;
 }
 
-.form-input, .form-select, .form-textarea {
+.form-input, .form-select {
   width: 100%;
-  padding: 10px 14px;
+  padding: 10px 20px; /* Increased side padding for rounded corners */
   font-size: 13.5px;
   font-family: var(--font-body);
   color: var(--text-main);
   background-color: #f8fafc;
   border: 1.5px solid var(--border);
-  border-radius: 8px;
+  border-radius: 25px !important; /* Pill-shaped */
   transition: all 0.2s ease;
   box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.form-textarea {
+  width: 100%;
+  padding: 14px 20px;
+  font-size: 13.5px;
+  font-family: var(--font-body);
+  color: var(--text-main);
+  background-color: #f8fafc;
+  border: 1.5px solid var(--border);
+  border-radius: 16px !important; /* Slightly less rounded for text areas */
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 .form-input:focus, .form-select:focus, .form-textarea:focus {
@@ -217,7 +234,7 @@
   gap: 16px;
   background: #f1f5f9;
   padding: 4px;
-  border-radius: 8px;
+  border-radius: 25px; /* Pill-shaped */
   border: 1.5px solid var(--border);
 }
 
@@ -235,7 +252,7 @@
   padding: 8px;
   font-size: 13px;
   font-weight: 700;
-  border-radius: 6px;
+  border-radius: 21px; /* Matches outer pill padding */
   color: var(--text-muted);
   cursor: pointer;
   transition: all 0.15s ease;
@@ -255,7 +272,7 @@
 .upload-zone {
   border: 2px dashed #cbd5e1;
   background: #f8fafc;
-  border-radius: 8px;
+  border-radius: 25px; /* Pill-shaped */
   padding: 16px;
   text-align: center;
   cursor: pointer;
@@ -308,7 +325,7 @@
   color: #ffffff;
   background: var(--brand-green);
   border: none;
-  border-radius: 8px;
+  border-radius: 25px; /* Pill-shaped */
   cursor: pointer;
   display: flex;
   align-items: center;

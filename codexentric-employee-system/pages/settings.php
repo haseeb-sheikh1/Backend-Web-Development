@@ -9,7 +9,7 @@
     // Determine user role
     $is_admin = isset($_SESSION['role_id']) && $_SESSION['role_id'] == 1;
     $current_page = "settings";
-    $title = $is_admin ? "Admin Settings - CodeXentric" : "Employee Settings - CodeXentric";
+    $title = $is_admin ? "System Settings" : "Account Settings";
 
     require_once "../pages/Database.php";
     require_once "../pages/Users.php";
@@ -362,61 +362,101 @@ input:checked + .slider:before {
     background: #f6f8fb;
 }
 
+.nav-scroll-arrow {
+    display: none;
+}
+
 /* ── Responsiveness (Mobile View tabs & side-by-side avatar) ── */
 @media (max-width: 768px) {
+    .dashboard-container {
+        padding: 0 12px 24px 12px !important;
+    }
     .profile-container {
-        flex-direction: column;
-        gap: 20px;
-        padding: 0 15px;
+        flex-direction: column !important;
+        gap: 20px !important;
+        padding: 0 !important;
     }
     .profile-sidebar {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        align-items: center;
-        gap: 20px;
-        padding: 20px;
-        width: 100%;
-        position: relative;
-        top: 0;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        display: grid !important;
+        grid-template-columns: auto 1fr !important;
+        align-items: center !important;
+        gap: 20px !important;
+        padding: 20px !important;
+        width: 100% !important;
+        position: relative !important;
+        top: 0 !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03) !important;
+        box-sizing: border-box !important;
     }
     .profile-avatar-wrapper {
-        width: 80px;
-        height: 80px;
-        margin-bottom: 0;
+        width: 80px !important;
+        height: 80px !important;
+        margin-bottom: 0 !important;
     }
     .profile-meta-info {
-        display: flex;
-        flex-direction: column;
-        text-align: left;
+        display: flex !important;
+        flex-direction: column !important;
+        text-align: left !important;
     }
     .profile-sidebar h2 {
-        text-align: left;
-        margin: 0;
-        font-size: 18px;
+        text-align: left !important;
+        margin: 0 !important;
+        font-size: 18px !important;
     }
     .profile-sidebar p {
-        text-align: left;
-        margin: 4px 0 0 0;
+        text-align: left !important;
+        margin: 4px 0 0 0 !important;
+    }
+    
+    /* Convert to Enhanced Overflow Ribbon */
+    .profile-nav-wrapper {
+        grid-column: span 2 !important;
+        position: relative !important;
+        margin-top: 15px !important;
+        border-top: 1px solid #f1f5f9 !important;
+        padding: 8px 0 !important;
     }
     .profile-nav {
-        grid-column: span 2;
-        display: flex;
-        flex-direction: row;
-        gap: 10px;
-        overflow-x: auto;
-        padding: 8px 0;
-        margin-top: 15px;
-        border-top: 1px solid #f1f5f9;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 10px !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
     }
     .profile-nav::-webkit-scrollbar {
         display: none;
     }
+    
+    .nav-scroll-arrow {
+        display: flex !important;
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 100%;
+        width: 55px;
+        border: none;
+        background: linear-gradient(to left, rgba(255,255,255,1) 40%, rgba(255,255,255,0));
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 6px;
+        z-index: 10;
+        cursor: pointer;
+    }
+    .nav-scroll-arrow svg {
+        background: var(--brand-green);
+        color: white;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        padding: 4px;
+        box-shadow: 0 4px 10px rgba(24,109,85,0.25);
+    }
+    
     .profile-nav-link {
-        white-space: nowrap;
-        flex-shrink: 0;
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
         padding: 8px 16px !important;
         border-radius: 20px !important;
         background: #f1f5f9 !important;
@@ -431,13 +471,27 @@ input:checked + .slider:before {
         color: #ffffff !important;
     }
     .profile-main {
-        width: 100%;
+        width: 100% !important;
     }
     .modern-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
     }
     .form-field.full {
-        grid-column: span 1;
+        grid-column: span 1 !important;
+    }
+    
+    /* Production Grid Extensions for Multi-form Actions */
+    .modern-btn-primary {
+        width: 100% !important;
+        justify-content: center !important;
+        box-sizing: border-box !important;
+    }
+    
+    .section-header {
+        padding: 14px 16px !important;
+    }
+    .section-body {
+        padding: 16px 16px !important;
     }
 }
 </style>
@@ -476,11 +530,16 @@ input:checked + .slider:before {
                 <p><?php echo $is_admin ? "Administrator" : htmlspecialchars($employee_data['position_title'] ?? "Employee"); ?></p>
             </div>
             
-            <nav class="profile-nav">
-                <a href="#profile-section" class="profile-nav-link active">Personal Settings</a>
-                <a href="#password-section" class="profile-nav-link">Password & Security</a>
-                <a href="#preferences-section" class="profile-nav-link">System Preferences</a>
-            </nav>
+            <div class="profile-nav-wrapper">
+                <nav class="profile-nav" id="settingsNavScroller">
+                    <a href="#profile-section" class="profile-nav-link active">Personal Settings</a>
+                    <a href="#password-section" class="profile-nav-link">Password & Security</a>
+                    <a href="#preferences-section" class="profile-nav-link">System Preferences</a>
+                </nav>
+                <button type="button" class="nav-scroll-arrow" onclick="scrollSettingsNavRight()" aria-label="Scroll settings right">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+            </div>
         </aside>
 
         <!-- Main Content -->
@@ -700,6 +759,14 @@ input:checked + .slider:before {
         window.addEventListener('resize', initLayout);
         initLayout();
     });
+
+    // Unified settings navigation assistant
+    function scrollSettingsNavRight() {
+        const scroller = document.getElementById('settingsNavScroller');
+        if (scroller) {
+            scroller.scrollBy({ left: 160, behavior: 'smooth' });
+        }
+    }
 </script>
 
 <?php include_once "../includes/footer.php"; ?>

@@ -12,7 +12,7 @@
 
     $user_role = "admin"; 
     $current_page = "payroll";
-    $title = "Edit Salary Adjustments - CodeXentric";
+    $title = "Payroll Adjustments";
     $extra_css = "payroll"; 
     include_once "../includes/header.php"; 
 

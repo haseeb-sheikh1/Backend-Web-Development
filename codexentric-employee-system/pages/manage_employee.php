@@ -9,14 +9,39 @@ if (!isset($_SESSION['role_id']) || $_SESSION['role_id'] != '1') {
     header("Location: employee_dashboard.php");
     exit();
 }
-    $current_page = "manage_employees";
-    $extra_css    = "manage_employee";
-    $title        = "Manage Employee - CodeXentric";
-    include_once "../includes/header.php";
     require_once '../pages/Database.php';
     require_once '../pages/Employee.php';
     $db = new Database();
     $connection = $db->getConnection();
+
+    // ── Handle AJAX permission toggle ──
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['toggle_permission'])) {
+        ob_clean(); // Ensure no output buffering issues
+        header('Content-Type: application/json');
+        $perm_id = (int)$_POST['permission_id'];
+        $action  = $_POST['action']; // 'grant' or 'revoke'
+        $target_user = (int)$_GET['id'];
+
+        if ($action === 'grant') {
+            $ins = $connection->prepare("INSERT IGNORE INTO user_permissions (user_id, permission_id) VALUES (?, ?)");
+            $ins->bind_param("ii", $target_user, $perm_id);
+            $ins->execute();
+            $ins->close();
+        } else {
+            $del = $connection->prepare("DELETE FROM user_permissions WHERE user_id = ? AND permission_id = ?");
+            $del->bind_param("ii", $target_user, $perm_id);
+            $del->execute();
+            $del->close();
+        }
+        echo json_encode(['success' => true, 'action' => $action, 'permission_id' => $perm_id]);
+        exit;
+    }
+
+    $current_page = "manage_employees";
+    $extra_css    = "manage_employee";
+    $title        = "Employee Profile Editor";
+    include_once "../includes/header.php";
+    
     $employeeObj = new Employee($connection);
 
     if (isset($_GET['id']) && !empty($_GET['id'])) {
@@ -33,6 +58,27 @@ if (!isset($_SESSION['role_id']) || $_SESSION['role_id'] != '1') {
         include_once "../includes/footer.php";
         exit;
     }
+
+    // ── Fetch all permissions and this user's assigned permissions ──
+    $all_permissions = [];
+    $perm_res = $connection->query("SELECT id, name, description FROM permissions ORDER BY id");
+    if ($perm_res) {
+        while ($p = $perm_res->fetch_assoc()) {
+            $all_permissions[] = $p;
+        }
+    }
+
+    $user_perms = [];
+    $up_stmt = $connection->prepare("SELECT permission_id FROM user_permissions WHERE user_id = ?");
+    $up_stmt->bind_param("i", $user_id);
+    $up_stmt->execute();
+    $up_res = $up_stmt->get_result();
+    while ($up = $up_res->fetch_assoc()) {
+        $user_perms[] = (int)$up['permission_id'];
+    }
+    $up_stmt->close();
+
+    // AJAX handler moved above header inclusion.
     if (isset($_POST['deactivate'])) {
         $employeeId = $_GET['id'];
         if ($employeeObj->deleteEmployee($employeeId)) {
@@ -317,6 +363,10 @@ if (!isset($_SESSION['role_id']) || $_SESSION['role_id'] != '1') {
   margin: 0 auto;
   padding: 30px;
   font-family: var(--font-body);
+}
+
+.nav-scroll-arrow {
+    display: none;
 }
 
 /* ── Settings Theme Layout ── */
@@ -619,30 +669,144 @@ if (!isset($_SESSION['role_id']) || $_SESSION['role_id'] != '1') {
   font-weight: 500;
 }
 /* ── Responsiveness ── */
-@media (max-width: 900px) {
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 0 12px 24px 12px !important;
+    }
     .profile-container {
-        flex-direction: column;
-        gap: 24px;
+        flex-direction: column !important;
+        gap: 20px !important;
     }
     .profile-sidebar {
-        width: 100%;
-        position: relative;
-        top: 0;
+        display: grid !important;
+        grid-template-columns: auto 1fr !important;
+        align-items: center !important;
+        gap: 20px !important;
+        width: 100% !important;
+        position: relative !important;
+        top: 0 !important;
+        padding: 20px !important;
+        box-sizing: border-box !important;
     }
-}
+    .profile-avatar-wrapper {
+        width: 80px !important;
+        height: 80px !important;
+        margin-bottom: 0 !important;
+    }
+    .profile-meta-info {
+        display: flex !important;
+        flex-direction: column !important;
+        text-align: left !important;
+    }
+    .profile-sidebar h2 {
+        text-align: left !important;
+        margin: 0 !important;
+        font-size: 18px !important;
+    }
+    .profile-sidebar p {
+        text-align: left !important;
+        margin: 4px 0 0 0 !important;
+    }
+    
+    /* Convert to Overflow Scrolling Ribbon with Arrow Logic */
+    .profile-nav-wrapper {
+        grid-column: span 2 !important;
+        position: relative !important;
+        margin-top: 15px !important;
+        border-top: 1px solid #f1f5f9 !important;
+        padding: 8px 0 !important;
+    }
+    .profile-nav {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 10px !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+        width: 100% !important;
+    }
+    .profile-nav::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .nav-scroll-arrow {
+        display: flex !important;
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 100%;
+        width: 55px;
+        border: none;
+        background: linear-gradient(to left, rgba(255,255,255,1) 40%, rgba(255,255,255,0));
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 6px;
+        z-index: 10;
+        cursor: pointer;
+    }
+    .nav-scroll-arrow svg {
+        background: var(--brand-green);
+        color: white;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        padding: 4px;
+        box-shadow: 0 4px 10px rgba(24,109,85,0.25);
+    }
 
-@media (max-width: 600px) {
+    .profile-nav-link {
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+        padding: 8px 16px !important;
+        border-radius: 20px !important;
+        background: #f1f5f9 !important;
+        color: #475569 !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        border: none !important;
+        transition: all 0.2s;
+        text-align: left !important;
+    }
+    .profile-nav-link.active {
+        background: var(--brand-green) !important;
+        color: #ffffff !important;
+    }
+    
+    /* Actions block force column span */
+    .profile-sidebar-actions {
+        grid-column: span 2 !important;
+    }
+    
     .modern-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
     }
     .form-field.full {
-        grid-column: span 1;
+        grid-column: span 1 !important;
     }
+    
+    /* Split stat metrics into highly readable single items on tight devices */
     .emp-stats {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
     }
-    .dashboard-container {
-        padding: 15px;
+    
+    .section-header {
+        padding: 14px 16px !important;
+    }
+    .section-body {
+        padding: 16px 16px !important;
+    }
+    
+    .emp-breadcrumb {
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+        margin-bottom: 16px !important;
+    }
+    .emp-breadcrumb a, .emp-breadcrumb span {
+        padding: 5px 12px !important;
+        font-size: 12px !important;
     }
 }
 </style>
@@ -666,17 +830,25 @@ if (!isset($_SESSION['role_id']) || $_SESSION['role_id'] != '1') {
                   echo $initials;
               ?>
           </div>
-          <h2><?php echo htmlspecialchars($employee['first_name'] . ' ' . $employee['last_name']); ?></h2>
-          <p><?php echo htmlspecialchars($employee['position_title']); ?></p>
+          <div class="profile-meta-info">
+              <h2><?php echo htmlspecialchars($employee['first_name'] . ' ' . $employee['last_name']); ?></h2>
+              <p><?php echo htmlspecialchars($employee['position_title']); ?></p>
+          </div>
           
-          <nav class="profile-nav">
-              <a href="#personal-section" class="profile-nav-link active">Personal Details</a>
-              <a href="#financial-section" class="profile-nav-link">Financial & Banking</a>
-              <a href="#history-section" class="profile-nav-link">Employment History</a>
-              <a href="#actions-section" class="profile-nav-link">Quick Actions</a>
-          </nav>
+          <div class="profile-nav-wrapper">
+              <nav class="profile-nav" id="manageNavScroller">
+                  <a href="#personal-section" class="profile-nav-link active">Personal Details</a>
+                  <a href="#financial-section" class="profile-nav-link">Financial & Banking</a>
+                  <a href="#history-section" class="profile-nav-link">Employment History</a>
+                  <a href="#permissions-section" class="profile-nav-link">Permissions</a>
+                  <a href="#actions-section" class="profile-nav-link">Quick Actions</a>
+              </nav>
+              <button type="button" class="nav-scroll-arrow" onclick="scrollManageNavRight()" aria-label="Scroll navigation right">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </button>
+          </div>
 
-          <div style="width: 100%; border-top: 1px solid var(--border); margin-top: 20px; padding-top: 20px; display: flex; flex-direction: column; gap: 10px;">
+          <div class="profile-sidebar-actions" style="width: 100%; border-top: 1px solid var(--border); margin-top: 20px; padding-top: 20px; display: flex; flex-direction: column; gap: 10px;">
               <a href="update_profile.php?id=<?php echo $employee['user_id']; ?>" class="btn-hero btn-hero-primary" style="justify-content: center; width: 100%;">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                   Update Profile
@@ -799,7 +971,46 @@ if (!isset($_SESSION['role_id']) || $_SESSION['role_id'] != '1') {
               </div>
           </div>
 
-          <!-- SECTION 4: QUICK ACTIONS -->
+          <!-- SECTION 4: PERMISSIONS -->
+          <div class="section-card" id="permissions-section">
+              <div class="section-header">
+                  <h3>Access Permissions</h3>
+              </div>
+              <div class="section-body">
+                  <p style="font-size: 13px; color: #64748b; margin-bottom: 20px; line-height: 1.6;">
+                      Control what this employee can access. Toggle permissions on or off — changes save instantly.
+                  </p>
+                  <div class="perm-list">
+                      <?php foreach ($all_permissions as $perm): ?>
+                          <?php
+                              $is_active = in_array((int)$perm['id'], $user_perms);
+                              $icon_map = [
+                                  'add_expense'        => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+                                  'approve_expense'    => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+                                  'view_all_expenses'  => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
+                              ];
+                              $icon = $icon_map[$perm['name']] ?? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+                          ?>
+                          <div class="perm-row" data-perm-id="<?php echo $perm['id']; ?>">
+                              <div class="perm-icon <?php echo $is_active ? 'active' : ''; ?>">
+                                  <?php echo $icon; ?>
+                              </div>
+                              <div class="perm-info">
+                                  <div class="perm-name"><?php echo htmlspecialchars(ucwords(str_replace('_', ' ', $perm['name']))); ?></div>
+                                  <div class="perm-desc"><?php echo htmlspecialchars($perm['description']); ?></div>
+                              </div>
+                              <label class="perm-toggle">
+                                  <input type="checkbox" class="perm-checkbox" data-perm-id="<?php echo $perm['id']; ?>" <?php echo $is_active ? 'checked' : ''; ?>>
+                                  <span class="perm-slider"></span>
+                              </label>
+                          </div>
+                      <?php endforeach; ?>
+                  </div>
+                  <div id="perm-save-feedback" style="display: none; margin-top: 16px; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;"></div>
+              </div>
+          </div>
+
+          <!-- SECTION 5: QUICK ACTIONS -->
           <div class="section-card" id="actions-section">
               <div class="section-header">
                   <h3>Quick Actions</h3>
@@ -960,6 +1171,212 @@ if (!isset($_SESSION['role_id']) || $_SESSION['role_id'] != '1') {
       }
   </style>
 
+  <!-- Permissions Toggle Styles -->
+  <style>
+      /* ── Permission Row List ── */
+      .perm-list {
+          display: flex;
+          flex-direction: column;
+          gap: 0;
+      }
+      .perm-row {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          padding: 16px 0;
+          border-bottom: 1px solid #f1f5f9;
+          transition: background 0.15s;
+      }
+      .perm-row:last-child {
+          border-bottom: none;
+      }
+      .perm-row:hover {
+          background: #fafbfc;
+          margin: 0 -20px;
+          padding-left: 20px;
+          padding-right: 20px;
+          border-radius: 8px;
+      }
+
+      /* Icon bubble */
+      .perm-icon {
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
+          background: #f1f5f9;
+          color: #94a3b8;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          transition: all 0.25s;
+      }
+      .perm-icon.active {
+          background: #ecfdf5;
+          color: #186D55;
+      }
+
+      /* Text block */
+      .perm-info {
+          flex: 1;
+          min-width: 0;
+      }
+      .perm-name {
+          font-size: 14px;
+          font-weight: 700;
+          color: #1e293b;
+          margin-bottom: 2px;
+      }
+      .perm-desc {
+          font-size: 12.5px;
+          color: #94a3b8;
+          font-weight: 500;
+          line-height: 1.4;
+      }
+
+      /* ── Toggle Switch ── */
+      .perm-toggle {
+          position: relative;
+          display: inline-block;
+          width: 44px;
+          height: 24px;
+          flex-shrink: 0;
+          cursor: pointer;
+      }
+      .perm-toggle .perm-checkbox {
+          opacity: 0;
+          width: 0;
+          height: 0;
+          position: absolute;
+      }
+      .perm-slider {
+          position: absolute;
+          inset: 0;
+          background: #cbd5e1;
+          border-radius: 24px;
+          transition: background 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .perm-slider::before {
+          content: '';
+          position: absolute;
+          width: 18px;
+          height: 18px;
+          left: 3px;
+          top: 3px;
+          background: #ffffff;
+          border-radius: 50%;
+          transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+      }
+      .perm-checkbox:checked + .perm-slider {
+          background: #186D55;
+      }
+      .perm-checkbox:checked + .perm-slider::before {
+          transform: translateX(20px);
+      }
+      .perm-checkbox:focus + .perm-slider {
+          box-shadow: 0 0 0 3px rgba(24, 109, 85, 0.15);
+      }
+
+      /* Saving state indicator */
+      .perm-row.saving {
+          opacity: 0.6;
+          pointer-events: none;
+      }
+
+      @media (max-width: 768px) {
+          .perm-row {
+              gap: 12px;
+              padding: 14px 0;
+          }
+          .perm-icon {
+              width: 36px;
+              height: 36px;
+              border-radius: 8px;
+          }
+          .perm-name {
+              font-size: 13px;
+          }
+          .perm-desc {
+              font-size: 11.5px;
+          }
+      }
+  </style>
+
 </div><!-- /.dashboard-container -->
+
+<script>
+    // Interactive Ribbon Navigator for Detail View
+    function scrollManageNavRight() {
+        const scroller = document.getElementById('manageNavScroller');
+        if (scroller) {
+            scroller.scrollBy({ left: 160, behavior: 'smooth' });
+        }
+    }
+</script>
+
+<!-- AJAX Permission Toggle Engine -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.perm-checkbox');
+
+    checkboxes.forEach(function(cb) {
+        cb.addEventListener('change', function() {
+            const permId = this.getAttribute('data-perm-id');
+            const action = this.checked ? 'grant' : 'revoke';
+            const row = this.closest('.perm-row');
+            const iconEl = row.querySelector('.perm-icon');
+            const feedback = document.getElementById('perm-save-feedback');
+
+            // Visual: saving state
+            row.classList.add('saving');
+
+            // Toggle icon color immediately
+            if (action === 'grant') {
+                iconEl.classList.add('active');
+            } else {
+                iconEl.classList.remove('active');
+            }
+
+            // AJAX POST
+            const formData = new FormData();
+            formData.append('toggle_permission', '1');
+            formData.append('permission_id', permId);
+            formData.append('action', action);
+
+            fetch(window.location.href, {
+                method: 'POST',
+                body: formData
+            })
+            .then(r => r.json())
+            .then(data => {
+                row.classList.remove('saving');
+                if (data.success) {
+                    feedback.style.display = 'block';
+                    feedback.style.background = '#ecfdf5';
+                    feedback.style.color = '#186D55';
+                    feedback.textContent = action === 'grant'
+                        ? '✓ Permission granted successfully'
+                        : '✓ Permission revoked successfully';
+                    setTimeout(() => { feedback.style.display = 'none'; }, 2500);
+                }
+            })
+            .catch(() => {
+                row.classList.remove('saving');
+                // Revert checkbox on error
+                cb.checked = !cb.checked;
+                if (cb.checked) iconEl.classList.add('active');
+                else iconEl.classList.remove('active');
+
+                feedback.style.display = 'block';
+                feedback.style.background = '#fef2f2';
+                feedback.style.color = '#dc2626';
+                feedback.textContent = '✕ Failed to update permission. Try again.';
+                setTimeout(() => { feedback.style.display = 'none'; }, 3000);
+            });
+        });
+    });
+});
+</script>
 
 <?php include_once "../includes/footer.php"; ?>

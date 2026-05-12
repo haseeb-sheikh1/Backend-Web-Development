@@ -12,7 +12,7 @@
     $user_role = "admin";
     $current_page = "manage_employees";
     $extra_css = "employees_list";
-    $title = "Select Employee - CodeXentric";
+    $title = "Employee Directory";
     include_once "../includes/header.php";
     require_once "../pages/database.php";
     require_once "../pages/Employee.php";
@@ -63,7 +63,7 @@ $totalPages = ceil($total_employees / $limit);
                 </div>
                 <div class="search-card-body">
                     <form method="GET" action="">
-                        <div class="search-grid" style="grid-template-columns: repeat(3, 1fr);">
+                        <div class="search-grid">
                             <div class="search-field">
                                 <label for="keyword">Keyword</label>
                                 <div class="input-wrap">
@@ -738,6 +738,24 @@ $totalPages = ceil($total_employees / $limit);
 }
 
 @media (max-width: 768px) {
+  /* Optimize Layout Densification for Mobile Reach */
+  .emp-list-page {
+    padding: 0 12px 12px 12px !important;
+  }
+  
+  .search-card-header {
+    padding: 16px 15px !important;
+  }
+  
+  .search-card-body {
+    padding: 16px 15px !important;
+  }
+  
+  .table-header-action-bar {
+    margin-top: 20px !important;
+    padding: 0 !important;
+  }
+
   /* Hide the desktop table layout */
   .table-wrapper {
     background: transparent !important;
@@ -897,6 +915,21 @@ $totalPages = ceil($total_employees / $limit);
     background: #fef2f2 !important;
     color: #ef4444 !important;
     border-color: #fee2e2 !important;
+  }
+
+  /* Responsive Grid Fix for Search Bar Stack Overflow */
+  .search-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  
+  .search-actions {
+    width: 100% !important;
+    justify-content: stretch !important;
+  }
+  .search-actions > * {
+    flex: 1 !important;
+    justify-content: center !important;
   }
 }
 </style>

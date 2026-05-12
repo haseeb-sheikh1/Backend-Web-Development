@@ -337,6 +337,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     background: #f8fafc;
 }
 
+.nav-scroll-arrow {
+    display: none;
+}
+
 /* ── Breadcrumb Pills ── */
 .emp-breadcrumb {
   display: flex; 
@@ -404,20 +408,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
         text-align: left;
         margin: 4px 0 0 0;
     }
-    .profile-nav {
+    .profile-nav-wrapper {
         grid-column: span 2;
+        position: relative;
+        margin-top: 15px;
+        border-top: 1px solid #f1f5f9;
+        padding: 8px 0;
+    }
+    .profile-nav {
         display: flex;
         flex-direction: row;
         gap: 10px;
         overflow-x: auto;
-        padding: 8px 0;
-        margin-top: 15px;
-        border-top: 1px solid #f1f5f9;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
     }
     .profile-nav::-webkit-scrollbar {
         display: none;
+    }
+    
+    .nav-scroll-arrow {
+        display: flex !important;
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 100%;
+        width: 55px;
+        border: none;
+        background: linear-gradient(to left, rgba(255,255,255,1) 40%, rgba(255,255,255,0));
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 6px;
+        z-index: 10;
+        cursor: pointer;
+    }
+    .nav-scroll-arrow svg {
+        background: var(--brand-green);
+        color: white;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        padding: 4px;
+        box-shadow: 0 4px 10px rgba(24,109,85,0.25);
     }
     .profile-nav-link {
         white-space: nowrap;
@@ -443,6 +476,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     }
     .form-field.full {
         grid-column: span 1;
+    }
+    
+    /* Production Extensions */
+    .dashboard-container {
+        padding: 0 12px 24px 12px !important;
+    }
+    .emp-breadcrumb {
+        flex-wrap: wrap !important;
+        gap: 6px !important;
+        margin-bottom: 16px !important;
+    }
+    .emp-breadcrumb a, .emp-breadcrumb span {
+        padding: 5px 12px !important;
+        font-size: 12px !important;
+    }
+    .update-form-actions {
+        flex-direction: column-reverse !important;
+        gap: 12px !important;
+        margin-top: 24px !important;
+    }
+    .update-form-actions a, .update-form-actions button {
+        width: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        height: 44px !important;
+        box-sizing: border-box !important;
     }
 }
 </style>
@@ -473,11 +533,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
                 <p><?php echo htmlspecialchars($employee['position_title']); ?></p>
             </div>
             
-            <nav class="profile-nav">
-                <a href="#personal-section" class="profile-nav-link active">Personal Details</a>
-                <a href="#job-section" class="profile-nav-link">Job Information</a>
-                <a href="#compensation-section" class="profile-nav-link">Compensation & Banking</a>
-            </nav>
+            <div class="profile-nav-wrapper">
+                <nav class="profile-nav" id="profileNavScroller">
+                    <a href="#personal-section" class="profile-nav-link active">Personal Details</a>
+                    <a href="#job-section" class="profile-nav-link">Job Information</a>
+                    <a href="#compensation-section" class="profile-nav-link">Compensation & Banking</a>
+                </nav>
+                <button type="button" class="nav-scroll-arrow" onclick="scrollProfileNavRight()" aria-label="Scroll navigation right">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+            </div>
         </aside>
 
         <!-- Main Content -->
@@ -578,7 +643,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
                 </div>
 
                 <!-- Form Actions -->
-                <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px;">
+                <div class="update-form-actions" style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px;">
                     <a href="manage_employee.php?id=<?php echo htmlspecialchars($employee['user_id']); ?>" class="modern-btn-secondary">Cancel</a>
                     <button type="submit" name="update_profile" class="modern-btn-primary">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -646,6 +711,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
         window.addEventListener('resize', initLayout);
         initLayout();
     });
+
+    // Custom Scroll Assist Utility for Next Pillar Navigation
+    function scrollProfileNavRight() {
+        const scroller = document.getElementById('profileNavScroller');
+        if (scroller) {
+            // Dynamically scroll by roughly 60% of view width to bump the next available link forward
+            scroller.scrollBy({ left: 150, behavior: 'smooth' });
+        }
+    }
 </script>
 
 <?php include_once "../includes/footer.php" ; ?>

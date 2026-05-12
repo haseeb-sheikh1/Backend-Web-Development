@@ -56,7 +56,7 @@
     :root {
         --brand-green:  #186D55;
         --brand-green-dark: #11523F;
-        --sidebar-w:    240px;
+        --sidebar-w:    249px;
         --topbar-h:     66px; /* Updated to 66px (50px content + 8px top/bottom padding) */
         --sidebar-bg:   #0f1c2e;
         --sidebar-border: #17293f;
@@ -268,16 +268,26 @@
 }
 
 .sub-header-title {
-    font-size: 13px;
+    font-size: 13.5px;
     font-weight: 700;
-    color: var(--brand-green); /* Swapped to your signature green */
-    background: rgba(24, 109, 85, 0.08); /* Super soft pastel variant mimicking reference image */
-    padding: 6px 18px;
-    border-radius: 30px; /* Highly curved pill capsule */
+    color: var(--brand-green); 
+    background: rgba(24, 109, 85, 0.06); 
+    padding: 6px 18px 6px 14px;
+    border-radius: 30px; 
     letter-spacing: 0.2px;
     display: inline-flex;
     align-items: center;
-    box-shadow: inset 0 0 0 1px rgba(24, 109, 85, 0.05);
+    gap: 10px;
+    box-shadow: inset 0 0 0 1px rgba(24, 109, 85, 0.08);
+}
+.sub-header-title::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--brand-green);
+    border-radius: 50%;
+    opacity: 0.75;
+    flex-shrink: 0;
 }
 
 .help-btn {
@@ -472,14 +482,115 @@
     }
 
     /* ══════════════════════════════════
-       MOBILE  
+       MOBILE RESPONSIVE ARCHITECTURE
     ══════════════════════════════════ */
     @media (max-width: 900px) {
-        .sidebar { transform: translateX(-100%); transition: transform .25s; }
-        .sidebar.open { transform: translateX(0); }
-        .app-right { margin-left: 0 !important; }
-        .sidebar.collapsed + .app-right { margin-left: 0 !important; }
-        .main-content { padding: 20px 16px; }
+        .sidebar { 
+            transform: translateX(-100%); 
+            transition: transform .25s; 
+        }
+        .sidebar.open { 
+            transform: translateX(0); 
+        }
+        .app-right { 
+            margin-left: 0 !important; 
+        }
+        .sidebar.collapsed + .app-right { 
+            margin-left: 0 !important; 
+        }
+        .main-content { 
+            padding: 20px 16px; 
+        }
+        
+        /* ── Premium Mobile Header Suite ── */
+        .topbar {
+            padding: 8px 16px !important;
+            background: rgba(255, 255, 255, 0.88) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            position: relative !important;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.6) !important;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02) !important;
+        }
+        
+        /* Pure centered branding vector */
+        .topbar-breadcrumb {
+            position: absolute !important;
+            left: 50% !important;
+            top: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            margin: 0 !important;
+        }
+        .topbar-breadcrumb svg {
+            width: 18px !important;
+            height: 18px !important;
+            stroke: var(--brand-green) !important;
+            opacity: 1 !important;
+            transition: all 0.3s ease;
+        }
+        .topbar-breadcrumb span {
+            display: none !important;
+        }
+        
+        /* Isolated, shadow-lifted Avatar Halo */
+        .topbar-username, .topbar-chevron {
+            display: none !important;
+        }
+        .topbar-user, .topbar-user:hover {
+            padding: 0 !important;
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            width: auto !important; height: auto !important;
+        }
+        .topbar-avatar {
+            border: 2px solid #ffffff !important;
+            box-shadow: 0 0 0 1.5px rgba(24, 109, 85, 0.15), 0 4px 10px rgba(0,0,0,0.05) !important;
+            width: 36px !important;
+            height: 36px !important;
+            transition: transform 0.2s ease;
+        }
+
+        /* Unified control anchors */
+        .mobile-toggle-btn {
+            display: inline-flex !important;
+            background: #f1f5f9 !important;
+            border-radius: 10px !important;
+            width: 36px !important;
+            height: 36px !important;
+            justify-content: center !important;
+            margin-right: 0 !important;
+        }
+        
+        /* ── Sub-Header Refinement ── */
+        .sub-header-bar {
+            padding: 10px 16px !important;
+            height: auto !important;
+            min-height: 48px !important;
+        }
+        .sub-header-title {
+            font-size: 12px !important;
+            padding: 5px 12px !important;
+            white-space: normal !important;
+        }
+        
+        /* ── Dropdown Production Hardening ── */
+        .dropdown-menu {
+            width: 225px !important;
+            right: -4px !important;
+            top: calc(100% + 10px) !important;
+            border-radius: 18px !important;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.03) !important;
+            border: 1px solid rgba(0,0,0,0.04) !important;
+        }
+        .dropdown-header {
+            padding: 20px 20px 16px !important;
+        }
+        .dropdown-item {
+            padding: 14px 20px !important;
+            font-size: 14px !important;
+            min-height: 46px !important; /* Enforce 44px+ Apple standard */
+        }
     }
 
     /* ══════════════════════════════════
@@ -506,11 +617,6 @@
     }
     .mobile-toggle-btn:hover {
         background: #e2e8f0;
-    }
-    @media (max-width: 900px) {
-        .mobile-toggle-btn {
-            display: inline-flex;
-        }
     }
     </style>
 </head>

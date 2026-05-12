@@ -348,6 +348,165 @@
 
 @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .search-card, .results-container { animation: fadeUp 0.3s ease both; }
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 0 12px 12px 12px !important;
+  }
+  
+  .search-card-header {
+    padding: 16px 15px !important;
+  }
+  .search-card-body {
+    padding: 18px 16px !important;
+  }
+  
+  .search-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  
+  /* Mobile Card Table Transformation */
+  .employees-table, .employees-table thead, .employees-table tbody, .employees-table tr, .employees-table td {
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  
+  .employees-table thead { display: none !important; }
+  
+  .employees-table tr {
+    background: #ffffff !important;
+    border: 1px solid #eef2f6 !important;
+    border-radius: 20px !important;
+    margin-bottom: 16px !important;
+    padding: 20px !important;
+    position: relative !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.02) !important;
+  }
+  
+  .employees-table tr:hover td { background: transparent !important; transform: none !important; }
+  
+  .employees-table td {
+    border: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    margin-bottom: 12px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    border-radius: 0 !important;
+  }
+  
+  .employees-table td[data-label]::before {
+    content: attr(data-label);
+    font-size: 10.5px !important;
+    font-weight: 800 !important;
+    color: #94a3b8 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.6px !important;
+    margin-bottom: 4px !important;
+  }
+  
+  /* Elevate top identifier simply without heavy coloring */
+  .employees-table td:first-child {
+    border-bottom: 1px solid #f1f5f9 !important;
+    padding-bottom: 12px !important;
+    margin-bottom: 16px !important;
+    font-size: 16px !important;
+    font-weight: 800 !important;
+    color: #1e293b !important;
+  }
+  
+  /* Float actions in default card corner */
+  .employees-table td:last-child {
+    position: absolute !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: auto !important;
+    margin: 0 !important;
+  }
+  .employees-table td:last-child::before { display: none !important; }
+  
+  /* Flatten Total Calculation TFoot */
+  .employees-table tfoot, .employees-table tfoot tr, .employees-table tfoot td {
+    display: block !important;
+    width: 100% !important;
+  }
+  /* Clean Slate for Footer Card container */
+  .employees-table tfoot tr {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    padding: 0 !important; /* Standard Padding handled by sub-items */
+    box-shadow: 0 8px 30px rgba(0,0,0,0.04) !important;
+    border-radius: 20px !important;
+    margin-top: 28px !important;
+    overflow: hidden !important; /* Ensures header strip follows boundary perfectly */
+  }
+  
+  /* High Specificity Reset to Kill intrusive desktop overrides */
+  .employees-table tfoot tr td {
+    margin-bottom: 0 !important;
+    padding: 14px 24px !important;
+    border: none !important; /* KILL THE BOX OUTLINES */
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    font-size: 14px !important;
+  }
+  
+  /* Simple, clean row separator line, only beneath standard data entries */
+  .employees-table tfoot tr td:not(:first-child):not(.val-net):not(:last-child) {
+    border-bottom: 1px solid #f1f5f9 !important;
+  }
+  
+  .employees-table tfoot tr td[data-label]::before {
+    content: attr(data-label);
+    display: block !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    color: #64748b !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+  }
+
+  /* Match the top header band WITHOUT pulling margins - let overflow:hidden mask it */
+  .employees-table tfoot tr td:first-child {
+    background: rgba(24, 109, 85, 0.06) !important;
+    color: var(--brand-green) !important;
+    border-bottom: 1px solid rgba(24, 109, 85, 0.08) !important;
+    padding: 16px 24px !important;
+    font-size: 15px !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.8px !important;
+    text-transform: uppercase;
+    width: 100% !important;
+    margin-bottom: 8px !important;
+    border-radius: 0 !important; /* REMOVES CLIPPING OVERLAP */
+  }
+  
+  /* Final Row Elevation inside the card padding matrix */
+  .employees-table tfoot tr td.val-net {
+    border: none !important;
+    margin: 12px 20px 20px 20px !important;
+    padding: 16px !important;
+    background: #f8fafc !important;
+    border-radius: 12px !important;
+    font-size: 17px !important;
+    font-weight: 800 !important;
+    width: auto !important; /* Auto constraint inside margins */
+  }
+  .employees-table tfoot tr td.val-net::before {
+    color: #1e293b !important;
+    font-weight: 700 !important;
+  }
+  .employees-table tfoot tr td:last-child { display: none !important; }
+}
 </style>
 
 <div class="dashboard-container">
@@ -435,12 +594,12 @@
                                     $sum_net += $row_net;
                             ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?></td>
-                                <td>Rs <?php echo number_format($row['base_salary_rs']); ?></td>
-                                <td class="val-positive">+ Rs <?php echo number_format($row['total_bonuses']); ?></td>
-                                <td class="val-positive">+ Rs <?php echo number_format($row['total_allowances']); ?></td>
-                                <td class="val-negative">- Rs <?php echo number_format($row['total_deductions']); ?></td>
-                                <td class="val-net">Rs <?php echo number_format($row_net); ?></td>
+                                <td data-label="Employee"><?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?></td>
+                                <td data-label="Base Salary">Rs <?php echo number_format($row['base_salary_rs']); ?></td>
+                                <td data-label="Bonuses" class="val-positive">+ Rs <?php echo number_format($row['total_bonuses']); ?></td>
+                                <td data-label="Allowances" class="val-positive">+ Rs <?php echo number_format($row['total_allowances']); ?></td>
+                                <td data-label="Deductions" class="val-negative">- Rs <?php echo number_format($row['total_deductions']); ?></td>
+                                <td data-label="Net Payout" class="val-net">Rs <?php echo number_format($row_net); ?></td>
                                 <td>
                                     <div class="action-trigger-group">
                                         <a href="salary_invoice.php?employeeId=<?php echo urlencode($row['user_id']); ?>&month=<?php echo urlencode(date('Y-m', strtotime($row['payroll_month']))); ?>" class="action-icon-btn" title="View Details" target="_blank">
@@ -457,11 +616,11 @@
                         <tfoot>
                             <tr>
                                 <td>MONTH TOTAL</td>
-                                <td>Rs <?php echo number_format($sum_base); ?></td>
-                                <td class="val-positive">+ Rs <?php echo number_format($sum_bonuses); ?></td>
-                                <td class="val-positive">+ Rs <?php echo number_format($sum_allowances); ?></td>
-                                <td class="val-negative">- Rs <?php echo number_format($sum_deductions); ?></td>
-                                <td class="val-net">Rs <?php echo number_format($sum_net); ?></td>
+                                <td data-label="Total Base">Rs <?php echo number_format($sum_base); ?></td>
+                                <td data-label="Total Bonuses" class="val-positive">+ Rs <?php echo number_format($sum_bonuses); ?></td>
+                                <td data-label="Total Allowances" class="val-positive">+ Rs <?php echo number_format($sum_allowances); ?></td>
+                                <td data-label="Total Deductions" class="val-negative">- Rs <?php echo number_format($sum_deductions); ?></td>
+                                <td data-label="Grand Total Net" class="val-net">Rs <?php echo number_format($sum_net); ?></td>
                                 <td></td>
                             </tr>
                         </tfoot>
@@ -503,12 +662,12 @@
                                     $sum_net += ($row['base_salary'] + $row['total_bonuses'] + $row_allowances - $row['total_deductions']);
                             ?>
                             <tr>
-                                <td><?php echo date('F Y', strtotime($row['payroll_month'])); ?></td>
-                                <td>Rs <?php echo number_format($row['base_salary']); ?></td>
-                                <td class="val-positive">+ Rs <?php echo number_format($row['total_bonuses']); ?></td>
-                                <td class="val-positive">+ Rs <?php echo number_format($row_allowances); ?></td>
-                                <td class="val-negative">- Rs <?php echo number_format($row['total_deductions']); ?></td>
-                                <td class="val-net">Rs <?php echo number_format($row['base_salary'] + $row['total_bonuses'] + $row_allowances - $row['total_deductions']); ?></td>
+                                <td data-label="Month"><?php echo date('F Y', strtotime($row['payroll_month'])); ?></td>
+                                <td data-label="Base Salary">Rs <?php echo number_format($row['base_salary']); ?></td>
+                                <td data-label="Bonuses" class="val-positive">+ Rs <?php echo number_format($row['total_bonuses']); ?></td>
+                                <td data-label="Allowances" class="val-positive">+ Rs <?php echo number_format($row_allowances); ?></td>
+                                <td data-label="Deductions" class="val-negative">- Rs <?php echo number_format($row['total_deductions']); ?></td>
+                                <td data-label="Net Payable" class="val-net">Rs <?php echo number_format($row['base_salary'] + $row['total_bonuses'] + $row_allowances - $row['total_deductions']); ?></td>
                                 <td>
                                     <div class="action-trigger-group">
                                         <a href="salary_invoice.php?employeeId=<?php echo urlencode($selected_user_id); ?>&month=<?php echo urlencode(date('Y-m', strtotime($row['payroll_month']))); ?>" class="action-icon-btn" title="View Details" target="_blank">
@@ -525,11 +684,11 @@
                         <tfoot>
                             <tr>
                                 <td>YEAR TOTAL</td>
-                                <td>Rs <?php echo number_format($sum_base); ?></td>
-                                <td class="val-positive">+ Rs <?php echo number_format($sum_bonuses); ?></td>
-                                <td class="val-positive">+ Rs <?php echo number_format($sum_allowances); ?></td>
-                                <td class="val-negative">- Rs <?php echo number_format($sum_deductions); ?></td>
-                                <td class="val-net">Rs <?php echo number_format($sum_net); ?></td>
+                                <td data-label="Total Base">Rs <?php echo number_format($sum_base); ?></td>
+                                <td data-label="Total Bonuses" class="val-positive">+ Rs <?php echo number_format($sum_bonuses); ?></td>
+                                <td data-label="Total Allowances" class="val-positive">+ Rs <?php echo number_format($sum_allowances); ?></td>
+                                <td data-label="Total Deductions" class="val-negative">- Rs <?php echo number_format($sum_deductions); ?></td>
+                                <td data-label="Grand Total Net" class="val-net">Rs <?php echo number_format($sum_net); ?></td>
                                 <td></td>
                             </tr>
                         </tfoot>

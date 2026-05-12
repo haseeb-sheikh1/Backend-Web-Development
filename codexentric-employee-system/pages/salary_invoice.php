@@ -296,6 +296,10 @@ if ($selected_user_id) {
     font-size: 13px;
     color: #64748b;
 }
+.inv-totals-table td:first-child {
+    text-align: right;
+    padding-right: 20px;
+}
 .inv-totals-table td:last-child {
     text-align: right;
     font-weight: 600;

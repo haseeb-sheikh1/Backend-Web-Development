@@ -26,6 +26,88 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_employee'])) {
 }
 ?>
 
+<style>
+.dashboard-container {
+  padding: 15px 24px 40px 24px;
+}
+
+@media (max-width: 768px) {
+  /* Mobile-Only: Production Card Header Tint */
+  .widget-card {
+    overflow: hidden !important;
+  }
+  .widget-header {
+    border-top-left-radius: inherit;
+    border-top-right-radius: inherit;
+    padding: 18px 24px;
+    background: #f5f9f8;
+    border-bottom: 1px solid #e6eeec;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--brand-green);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  .widget-header svg {
+    width: 18px;
+    height: 18px;
+    stroke: var(--brand-green) !important;
+    stroke-width: 2.5 !important;
+    fill: none;
+  }
+  .dashboard-container {
+    padding: 0 12px 24px 12px !important;
+  }
+  
+  /* Force Dashboard Matrix to single column vertical stack */
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 20px !important;
+  }
+  
+  /* Force nested Form Grids to single column layout */
+  .form-grid {
+    grid-template-columns: 1fr !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+  
+  .span-full { grid-column: span 1 !important; }
+  
+  .widget-card {
+    border-radius: 16px !important;
+  }
+  
+  .widget-header {
+    padding: 16px 18px !important;
+    font-size: 14px !important;
+  }
+  
+  .widget-body {
+    padding: 20px 16px !important;
+  }
+  
+  .form-footer {
+    margin-top: 24px !important;
+    padding-bottom: 12px !important;
+  }
+  
+  .btn-brand {
+    width: 100% !important;
+    height: 46px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
+</style>
+
   <div class="dashboard-container">
     
     <?php if (isset($_SESSION['success_msg']) || isset($employee->errors['success'])): 
@@ -196,6 +278,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_employee'])) {
                   <option value="" disabled <?php echo empty($_POST['department']) ? 'selected' : ''; ?>>Select Department</option>
                   <option value="Software Engineering" <?php echo (isset($_POST['department']) && $_POST['department'] === 'Software Engineering') ? 'selected' : ''; ?>>Software Engineering</option>
                   <option value="Design" <?php echo (isset($_POST['department']) && $_POST['department'] === 'Design') ? 'selected' : ''; ?>>Design</option>
+                  <option value="Finance & Accounts" <?php echo (isset($_POST['department']) && $_POST['department'] === 'Finance & Accounts') ? 'selected' : ''; ?>>Finance & Accounts</option>
                 </select>
                 <?php if (isset($employee->errors['department'])): ?>
                   <small class="error-msg"><?php echo htmlspecialchars($employee->errors['department']); ?></small>
@@ -209,6 +292,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['create_employee'])) {
                   <option value="Frontend Developer" <?php echo (isset($_POST['position_title']) && $_POST['position_title'] === 'Frontend Developer') ? 'selected' : ''; ?>>Frontend Developer</option>
                   <option value="Backend intern" <?php echo (isset($_POST['position_title']) && $_POST['position_title'] === 'Backend intern') ? 'selected' : ''; ?>>Backend intern</option>
                   <option value="Senior Backend Developer" <?php echo (isset($_POST['position_title']) && $_POST['position_title'] === 'Senior Backend Developer') ? 'selected' : ''; ?>>Senior Backend Developer</option>
+                  <option value="Expense Clerk" <?php echo (isset($_POST['position_title']) && $_POST['position_title'] === 'Expense Clerk') ? 'selected' : ''; ?>>Expense Clerk</option>
                 </select>
                 <?php if (isset($employee->errors['position_title'])): ?>
                   <small class="error-msg"><?php echo htmlspecialchars($employee->errors['position_title']); ?></small>
