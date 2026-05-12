@@ -4,6 +4,19 @@ if (!isset($current_page) || $current_page === 'login' || !isset($_SESSION['role
     return;
 }
 $role = $_SESSION['role_id'];
+
+// Get pending expense approvals for admin
+$pending_expense_count = 0;
+if ($role == '1') {
+    require_once '../pages/database.php';
+    if (!isset($db) || !isset($conn)) {
+        $db = new Database();
+        $conn = $db->getConnection();
+    }
+    require_once '../pages/Expense.php';
+    $expenseHandler = new Expense($conn);
+    $pending_expense_count = $expenseHandler->getPendingCount();
+}
 ?>
 
 <style>
@@ -376,7 +389,10 @@ $role = $_SESSION['role_id'];
                      <line x1="12" y1="1" x2="12" y2="23"/>
                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
                 </svg>
-                <span class="sidebar-label">Expenses</span>
+                <span class="sidebar-label" style="flex: 1;">Expenses</span>
+                <?php if ($pending_expense_count > 0): ?>
+                <span style="background: #f37b1d; color: #fff; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 800;"><?php echo $pending_expense_count; ?></span>
+                <?php endif; ?>
             </a>
 
             <a href="expense_reports.php"

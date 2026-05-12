@@ -65,15 +65,15 @@ $highest_expense_amt = 0;
 $burn_rate = 0;
 
 if ($report_type === 'monthly') {
-    // 1. Total Monthly Spend (Sum of all expenses for selected month)
-    $sum_month_stmt = $conn->prepare("SELECT SUM(amount) as total FROM expenses WHERE DATE_FORMAT(bill_date, '%Y-%m') = ?");
+    // 1. Total Monthly Spend (Sum of all approved expenses for selected month)
+    $sum_month_stmt = $conn->prepare("SELECT SUM(amount) as total FROM expenses WHERE DATE_FORMAT(bill_date, '%Y-%m') = ? AND status = 'approved'");
     $sum_month_stmt->bind_param("s", $selected_month);
     $sum_month_stmt->execute();
     $monthly_spend = floatval($sum_month_stmt->get_result()->fetch_assoc()['total']);
     $sum_month_stmt->close();
 
-    // 2. Pending Payments for the month
-    $pending_stmt = $conn->prepare("SELECT SUM(amount) as total FROM expenses WHERE status = 'Unpaid' AND DATE_FORMAT(bill_date, '%Y-%m') = ?");
+    // 2. Pending Approvals for the month
+    $pending_stmt = $conn->prepare("SELECT SUM(amount) as total FROM expenses WHERE status = 'pending' AND DATE_FORMAT(bill_date, '%Y-%m') = ?");
     $pending_stmt->bind_param("s", $selected_month);
     $pending_stmt->execute();
     $pending_payments = floatval($pending_stmt->get_result()->fetch_assoc()['total']);
@@ -83,7 +83,7 @@ if ($report_type === 'monthly') {
     $highest_stmt = $conn->prepare("SELECT ec.category_name, SUM(e.amount) as total 
                                   FROM expenses e 
                                   JOIN expense_categories ec ON e.category_id = ec.id 
-                                  WHERE DATE_FORMAT(e.bill_date, '%Y-%m') = ?
+                                  WHERE DATE_FORMAT(e.bill_date, '%Y-%m') = ? AND e.status = 'approved'
                                   GROUP BY e.category_id 
                                   ORDER BY total DESC LIMIT 1");
     $highest_stmt->bind_param("s", $selected_month);
@@ -107,15 +107,15 @@ if ($report_type === 'monthly') {
     // Yearly Summary Cards calculation
     $year_str = $selected_year . '%';
     
-    // 1. Total Spend of the Year
-    $sum_year_stmt = $conn->prepare("SELECT SUM(amount) as total FROM expenses WHERE bill_date LIKE ?");
+    // 1. Total Spend of the Year (Approved only)
+    $sum_year_stmt = $conn->prepare("SELECT SUM(amount) as total FROM expenses WHERE bill_date LIKE ? AND status = 'approved'");
     $sum_year_stmt->bind_param("s", $year_str);
     $sum_year_stmt->execute();
     $monthly_spend = floatval($sum_year_stmt->get_result()->fetch_assoc()['total']);
     $sum_year_stmt->close();
 
-    // 2. Total Pending Payments of the Year
-    $pending_stmt = $conn->prepare("SELECT SUM(amount) as total FROM expenses WHERE status = 'Unpaid' AND bill_date LIKE ?");
+    // 2. Total Pending Approvals of the Year
+    $pending_stmt = $conn->prepare("SELECT SUM(amount) as total FROM expenses WHERE status = 'pending' AND bill_date LIKE ?");
     $pending_stmt->bind_param("s", $year_str);
     $pending_stmt->execute();
     $pending_payments = floatval($pending_stmt->get_result()->fetch_assoc()['total']);
@@ -125,7 +125,7 @@ if ($report_type === 'monthly') {
     $highest_stmt = $conn->prepare("SELECT ec.category_name, SUM(e.amount) as total 
                                   FROM expenses e 
                                   JOIN expense_categories ec ON e.category_id = ec.id 
-                                  WHERE e.bill_date LIKE ?
+                                  WHERE e.bill_date LIKE ? AND e.status = 'approved'
                                   GROUP BY e.category_id 
                                   ORDER BY total DESC LIMIT 1");
     $highest_stmt->bind_param("s", $year_str);
@@ -157,7 +157,7 @@ if ($report_type === 'monthly') {
     $stmt = $conn->prepare("SELECT e.*, ec.category_name 
                             FROM expenses e 
                             JOIN expense_categories ec ON e.category_id = ec.id 
-                            WHERE DATE_FORMAT(e.bill_date, '%Y-%m') = ?
+                            WHERE DATE_FORMAT(e.bill_date, '%Y-%m') = ? AND e.status = 'approved'
                             ORDER BY e.bill_date DESC");
     $stmt->bind_param("s", $selected_month);
     $stmt->execute();
@@ -172,8 +172,8 @@ if ($report_type === 'monthly') {
         $month_code = sprintf('%04d-%02d', $selected_year, $m);
         $month_label = date('F Y', strtotime($month_code . "-01"));
 
-        // General Operating Expenses
-        $stmt = $conn->prepare("SELECT SUM(amount) as total FROM expenses WHERE DATE_FORMAT(bill_date, '%Y-%m') = ?");
+        // General Operating Expenses (Approved only)
+        $stmt = $conn->prepare("SELECT SUM(amount) as total FROM expenses WHERE DATE_FORMAT(bill_date, '%Y-%m') = ? AND status = 'approved'");
         $stmt->bind_param("s", $month_code);
         $stmt->execute();
         $op_expense = floatval($stmt->get_result()->fetch_assoc()['total']);
@@ -186,7 +186,7 @@ if ($report_type === 'monthly') {
         $salaries = floatval($stmt->get_result()->fetch_assoc()['total']);
         $stmt->close();
 
-        // Count pending vs paid bills for status summary
+        // Count pending vs approved bills for status summary
         $stmt = $conn->prepare("SELECT COUNT(*) as count, status FROM expenses WHERE DATE_FORMAT(bill_date, '%Y-%m') = ? GROUP BY status");
         $stmt->bind_param("s", $month_code);
         $stmt->execute();
@@ -194,8 +194,8 @@ if ($report_type === 'monthly') {
         $paid_count = 0;
         $unpaid_count = 0;
         while($st = $st_res->fetch_assoc()) {
-            if ($st['status'] === 'Paid') $paid_count = $st['count'];
-            if ($st['status'] === 'Unpaid') $unpaid_count = $st['count'];
+            if ($st['status'] === 'approved') $paid_count = $st['count'];
+            if ($st['status'] === 'pending') $unpaid_count = $st['count'];
         }
         $stmt->close();
 
@@ -218,7 +218,7 @@ if ($report_type === 'monthly') {
     $dist_stmt = $conn->prepare("SELECT ec.category_name, SUM(e.amount) as total 
                                FROM expenses e 
                                JOIN expense_categories ec ON e.category_id = ec.id 
-                               WHERE DATE_FORMAT(e.bill_date, '%Y-%m') = ?
+                               WHERE DATE_FORMAT(e.bill_date, '%Y-%m') = ? AND e.status = 'approved'
                                GROUP BY e.category_id");
     $dist_stmt->bind_param("s", $selected_month);
 } else {
@@ -226,7 +226,7 @@ if ($report_type === 'monthly') {
     $dist_stmt = $conn->prepare("SELECT ec.category_name, SUM(e.amount) as total 
                                FROM expenses e 
                                JOIN expense_categories ec ON e.category_id = ec.id 
-                               WHERE e.bill_date LIKE ?
+                               WHERE e.bill_date LIKE ? AND e.status = 'approved'
                                GROUP BY e.category_id");
     $dist_stmt->bind_param("s", $year_str);
 }
@@ -255,7 +255,7 @@ foreach ($trend_months as $m) {
     $month_name = date('M Y', strtotime($m . "-01"));
     $trend_labels[] = $month_name;
     
-    $month_sum_stmt = $conn->prepare("SELECT SUM(amount) as total FROM expenses WHERE DATE_FORMAT(bill_date, '%Y-%m') = ?");
+    $month_sum_stmt = $conn->prepare("SELECT SUM(amount) as total FROM expenses WHERE DATE_FORMAT(bill_date, '%Y-%m') = ? AND status = 'approved'");
     $month_sum_stmt->bind_param("s", $m);
     $month_sum_stmt->execute();
     $tot = floatval($month_sum_stmt->get_result()->fetch_assoc()['total']);

@@ -23,6 +23,9 @@ require_once '../pages/database.php';
 $db = new Database();
 $conn = $db->getConnection();
 
+require_once '../pages/Expense.php';
+$expenseHandler = new Expense($conn);
+
 // Create upload directory if not exists
 $upload_dir = '../assets/uploads/receipts/';
 if (!file_exists($upload_dir)) {
@@ -109,15 +112,43 @@ if (isset($_GET['delete']) && !empty($_GET['delete'])) {
     $del_stmt->close();
 }
 
+// Approve / Reject Actions (Admin only)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $is_admin) {
+    if (isset($_POST['action']) && $_POST['action'] === 'approve' && isset($_POST['expense_id'])) {
+        if ($expenseHandler->approveExpense(intval($_POST['expense_id']), $_SESSION['user_id'])) {
+            $success_message = "Expense approved successfully.";
+        } else {
+            $error_message = "Failed to approve expense.";
+        }
+    }
+    if (isset($_POST['action']) && $_POST['action'] === 'reject' && isset($_POST['expense_id']) && isset($_POST['reject_reason'])) {
+        if ($expenseHandler->rejectExpense(intval($_POST['expense_id']), $_SESSION['user_id'], trim($_POST['reject_reason']))) {
+            $success_message = "Expense rejected.";
+        } else {
+            $error_message = "Failed to reject expense.";
+        }
+    }
+}
+
 // Create/Update Action
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_expense'])) {
     $category_id = intval($_POST['category_id']);
     $amount = floatval($_POST['amount']);
     $bill_date = $_POST['bill_date'];
-    $status = $_POST['status']; 
+    
+    if ($is_admin) {
+        $status = 'approved';
+        $approved_by = $_SESSION['user_id'];
+        $approved_at = date('Y-m-d H:i:s');
+    } else {
+        $status = 'pending';
+        $approved_by = null;
+        $approved_at = null;
+    }
+
     $invoice_number = trim($_POST['invoice_number']);
     $notes = trim($_POST['description']);
-    $admin_id = $_SESSION['user_id']; 
+    $user_id = $_SESSION['user_id']; 
 
     // Handle Dynamic Category Creation
     if ($category_id === -1 && !empty($_POST['new_category_name'])) {
@@ -150,8 +181,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_expense'])) {
         $error_message = "Amount cannot be negative.";
     } elseif (empty($_POST['bill_date'])) {
         $error_message = "Billing Date is required.";
-    } elseif (empty($_POST['status'])) {
-        $error_message = "Payment Status is required.";
     }
 
     if (empty($error_message)) {
@@ -197,8 +226,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_expense'])) {
     if (empty($error_message)) {
         if ($edit_mode) {
             // Update
-            $stmt = $conn->prepare("UPDATE expenses SET category_id = ?, amount = ?, description = ?, bill_date = ?, status = ?, attachment_path = ? WHERE id = ?");
-            $stmt->bind_param("idssssi", $category_id, $amount, $description, $bill_date, $status, $attachment_name, $edit_data['id']);
+            $stmt = $conn->prepare("UPDATE expenses SET category_id = ?, amount = ?, description = ?, bill_date = ?, attachment_path = ? WHERE id = ?");
+            $stmt->bind_param("idsssi", $category_id, $amount, $description, $bill_date, $attachment_name, $edit_data['id']);
             if ($stmt->execute()) {
                 $_SESSION['success_msg'] = "Expense updated successfully.";
                 header("Location: expenses.php");
@@ -209,8 +238,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_expense'])) {
             $stmt->close();
         } else {
             // Insert
-            $stmt = $conn->prepare("INSERT INTO expenses (category_id, admin_id, amount, description, bill_date, status, attachment_path, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
-            $stmt->bind_param("iidssss", $category_id, $admin_id, $amount, $description, $bill_date, $status, $attachment_name);
+            $stmt = $conn->prepare("INSERT INTO expenses (category_id, user_id, amount, description, bill_date, status, attachment_path, approved_by, approved_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+            $stmt->bind_param("iidssssis", $category_id, $user_id, $amount, $description, $bill_date, $status, $attachment_name, $approved_by, $approved_at);
             if ($stmt->execute()) {
                 $success_message = "New expense recorded successfully!";
             } else {
@@ -225,21 +254,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_expense'])) {
 
 $current_month = date('Y-m');
 
-// 1. Total Monthly Spend (Sum of all expenses for current month)
-$sum_month_stmt = $conn->prepare("SELECT SUM(amount) as total FROM expenses WHERE DATE_FORMAT(bill_date, '%Y-%m') = ?");
+// 1. Total Monthly Spend (Sum of all approved expenses for current month)
+$sum_month_stmt = $conn->prepare("SELECT SUM(amount) as total FROM expenses WHERE DATE_FORMAT(bill_date, '%Y-%m') = ? AND status = 'approved'");
 $sum_month_stmt->bind_param("s", $current_month);
 $sum_month_stmt->execute();
 $monthly_spend = floatval($sum_month_stmt->get_result()->fetch_assoc()['total']);
 $sum_month_stmt->close();
 
-// 2. Pending Payments (Sum of all Unpaid bills)
-$pending_stmt = $conn->query("SELECT SUM(amount) as total FROM expenses WHERE status = 'Unpaid'");
+// 2. Pending Approvals (Sum of all pending bills)
+$pending_stmt = $conn->query("SELECT SUM(amount) as total FROM expenses WHERE status = 'pending'");
 $pending_payments = floatval($pending_stmt->fetch_assoc()['total']);
 
 // 3. Highest Expense Category (Sum of amount grouped by category, showing the top one)
 $highest_stmt = $conn->query("SELECT ec.category_name, SUM(e.amount) as total 
                               FROM expenses e 
                               JOIN expense_categories ec ON e.category_id = ec.id 
+                              WHERE e.status = 'approved'
                               GROUP BY e.category_id 
                               ORDER BY total DESC LIMIT 1");
 $highest_expense_cat = "N/A";
@@ -277,7 +307,7 @@ $params = [];
 $types = '';
 
 if (!$is_admin) {
-    $where_clauses[] = "e.admin_id = ?";
+    $where_clauses[] = "e.user_id = ?";
     $params[] = $_SESSION['user_id'];
     $types .= 'i';
 }
@@ -354,6 +384,7 @@ if ($count_stmt === false) {
 $dist_stmt = $conn->query("SELECT ec.category_name, SUM(e.amount) as total 
                            FROM expenses e 
                            JOIN expense_categories ec ON e.category_id = ec.id 
+                           WHERE e.status = 'approved'
                            GROUP BY e.category_id");
 $dist_labels = [];
 $dist_values = [];
@@ -380,7 +411,7 @@ foreach ($trend_months as $m) {
     $month_name = date('M Y', strtotime($m . "-01"));
     $trend_labels[] = $month_name;
     
-    $month_sum_stmt = $conn->prepare("SELECT SUM(amount) as total FROM expenses WHERE DATE_FORMAT(bill_date, '%Y-%m') = ?");
+    $month_sum_stmt = $conn->prepare("SELECT SUM(amount) as total FROM expenses WHERE DATE_FORMAT(bill_date, '%Y-%m') = ? AND status = 'approved'");
     $month_sum_stmt->bind_param("s", $m);
     $month_sum_stmt->execute();
     $tot = floatval($month_sum_stmt->get_result()->fetch_assoc()['total']);
@@ -459,8 +490,118 @@ include_once "../includes/sidebar.php";
     <div class="alert alert-success">✓ <?php echo htmlspecialchars($_SESSION['success_msg']); unset($_SESSION['success_msg']); ?></div>
   <?php endif; ?>
 
+  <?php if ($is_admin): ?>
+  <!-- Pending Approvals Queue -->
+  <div style="width: 100%; margin: 0 0 20px 0;">
+    <div class="widget-card" style="border-radius: 20px; border: 1px solid #eef2f6; box-shadow: 0 6px 25px rgba(0,0,0,0.03);">
+      <div class="widget-header" style="padding: 22px 24px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; text-transform: none; letter-spacing: 0;">
+        <span class="widget-header-title" style="font-size: 16px; font-weight: 700; color: #334155;">Pending Approvals</span>
+        <span style="background: #f37b1d; color: #fff; padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: 700;">
+          <?php echo $expenseHandler->getPendingCount(); ?> Pending
+        </span>
+      </div>
+      <div class="widget-body" style="padding: 0;">
+        <?php
+        $pending_res = $conn->query("SELECT e.*, u.first_name, u.last_name, ec.category_name
+                                     FROM expenses e
+                                     JOIN users u ON e.user_id = u.user_id
+                                     JOIN expense_categories ec ON e.category_id = ec.id
+                                     WHERE e.status = 'pending' ORDER BY e.created_at ASC");
+        if ($pending_res && $pending_res->num_rows > 0):
+        ?>
+        <div style="display:flex;flex-direction:column;">
+          <?php while($row = $pending_res->fetch_assoc()): ?>
+          <div style="display:flex;align-items:center;gap:20px;background:#fff;border-bottom:1px solid #f1f5f9;padding:20px 24px;transition:all 0.2s ease;" onmouseover="this.style.backgroundColor='#fafbfc'" onmouseout="this.style.backgroundColor='#fff'">
+
+            <!-- Icon -->
+            <div style="width:42px;height:42px;background:#edf7f3;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:none;stroke:#186D55;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;">
+                <path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+                <circle cx="12" cy="12" r="2"/>
+              </svg>
+            </div>
+
+            <!-- Name + subtitle -->
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:14px;font-weight:700;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                <?php echo htmlspecialchars($row['first_name'] . ' ' . $row['last_name']); ?>
+              </div>
+              <div style="font-size:12px;color:#64748b;margin-top:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                <span><?php echo htmlspecialchars($row['category_name']); ?></span>
+                <span style="width:3px;height:3px;background:#cbd5e1;border-radius:50%;display:inline-block;"></span>
+                <span><?php echo htmlspecialchars($row['bill_date']); ?></span>
+                <?php if (!empty($row['description'])): ?>
+                  <span style="width:3px;height:3px;background:#cbd5e1;border-radius:50%;display:inline-block;"></span>
+                  <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;"><?php echo htmlspecialchars($row['description']); ?></span>
+                <?php endif; ?>
+              </div>
+            </div>
+
+            <!-- Amount pill -->
+            <div style="flex-shrink:0;background:#f8fafc;border:1px solid #e2e8f0;border-radius:30px;padding:6px 16px;font-size:13px;font-weight:800;color:#334155;white-space:nowrap;">
+              Rs <?php echo number_format($row['amount'], 2); ?>
+            </div>
+
+            <?php if (!empty($row['attachment_path'])): ?>
+            <a href="javascript:void(0)" onclick="openReceiptModal('<?php echo htmlspecialchars($row['attachment_path']); ?>')" title="View Receipt"
+               style="flex-shrink:0;width:34px;height:34px;border-radius:8px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;color:#64748b;text-decoration:none;transition:0.2s;"
+               onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+              <svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+              </svg>
+            </a>
+            <?php endif; ?>
+
+            <!-- Action buttons -->
+            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+              <form action="expenses.php" method="POST" style="margin:0;">
+                <input type="hidden" name="expense_id" value="<?php echo $row['id']; ?>">
+                <input type="hidden" name="action" value="approve">
+                <button type="submit" style="height:34px;padding:0 18px;background:var(--brand-green);color:#fff;border:none;border-radius:30px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                  <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;"><polyline points="20 6 9 17 4 12"/></svg>
+                  Approve
+                </button>
+              </form>
+              <form action="expenses.php" method="POST" style="margin:0;display:flex;align-items:center;gap:6px;">
+                <input type="hidden" name="expense_id" value="<?php echo $row['id']; ?>">
+                <input type="hidden" name="action" value="reject">
+                <input type="text" name="reject_reason" placeholder="Reason..."
+                       id="reason-<?php echo $row['id']; ?>"
+                       style="display:none;height:34px;padding:0 14px;border:1px solid #e2e8f0;border-radius:30px;font-size:12px;color:#1e293b;width:140px;outline:none;"
+                       onfocus="this.style.borderColor='#ef4444'" onblur="this.style.borderColor='#e2e8f0'">
+                <button type="button" id="reject-btn-<?php echo $row['id']; ?>"
+                  onclick="toggleReject(<?php echo $row['id']; ?>)"
+                  style="height:34px;padding:0 18px;background:#fff;color:#ef4444;border:1px solid #ef4444;border-radius:30px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;"
+                  onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='#fff'">
+                  <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  Reject
+                </button>
+                <button type="submit" id="confirm-reject-<?php echo $row['id']; ?>"
+                  style="display:none;height:34px;padding:0 14px;background:#ef4444;color:#fff;border:none;border-radius:30px;font-size:12px;font-weight:700;cursor:pointer;">
+                  Confirm
+                </button>
+              </form>
+            </div>
+
+          </div>
+          <?php endwhile; ?>
+        </div>
+        <?php else: ?>
+        <div style="padding:32px;text-align:center;">
+          <div style="width:48px;height:48px;background:#f1f5f9;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+            <svg viewBox="0 0 24 24" style="width:22px;height:22px;fill:none;stroke:#94a3b8;stroke-width:1.75;stroke-linecap:round;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <div style="font-size:14px;font-weight:700;color:#334155;">All caught up!</div>
+          <div style="font-size:13px;color:#94a3b8;margin-top:4px;">No pending expenses to approve.</div>
+        </div>
+        <?php endif; ?>
+      </div>
+    </div>
+  </div>
+  <?php endif; ?>
+
   <!-- Full Width Form Wrapper -->
-  <div style="width: 100%; margin: 10px 0 20px 0;">
+  <div style="width: 100%; margin: 0 0 20px 0;">
     <div class="widget-card" style="border-radius: 20px; border: 1px solid #eef2f6; box-shadow: 0 6px 25px rgba(0,0,0,0.03);">
       <div class="widget-header" style="padding: 22px 24px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; text-transform: none; letter-spacing: 0;">
         <span class="widget-header-title" style="font-size: 16px; font-weight: 700; color: #334155;">
@@ -514,20 +655,7 @@ include_once "../includes/sidebar.php";
             <input type="date" name="bill_date" class="form-input" style="height: 44px;" value="<?php echo $edit_mode ? htmlspecialchars($edit_data['bill_date']) : date('Y-m-d'); ?>" required>
           </div>
 
-          <!-- Status -->
-          <div class="form-group" style="margin: 0;">
-            <label>Payment Status <span style="color: var(--danger);">*</span></label>
-            <div class="status-toggle-row" style="height: 44px; padding: 4px;">
-              <div class="status-toggle-option" style="flex: 1;">
-                <input type="radio" id="statusPaid" name="status" value="Paid" <?php echo (!$edit_mode || $edit_data['status'] === 'Paid') ? 'checked' : ''; ?>>
-                <label for="statusPaid" class="status-toggle-label paid" style="height: 100%; display: flex; align-items: center; justify-content: center;">Paid</label>
-              </div>
-              <div class="status-toggle-option" style="flex: 1;">
-                <input type="radio" id="statusUnpaid" name="status" value="Unpaid" <?php echo ($edit_mode && $edit_data['status'] === 'Unpaid') ? 'checked' : ''; ?>>
-                <label for="statusUnpaid" class="status-toggle-label unpaid" style="height: 100%; display: flex; align-items: center; justify-content: center;">Unpaid</label>
-              </div>
-            </div>
-          </div>
+          <!-- Removed Status (now handled automatically based on role) -->
 
           <!-- Reference -->
           <div class="form-group" style="margin: 0;">
@@ -538,13 +666,13 @@ include_once "../includes/sidebar.php";
           <!-- Receipt -->
           <div class="form-group" style="margin: 0;">
             <label>Attach Receipt (PDF / Image)</label>
-            <div class="upload-zone" style="height: 44px; padding: 0 16px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <div class="upload-zone" style="height: 44px; padding: 0 20px; display: flex; align-items: center; justify-content: flex-start; gap: 10px; border-style: dashed; border-width: 1.5px;">
               <input type="file" name="attachment" class="upload-file-input" accept=".pdf,image/*" style="z-index: 10;" onchange="updateFileName(this)">
-              <div class="upload-zone-icon" style="margin: 0;">
-                <svg viewBox="0 0 24 24" style="width: 18px; height: 18px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+              <div class="upload-zone-icon" style="margin: 0; display: flex; align-items: center;">
+                <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; stroke: var(--text-muted); stroke-width: 2.2; fill: none;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
               </div>
-              <div class="upload-zone-text" id="file-upload-text" style="font-size: 13px;">
-                <?php echo ($edit_mode && !empty($edit_data['attachment_path'])) ? "File: " . htmlspecialchars($edit_data['attachment_path']) : "Click to upload receipt"; ?>
+              <div class="upload-zone-text" id="file-upload-text" style="font-size: 13.5px; color: #64748b; font-weight: 600;">
+                <?php echo ($edit_mode && !empty($edit_data['attachment_path'])) ? "File: " . htmlspecialchars($edit_data['attachment_path']) : "Click to upload receipt..."; ?>
               </div>
             </div>
           </div>
@@ -635,6 +763,27 @@ include_once "../includes/sidebar.php";
       } else {
           wrapper.style.display = 'none';
           input.required = false;
+      }
+  }
+
+  function toggleReject(id) {
+      const reasonInput = document.getElementById('reason-' + id);
+      const rejectBtn   = document.getElementById('reject-btn-' + id);
+      const confirmBtn  = document.getElementById('confirm-reject-' + id);
+      const isVisible   = reasonInput.style.display !== 'none';
+
+      if (isVisible) {
+          // Collapse back
+          reasonInput.style.display = 'none';
+          confirmBtn.style.display  = 'none';
+          rejectBtn.innerHTML = '<svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Reject';
+      } else {
+          // Expand — show reason input and confirm button
+          reasonInput.style.display = 'inline-block';
+          confirmBtn.style.display  = 'inline-block';
+          reasonInput.required = true;
+          reasonInput.focus();
+          rejectBtn.innerHTML = '✕';
       }
   }
 </script>
