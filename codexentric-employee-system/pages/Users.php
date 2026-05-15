@@ -61,7 +61,7 @@ class Users {
                         $_SESSION['profile_image'] = $row['profile_image'];
                         $_SESSION['logged_in']  = true;
 
-                        // Fetch user permissions
+                        // Fetching user permissions
                         $permQuery = "SELECT p.name FROM user_permissions up JOIN permissions p ON up.permission_id = p.id WHERE up.user_id = ?";
                         $permStmt = $this->connection->prepare($permQuery);
                         if ($permStmt) {

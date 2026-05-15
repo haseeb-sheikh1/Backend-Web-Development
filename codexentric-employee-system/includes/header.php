@@ -16,6 +16,7 @@
     <?php if (isset($extra_css) && !empty($extra_css)): ?>
         <link rel="stylesheet" href="../styles/<?php echo htmlspecialchars($extra_css); ?>.css">
     <?php endif; ?>
+    <link rel="stylesheet" href="../styles/notifications.css">
 
     <!-- Production Grade Calendar Architecture Assets -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -621,6 +622,86 @@
     </style>
 </head>
 <body>
+
+<div id="toast-container"></div>
+
+<script>
+    /**
+     * Ultra-Premium Global Notification System (SaaS Grade)
+     */
+    window.showToast = function(message, type = 'success', title = '', duration = 5000) {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        
+        if (!title) {
+            title = type.charAt(0).toUpperCase() + type.slice(1);
+        }
+
+        const icons = {
+            success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+            error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+            warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+            info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+        };
+
+        toast.innerHTML = `
+            <div class="toast-icon">${icons[type] || icons.info}</div>
+            <div class="toast-body">
+                <span class="toast-title">${title}</span>
+                <p class="toast-message">${message}</p>
+            </div>
+            <button class="toast-close" aria-label="Close notification">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <div class="toast-progress">
+                <div class="toast-progress-bar" style="animation-duration: ${duration}ms"></div>
+            </div>
+        `;
+
+        container.appendChild(toast);
+
+        // Force reflow for spring animation
+        toast.offsetHeight;
+        toast.classList.add('show');
+
+        let timeoutId;
+        let startTime = Date.now();
+        let remainingTime = duration;
+
+        const dismiss = () => {
+            toast.classList.remove('show');
+            toast.classList.add('hide');
+            setTimeout(() => toast.remove(), 300);
+        };
+
+        const startTimer = () => {
+            timeoutId = setTimeout(dismiss, remainingTime);
+            toast.querySelector('.toast-progress-bar').style.animationPlayState = 'running';
+        };
+
+        const pauseTimer = () => {
+            clearTimeout(timeoutId);
+            remainingTime -= (Date.now() - startTime);
+            toast.querySelector('.toast-progress-bar').style.animationPlayState = 'paused';
+        };
+
+        startTimer();
+
+        toast.addEventListener('mouseenter', () => {
+            pauseTimer();
+        });
+
+        toast.addEventListener('mouseleave', () => {
+            startTime = Date.now();
+            startTimer();
+        });
+
+        toast.querySelector('.toast-close').addEventListener('click', dismiss);
+    };
+</script>
 
 <div class="app-shell">
 

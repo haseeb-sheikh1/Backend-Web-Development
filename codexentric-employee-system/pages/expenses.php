@@ -479,15 +479,16 @@ include_once "../includes/sidebar.php";
 
 <div class="expenses-container">
 
-  <!-- Alert System -->
+  <!-- Toast Trigger Logic -->
   <?php if (!empty($success_message)): ?>
-    <div class="alert alert-success">✓ <?php echo htmlspecialchars($success_message); ?></div>
+    <script>document.addEventListener('DOMContentLoaded', () => window.showToast && window.showToast(<?php echo json_encode($success_message); ?>, 'success'));</script>
   <?php endif; ?>
   <?php if (!empty($error_message)): ?>
-    <div class="alert alert-danger">✗ <?php echo htmlspecialchars($error_message); ?></div>
+    <script>document.addEventListener('DOMContentLoaded', () => window.showToast && window.showToast(<?php echo json_encode($error_message); ?>, 'error'));</script>
   <?php endif; ?>
   <?php if (isset($_SESSION['success_msg'])): ?>
-    <div class="alert alert-success">✓ <?php echo htmlspecialchars($_SESSION['success_msg']); unset($_SESSION['success_msg']); ?></div>
+    <script>document.addEventListener('DOMContentLoaded', () => window.showToast && window.showToast(<?php echo json_encode($_SESSION['success_msg']); ?>, 'success'));</script>
+    <?php unset($_SESSION['success_msg']); ?>
   <?php endif; ?>
 
   <?php if ($is_admin): ?>
