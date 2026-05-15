@@ -508,6 +508,32 @@ include_once "../includes/sidebar.php";
     border-top: 1px solid #f1f5f9;
 }
 
+.modern-input,
+.modern-select {
+    height: 44px;
+    padding: 0 16px;
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 22px;
+    font-size: 13.5px;
+    color: #1e293b;
+    outline: none;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+.modern-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 14px;
+}
+.modern-input:focus,
+.modern-select:focus {
+    border-color: var(--brand-green);
+    box-shadow: 0 0 0 4px rgba(24, 109, 85, 0.1);
+}
+
 .btn-primary-modern {
     background: var(--brand-green);
     color: #fff;
