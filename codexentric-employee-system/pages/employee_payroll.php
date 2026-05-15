@@ -24,8 +24,13 @@
     }
 
     $real_emp_id = $details['employee_id'];
-    // Fetch ALL salary history
-    $history = $payrollObj->getSalaryHistory($real_emp_id);
+    
+    // Filtering logic
+    $filter_month = $_GET['month'] ?? '';
+    $filter_year = $_GET['year'] ?? '';
+    
+    // Fetch salary history with optional filters
+    $history = $payrollObj->getSalaryHistory($real_emp_id, $filter_month, $filter_year);
 
     $current_page = "employee_payroll";
     $title = "My Payroll History";
@@ -296,6 +301,118 @@
         box-sizing: border-box !important;
     }
 }
+
+/* ── Premium Search Card ── */
+.search-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+    margin-bottom: 24px;
+    overflow: hidden;
+}
+.search-card-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #ffffff;
+}
+.search-card-header h2 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+.search-card-body {
+    padding: 24px;
+    background: #ffffff;
+}
+.search-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+.search-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.search-field label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+}
+.search-field input,
+.search-field select {
+    width: 100%;
+    height: 44px;
+    padding: 0 16px;
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 22px;
+    font-size: 13.5px;
+    color: #1e293b;
+    outline: none;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+.search-field select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 14px;
+}
+.search-field input:focus,
+.search-field select:focus {
+    border-color: var(--brand-green);
+    box-shadow: 0 0 0 4px rgba(24, 109, 85, 0.1);
+}
+.search-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+.btn-reset {
+    background: #ffffff;
+    color: var(--brand-green);
+    border: 1px solid var(--brand-green);
+    border-radius: 22px;
+    padding: 10px 24px;
+    font-size: 13.5px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+}
+.btn-reset:hover {
+    background: rgba(24, 109, 85, 0.05);
+}
+.btn-search {
+    background: var(--brand-green);
+    color: #ffffff;
+    border: none;
+    border-radius: 22px;
+    padding: 10px 28px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-search:hover {
+    background: #125743;
+    transform: translateY(-1px);
+}
+@media (max-width: 768px) {
+    .search-grid {
+        grid-template-columns: 1fr;
+    }
+}
 </style>
 
 <div class="payroll-layout">
@@ -309,7 +426,48 @@
         }
     ?>
 
-    <!-- Quick Metrics for Employee -->
+
+    
+    <!-- Salary Records Search Card -->
+    <div class="search-card">
+        <div class="search-card-header">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--brand-green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <h2>Salary Records Search</h2>
+        </div>
+        <div class="search-card-body">
+            <form method="GET" action="employee_payroll.php">
+                <div class="search-grid">
+                    <div class="search-field">
+                        <label>Report Month</label>
+                        <input type="month" name="month" value="<?php echo htmlspecialchars($filter_month); ?>">
+                    </div>
+                    <div class="search-field">
+                        <label>Report Year</label>
+                        <select name="year">
+                            <option value="">— All Years —</option>
+                            <?php 
+                                $currentYear = date('Y');
+                                for($y = $currentYear; $y >= 2024; $y--) {
+                                    $selected = ($filter_year == $y) ? 'selected' : '';
+                                    echo "<option value='$y' $selected>$y</option>";
+                                }
+                            ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="search-actions">
+                    <?php if ($filter_month || $filter_year): ?>
+                        <a href="employee_payroll.php" class="btn-reset">Reset</a>
+                    <?php else: ?>
+                        <button type="button" class="btn-reset" onclick="this.form.reset();">Reset</button>
+                    <?php endif; ?>
+                    <button type="submit" class="btn-search">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
     <div class="payroll-summary">
         <div class="summary-card">
             <div class="sc-icon-wrap">

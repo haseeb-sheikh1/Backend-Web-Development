@@ -28,6 +28,17 @@ $stats = [
 ];
 
 $team_members = $dashboardData['team_members'];
+ 
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['action'] === 'delete_employee') {
+    $deleteId = (int)$_POST['user_id'];
+    if ($employeeObj->deleteEmployee($deleteId)) {
+        $_SESSION['success_msg'] = "Employee has been successfully removed from the system.";
+        header("Location: administrator_dashboard.php");
+        exit();
+    } else {
+        $error = "Failed to delete employee.";
+    }
+}
 
 include_once "../includes/header.php";
 include_once "../includes/sidebar.php";
@@ -672,7 +683,7 @@ body {
                   <a href="manage_employee.php?id=<?php echo $employee['user_id']; ?>" class="action-icon-btn" title="Edit">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
                   </a>
-                  <a href="#" class="action-icon-btn delete" title="Delete" onclick="alert('Delete operations must be confirmed from main directory management.'); return false;">
+                  <a href="#" class="action-icon-btn delete" title="Delete" onclick="openDeleteModal('<?php echo $employee['user_id']; ?>', '<?php echo addslashes($employee['name']); ?>'); return false;">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                   </a>
                 </div>
@@ -690,6 +701,141 @@ body {
     </div>
   </div>
 
+<!-- ══════════ DELETE CONFIRMATION MODAL ══════════ -->
+<div id="deleteModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-icon-warning">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <h3>Remove Employee?</h3>
+    </div>
+    <div class="modal-body">
+      <p>Are you sure you want to delete <strong id="deleteEmployeeName"></strong>? This action will permanently remove their profile and payroll data from the system.</p>
+    </div>
+    <div class="modal-footer">
+      <form action="administrator_dashboard.php" method="POST">
+        <input type="hidden" name="action" value="delete_employee">
+        <input type="hidden" name="user_id" id="deleteUserId">
+        <button type="button" class="btn-cancel" onclick="closeDeleteModal()">No, Keep Profile</button>
+        <button type="submit" class="btn-confirm-delete">Yes, Delete Permanently</button>
+      </form>
+    </div>
+  </div>
 </div>
+
+<style>
+/* ── Premium Modal System ── */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.modal-overlay.active {
+  opacity: 1; pointer-events: auto;
+}
+.modal-content {
+  background: #ffffff;
+  border-radius: 20px;
+  width: 90%; max-width: 440px;
+  padding: 32px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+  transform: scale(0.9) translateY(20px);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.modal-overlay.active .modal-content {
+  transform: scale(1) translateY(0);
+}
+.modal-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.modal-icon-warning {
+  width: 56px; height: 56px;
+  background: #fff1f2;
+  color: #e11d48;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px auto;
+}
+.modal-icon-warning svg { width: 28px; height: 28px; }
+.modal-header h3 {
+  font-size: 20px; font-weight: 800; color: #1e293b; margin: 0;
+}
+.modal-body p {
+  font-size: 14.5px; color: #64748b; line-height: 1.6; text-align: center; margin: 0;
+}
+.modal-footer {
+  margin-top: 32px;
+}
+.modal-footer form {
+  display: flex; gap: 12px;
+}
+.btn-cancel, .btn-confirm-delete {
+  flex: 1; height: 46px; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; border: none;
+}
+.btn-cancel {
+  background: #f1f5f9; color: #475569;
+}
+.btn-cancel:hover { background: #e2e8f0; color: #1e293b; }
+.btn-confirm-delete {
+  background: #e11d48; color: #ffffff;
+  box-shadow: 0 4px 12px rgba(225, 29, 72, 0.2);
+}
+.btn-confirm-delete:hover {
+  background: #be123c; transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(225, 29, 72, 0.3);
+}
+</style>
+
+<script>
+function openDeleteModal(userId, userName) {
+  console.log('Dashboard: Attempting to open delete modal for:', userId, userName);
+  const userIdInp = document.getElementById('deleteUserId');
+  const userNameSpan = document.getElementById('deleteEmployeeName');
+  const modal = document.getElementById('deleteModal');
+  
+  if (userIdInp && userNameSpan && modal) {
+      userIdInp.value = userId;
+      userNameSpan.textContent = userName;
+      modal.classList.add('active');
+      console.log('Dashboard: Modal activated successfully.');
+  } else {
+      console.error('Dashboard: Modal components missing!', { userIdInp, userNameSpan, modal });
+      // Fallback if UI fails
+      if (confirm('Delete employee ' + userName + '?')) {
+          userIdInp.value = userId;
+          document.querySelector('#deleteModal form').submit();
+      }
+  }
+}
+function closeDeleteModal() {
+  document.getElementById('deleteModal').classList.remove('active');
+}
+// Close on ESC
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeDeleteModal();
+});
+
+// Trigger Toast for success
+document.addEventListener('DOMContentLoaded', function() {
+    <?php if (isset($_SESSION['success_msg'])): ?>
+        if (window.showToast) {
+            window.showToast(<?php echo json_encode($_SESSION['success_msg']); ?>, 'success', 'Success');
+            <?php unset($_SESSION['success_msg']); ?>
+        }
+    <?php endif; ?>
+    <?php if (isset($error)): ?>
+        if (window.showToast) {
+            window.showToast(<?php echo json_encode($error); ?>, 'error', 'Error');
+        }
+    <?php endif; ?>
+});
+</script>
 
 <?php include_once "../includes/footer.php"; ?>

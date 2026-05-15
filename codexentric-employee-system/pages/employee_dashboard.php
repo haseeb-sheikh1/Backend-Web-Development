@@ -416,19 +416,19 @@
             <div class="widget-body">
                 <div class="info-strip">
                     <span class="info-label">Department</span>
-                    <span class="info-val"><?php echo htmlspecialchars($details['department'] ?: 'Unassigned'); ?></span>
+                    <span class="info-val"><?php echo htmlspecialchars($details['department'] ?: 'Operations'); ?></span>
                 </div>
                 <div class="info-strip">
                     <span class="info-label">Employment Type</span>
-                    <span class="info-val"><?php echo htmlspecialchars($details['employment_type'] ?: 'Permanent'); ?></span>
+                    <span class="info-val"><?php echo htmlspecialchars($details['employment_type'] ?: 'Full-time'); ?></span>
                 </div>
                 <div class="info-strip">
                     <span class="info-label">Date of Joining</span>
-                    <span class="info-val"><?php echo date("d M Y", strtotime($details['date_of_joining'])); ?></span>
+                    <span class="info-val"><?php echo !empty($details['date_of_joining']) ? date("d M Y", strtotime($details['date_of_joining'])) : 'Pending'; ?></span>
                 </div>
                 <div class="info-strip">
                     <span class="info-label">Official Email</span>
-                    <span class="info-val" style="color: var(--brand-green);"><?php echo htmlspecialchars($details['email']); ?></span>
+                    <span class="info-val"><a href="mailto:<?php echo htmlspecialchars($details['email']); ?>" style="color: var(--brand-green); text-decoration: none;"><?php echo htmlspecialchars($details['email']); ?></a></span>
                 </div>
             </div>
         </div>
@@ -444,19 +444,31 @@
             <div class="widget-body">
                 <div class="info-strip">
                     <span class="info-label">Contracted Base Salary</span>
-                    <span class="info-val">Rs <?php echo number_format($details['base_salary_rs'] ?? 0); ?></span>
+                    <span class="info-val">Rs <?php echo number_format((float)($details['base_salary_rs'] ?? 0)); ?></span>
                 </div>
                 <div class="info-strip">
                     <span class="info-label">Designated Institution</span>
-                    <span class="info-val"><?php echo htmlspecialchars($details['bank_name'] ?: 'N/A'); ?></span>
+                    <span class="info-val"><?php echo htmlspecialchars($details['bank_name'] ?: 'Not Provided'); ?></span>
                 </div>
                 <div class="info-strip">
                     <span class="info-label">Account Identification</span>
-                    <span class="info-val">**** <?php echo substr($details['bank_account_number'], -4) ?: '****'; ?></span>
+                    <span class="info-val"><?php 
+                        if (!empty($details['bank_account_number'])) {
+                            echo "**** " . substr($details['bank_account_number'], -4);
+                        } else {
+                            echo "Missing Data";
+                        }
+                    ?></span>
                 </div>
                 <div class="info-strip">
                     <span class="info-label">Verification Status</span>
-                    <span class="info-val"><span style="color:#16a34a;">Active System Payout</span></span>
+                    <span class="info-val">
+                        <?php if (!empty($details['bank_name']) && !empty($details['bank_account_number'])): ?>
+                            <span style="color:#16a34a; font-weight: 700;">Active System Payout</span>
+                        <?php else: ?>
+                            <span style="color:#e11d48; font-weight: 700;">Action Required</span>
+                        <?php endif; ?>
+                    </span>
                 </div>
             </div>
         </div>

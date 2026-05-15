@@ -124,17 +124,19 @@
     /* ── Topbar ── */
     .topbar {
         height: var(--topbar-h);
-        background: #f8fafc;
-        border-bottom: 1px solid #e2e8f0;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid #eef2f6;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 8px 20px;
+        padding: 0 32px;
         flex-shrink: 0;
         position: sticky;
         top: 0;
         z-index: 400;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.02), 0 4px 12px rgba(0,0,0,0.03);
     }
 
     .topbar-left {
@@ -259,13 +261,14 @@
 ══════════════════════════════════ */
 .sub-header-bar {
     height: 52px;
-    background: linear-gradient(to bottom, #fcfdfe, #f8fafc); /* Subtle premium sheen from image */
-    border-bottom: 1px solid #eef2f6;
+    background: #ffffff;
+    border-bottom: 1px solid #f1f5f9;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 24px;
+    padding: 0 32px;
     flex-shrink: 0;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.01);
 }
 
 .sub-header-title {
@@ -386,19 +389,23 @@
     .dropdown-menu {
         display: block;
         opacity: 0;
-        transform: translateY(10px) scale(0.95);
+        transform: translateY(12px) scale(0.96);
         pointer-events: none;
         position: absolute;
-        top: calc(100% + 8px);
+        top: calc(100% + 10px);
         right: 0;
         background: #ffffff;
-        border: 1px solid rgba(0, 0, 0, 0.05);
-        border-radius: 14px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.02);
-        width: 215px;
+        border: 1px solid #f1f5f9;
+        border-radius: 16px;
+        box-shadow: 
+            0 10px 15px -3px rgba(0, 0, 0, 0.05),
+            0 20px 25px -5px rgba(0, 0, 0, 0.05),
+            0 0 0 1px rgba(0, 0, 0, 0.02);
+        width: 230px;
         overflow: hidden;
         z-index: 300;
-        transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        transform-origin: top right;
     }
     .dropdown-menu.show {
         opacity: 1;
@@ -811,6 +818,42 @@
 <?php endif; ?>
 
 <script>
+    // Global Toast Notification System
+    window.showToast = function(message, type = 'success', title = '') {
+        console.log('Toast Triggered:', message, type);
+        const container = document.getElementById('toast-container') || createToastContainer();
+        const toast = document.createElement('div');
+        toast.className = `cx-toast cx-toast-${type}`;
+        
+        const icon = type === 'success' ? 
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>' : 
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>';
+
+        toast.innerHTML = `
+            <div class="cx-toast-icon">${icon}</div>
+            <div class="cx-toast-content">
+                ${title ? `<div class="cx-toast-title">${title}</div>` : ''}
+                <div class="cx-toast-message">${message}</div>
+            </div>
+            <div class="cx-toast-close" onclick="this.parentElement.remove()">&times;</div>
+        `;
+        
+        container.appendChild(toast);
+        setTimeout(() => toast.classList.add('show'), 10);
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 400);
+        }, 5000);
+    };
+
+    function createToastContainer() {
+        const container = document.createElement('div');
+        container.id = 'toast-container';
+        container.style.cssText = 'position:fixed; top:24px; right:24px; z-index:10000; display:flex; flex-direction:column; gap:12px;';
+        document.body.appendChild(container);
+        return container;
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         const toggle   = document.getElementById('userMenuToggle');
         const dropdown = document.getElementById('userDropdown');

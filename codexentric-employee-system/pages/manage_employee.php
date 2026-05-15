@@ -82,233 +82,15 @@ if (!isset($_SESSION['role_id']) || $_SESSION['role_id'] != '1') {
     if (isset($_POST['deactivate'])) {
         $employeeId = $_GET['id'];
         if ($employeeObj->deleteEmployee($employeeId)) {
-            ?>
-            <div class="feedback-card-container">
-                <div class="feedback-card success">
-                    <div class="feedback-icon-wrapper">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                    </div>
-                    <h2>Employee Deleted</h2>
-                    <p>The employee record has been successfully deleted and removed from the system.</p>
-                    <a href="employees_list.php" class="feedback-btn success">
-                        Back to Employee List
-                    </a>
-                </div>
-            </div>
-            <style>
-            .feedback-card-container {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                min-height: calc(100vh - 200px);
-                background: #f8fafc;
-                padding: 24px;
-            }
-            .feedback-card {
-                background: #ffffff;
-                border-radius: 16px;
-                padding: 40px 32px;
-                width: 100%;
-                max-width: 420px;
-                text-align: center;
-                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-                border: 1px solid #e2e8f0;
-                animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-            }
-            @keyframes scaleUp {
-                from { transform: scale(0.95); opacity: 0; }
-                to { transform: scale(1); opacity: 1; }
-            }
-            .feedback-icon-wrapper {
-                width: 64px;
-                height: 64px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin: 0 auto 24px auto;
-            }
-            .feedback-card.success .feedback-icon-wrapper {
-                background: #e8f5e9;
-                color: #186D55;
-            }
-            .feedback-card.error .feedback-icon-wrapper {
-                background: #ffebee;
-                color: #d32f2f;
-            }
-            .feedback-icon-wrapper svg {
-                width: 28px;
-                height: 28px;
-            }
-            .feedback-card h2 {
-                font-size: 20px;
-                font-weight: 700;
-                color: #1e293b;
-                margin-bottom: 12px;
-            }
-            .feedback-card p {
-                font-size: 14px;
-                color: #64748b;
-                line-height: 1.6;
-                margin-bottom: 30px;
-            }
-            .feedback-btn {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                height: 44px;
-                padding: 0 24px;
-                border-radius: 8px;
-                font-size: 14px;
-                font-weight: 600;
-                text-decoration: none;
-                transition: all 0.2s ease;
-                width: 100%;
-            }
-            .feedback-btn.success {
-                background: #186D55;
-                color: #ffffff;
-                box-shadow: 0 4px 12px rgba(24, 109, 85, 0.2);
-            }
-            .feedback-btn.success:hover {
-                background: #125542;
-                transform: translateY(-1px);
-                box-shadow: 0 6px 16px rgba(24, 109, 85, 0.25);
-            }
-            .feedback-btn.error {
-                background: #d32f2f;
-                color: #ffffff;
-                box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2);
-            }
-            .feedback-btn.error:hover {
-                background: #b71c1c;
-                transform: translateY(-1px);
-                box-shadow: 0 6px 16px rgba(211, 47, 47, 0.25);
-            }
-            </style>
-            </main>
-            </div>
-            <?php
-            include_once "../includes/footer.php";
+            $_SESSION['success_msg'] = "Employee profile has been successfully deleted.";
+            header("Location: employees_list.php");
             exit();
         } else {
-            ?>
-            <div class="feedback-card-container">
-                <div class="feedback-card error">
-                    <div class="feedback-icon-wrapper">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </div>
-                    <h2>Deletion Failed</h2>
-                    <p>There was an unexpected error processing this employee deletion. Please try again.</p>
-                    <a href="employees_list.php" class="feedback-btn error">
-                        Back to Employee List
-                    </a>
-                </div>
-            </div>
-            <style>
-            .feedback-card-container {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                min-height: calc(100vh - 200px);
-                background: #f8fafc;
-                padding: 24px;
-            }
-            .feedback-card {
-                background: #ffffff;
-                border-radius: 16px;
-                padding: 40px 32px;
-                width: 100%;
-                max-width: 420px;
-                text-align: center;
-                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-                border: 1px solid #e2e8f0;
-                animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-            }
-            @keyframes scaleUp {
-                from { transform: scale(0.95); opacity: 0; }
-                to { transform: scale(1); opacity: 1; }
-            }
-            .feedback-icon-wrapper {
-                width: 64px;
-                height: 64px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin: 0 auto 24px auto;
-            }
-            .feedback-card.success .feedback-icon-wrapper {
-                background: #e8f5e9;
-                color: #186D55;
-            }
-            .feedback-card.error .feedback-icon-wrapper {
-                background: #ffebee;
-                color: #d32f2f;
-            }
-            .feedback-icon-wrapper svg {
-                width: 28px;
-                height: 28px;
-            }
-            .feedback-card h2 {
-                font-size: 20px;
-                font-weight: 700;
-                color: #1e293b;
-                margin-bottom: 12px;
-            }
-            .feedback-card p {
-                font-size: 14px;
-                color: #64748b;
-                line-height: 1.6;
-                margin-bottom: 30px;
-            }
-            .feedback-btn {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                height: 44px;
-                padding: 0 24px;
-                border-radius: 8px;
-                font-size: 14px;
-                font-weight: 600;
-                text-decoration: none;
-                transition: all 0.2s ease;
-                width: 100%;
-            }
-            .feedback-btn.success {
-                background: #186D55;
-                color: #ffffff;
-                box-shadow: 0 4px 12px rgba(24, 109, 85, 0.2);
-            }
-            .feedback-btn.success:hover {
-                background: #125542;
-                transform: translateY(-1px);
-                box-shadow: 0 6px 16px rgba(24, 109, 85, 0.25);
-            }
-            .feedback-btn.error {
-                background: #d32f2f;
-                color: #ffffff;
-                box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2);
-            }
-            .feedback-btn.error:hover {
-                background: #b71c1c;
-                transform: translateY(-1px);
-                box-shadow: 0 6px 16px rgba(211, 47, 47, 0.25);
-            }
-            </style>
-            </main>
-            </div>
-            <?php
-            include_once "../includes/footer.php";
-            exit();
+            $error = "Failed to delete employee profile.";
         }
     }
-    
+
+    include_once "../includes/header.php";
 ?>
 
 <style>
@@ -1066,10 +848,12 @@ if (!isset($_SESSION['role_id']) || $_SESSION['role_id'] != '1') {
               deleteForm.addEventListener('submit', function(e) {
                   e.preventDefault();
                   deleteModal.style.display = 'flex';
+                  setTimeout(() => deleteModal.classList.add('active'), 10);
               });
 
               cancelBtn.addEventListener('click', () => {
-                  deleteModal.style.display = 'none';
+                  deleteModal.classList.remove('active');
+                  setTimeout(() => deleteModal.style.display = 'none', 300);
               });
 
               confirmBtn.addEventListener('click', () => {
@@ -1086,89 +870,110 @@ if (!isset($_SESSION['role_id']) || $_SESSION['role_id'] != '1') {
               });
 
               deleteModal.addEventListener('click', (e) => {
-                  if (e.target === deleteModal) deleteModal.style.display = 'none';
+                  if (e.target === deleteModal) {
+                      deleteModal.classList.remove('active');
+                      setTimeout(() => deleteModal.style.display = 'none', 300);
+                  }
               });
+          }
+
+          // Trigger Toast for success
+          if (window.showToast) {
+              <?php if (isset($error)): ?>
+                  window.showToast(<?php echo json_encode($error); ?>, 'error', 'Error');
+              <?php endif; ?>
           }
       });
   </script>
 
   <!-- Production Modal Template -->
-  <div id="delete-modal" class="custom-modal-overlay" style="display:none;">
-      <div class="custom-modal-card">
-          <div class="custom-modal-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+  <div id="delete-modal" class="modal-overlay">
+      <div class="modal-content">
+          <div class="modal-header">
+              <div class="modal-icon-warning">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </div>
+              <h3>Remove Employee?</h3>
           </div>
-          <h3 class="custom-modal-title">Delete Employee?</h3>
-          <p class="custom-modal-desc">
-              You are about to permanently delete <strong><?php echo htmlspecialchars($employee['first_name'] . ' ' . $employee['last_name']); ?></strong>. 
-              All records will be erased and this action cannot be reversed.
-          </p>
-          <div class="custom-modal-actions">
-              <button type="button" class="c-btn-cancel" id="cancel-delete-btn">Keep Employee</button>
-              <button type="button" class="c-btn-danger" id="confirm-delete-btn">Confirm Delete</button>
+          <div class="modal-body">
+              <p>
+                  Are you sure you want to delete <strong id="deleteEmployeeName"><?php echo htmlspecialchars($employee['first_name'] . ' ' . $employee['last_name']); ?></strong>? 
+                  This action will permanently remove their profile and payroll data from the system.
+              </p>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn-cancel" id="cancel-delete-btn">No, Keep Profile</button>
+              <button type="button" class="btn-confirm-delete" id="confirm-delete-btn">Yes, Delete Permanently</button>
           </div>
       </div>
   </div>
 
   <style>
-      .custom-modal-overlay {
-          position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-          background: rgba(15, 23, 42, 0.65);
-          backdrop-filter: blur(6px);
-          display: flex; align-items: center; justify-content: center;
-          z-index: 9999;
-          animation: cFadeIn 0.2s ease-out;
-          font-family: 'Nunito Sans', sans-serif;
-      }
-      .custom-modal-card {
-          background: #ffffff; border-radius: 16px; padding: 32px;
-          width: 100%; max-width: 400px; text-align: center;
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-          border: 1px solid rgba(255,255,255,0.1);
-          animation: cSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-          margin: 20px;
-      }
-      .custom-modal-icon {
-          width: 60px; height: 60px; border-radius: 50%;
-          background: #fef2f2; color: #dc2626;
-          display: flex; align-items: center; justify-content: center;
-          margin: 0 auto 20px auto;
-      }
-      .custom-modal-title {
-          font-size: 20px; font-weight: 800; color: #0f172a;
-          margin: 0 0 10px 0;
-      }
-      .custom-modal-desc {
-          font-size: 14px; color: #64748b; line-height: 1.6;
-          margin: 0 0 28px 0;
-      }
-      .custom-modal-actions {
-          display: flex; gap: 12px;
-      }
-      .c-btn-cancel, .c-btn-danger {
-          flex: 1; height: 46px; border-radius: 10px; font-size: 14px;
-          font-weight: 700; border: none; cursor: pointer;
-          transition: all 0.2s ease;
-      }
-      .c-btn-cancel {
-          background: #f1f5f9; color: #475569;
-      }
-      .c-btn-cancel:hover {
-          background: #e2e8f0; color: #1e293b;
-      }
-      .c-btn-danger {
-          background: #dc2626; color: #ffffff;
-          box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
-      }
-      .c-btn-danger:hover {
-          background: #b91c1c; transform: translateY(-1px);
-          box-shadow: 0 6px 15px rgba(220, 38, 38, 0.35);
-      }
-      @keyframes cFadeIn { from { opacity: 0; } to { opacity: 1; } }
-      @keyframes cSlideUp {
-          from { opacity: 0; transform: translateY(20px) scale(0.95); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
-      }
+  /* ── Premium Modal System ── */
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: none; align-items: center; justify-content: center;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .modal-overlay.active {
+    display: flex;
+    opacity: 1;
+  }
+  .modal-content {
+    background: #ffffff;
+    border-radius: 20px;
+    width: 90%; max-width: 440px;
+    padding: 32px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    transform: scale(0.9) translateY(20px);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .modal-overlay.active .modal-content {
+    transform: scale(1) translateY(0);
+  }
+  .modal-header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .modal-icon-warning {
+    width: 56px; height: 56px;
+    background: #fff1f2;
+    color: #e11d48;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px auto;
+  }
+  .modal-icon-warning svg { width: 28px; height: 28px; }
+  .modal-header h3 {
+    font-size: 20px; font-weight: 800; color: #1e293b; margin: 0;
+  }
+  .modal-body p {
+    font-size: 14.5px; color: #64748b; line-height: 1.6; text-align: center; margin: 0;
+  }
+  .modal-footer {
+    margin-top: 32px;
+    display: flex; gap: 12px;
+  }
+  .btn-cancel, .btn-confirm-delete {
+    flex: 1; height: 46px; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; border: none;
+  }
+  .btn-cancel {
+    background: #f1f5f9; color: #475569;
+  }
+  .btn-cancel:hover { background: #e2e8f0; color: #1e293b; }
+  .btn-confirm-delete {
+    background: #e11d48; color: #ffffff;
+    box-shadow: 0 4px 12px rgba(225, 29, 72, 0.2);
+  }
+  .btn-confirm-delete:hover {
+    background: #be123c; transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(225, 29, 72, 0.3);
+  }
   </style>
 
   <!-- Permissions Toggle Styles -->

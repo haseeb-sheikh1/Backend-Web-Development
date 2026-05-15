@@ -143,9 +143,24 @@ class Payroll {
         return $yearly_data;
     }
 
-    public function getSalaryHistory($employee_id) {
-        $stmt = $this->db->prepare("SELECT id, payroll_month, base_salary_rs, net_payable_rs, status FROM payroll WHERE employee_id = ? ORDER BY payroll_month DESC");
-        $stmt->bind_param("i", $employee_id);
+    public function getSalaryHistory($employee_id, $filter_month = null, $filter_year = null) {
+        $query = "SELECT id, payroll_month, base_salary_rs, net_payable_rs, status FROM payroll WHERE employee_id = ?";
+        $params = [$employee_id];
+        $types = "i";
+
+        if ($filter_month) {
+            $query .= " AND payroll_month = ?";
+            $params[] = $filter_month;
+            $types .= "s";
+        } elseif ($filter_year) {
+            $query .= " AND payroll_month LIKE ?";
+            $params[] = $filter_year . "-%";
+            $types .= "s";
+        }
+
+        $query .= " ORDER BY payroll_month DESC";
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param($types, ...$params);
         $stmt->execute();
         $res = $stmt->get_result();
         
