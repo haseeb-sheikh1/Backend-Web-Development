@@ -1,0 +1,3 @@
+"""
+Admissions Pipeline Application
+"""

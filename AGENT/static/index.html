@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admissions Pipeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: { sans: ['"Instrument Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
+        colors: { brand: { 50: '#eef6f5', 100: '#d5e9e6', 500: '#1f8a80', 600: '#177268', 700: '#135b53' } }
+      }
+    }
+  }
+</script>
+<style>
+  body { background: #f6f7f9; }
+  .soft { box-shadow: 0 1px 2px rgba(16,24,40,.04), 0 8px 24px -8px rgba(16,24,40,.08); }
+  .scroll-thin::-webkit-scrollbar { width: 8px; }
+  .scroll-thin::-webkit-scrollbar-thumb { background: #d4d8de; border-radius: 8px; }
+  .dropzone.is-over { border-color: #1f8a80; background: #eef6f5; }
+  .banner { animation: pop .22s ease-out; }
+  @keyframes pop { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .banner { animation: none; } .animate-spin { animation-duration: 2s; } }
+</style>
+</head>
+<body class="font-sans text-slate-800 antialiased">
+
+<header class="bg-white border-b border-slate-200">
+  <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="h-9 w-9 rounded-xl bg-brand-600 grid place-items-center text-white">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0v6m-6-8.5V17c0 1.1 2.7 2.5 6 2.5s6-1.4 6-2.5v-5.5"/></svg>
+      </div>
+      <div>
+        <h1 class="text-base font-semibold leading-tight">Admissions Pipeline</h1>
+        <p class="text-xs text-slate-500 leading-tight">Turn applicant notes into structured records</p>
+      </div>
+    </div>
+    <span class="inline-flex items-center gap-2 text-xs font-medium text-brand-700 bg-brand-50 rounded-full px-3 py-1">
+      <span class="h-1.5 w-1.5 rounded-full bg-brand-500"></span>AI extraction active
+    </span>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-6 py-8 space-y-6">
+
+  <!-- Alerts -->
+  <div id="alerts" class="space-y-3" aria-live="polite"></div>
+
+  <div class="grid lg:grid-cols-2 gap-6">
+
+    <!-- Manual entry -->
+    <section class="bg-white rounded-2xl soft border border-slate-200/70 p-6 flex flex-col">
+      <h2 class="text-lg font-semibold">Manual entry</h2>
+      <p class="text-sm text-slate-500 mt-1">Paste admission notes in plain language. We’ll pull out the student details and save them.</p>
+      <label for="notes" class="sr-only">Admission notes</label>
+      <textarea id="notes" rows="9" placeholder="e.g. Amina Khan, 17, applying for BSc Computer Science. GPA 3.8, SAT 1450. Interested in the scholarship program. Contact: amina@example.com"
+        class="mt-4 w-full flex-1 resize-y rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3 text-sm placeholder:text-slate-400 focus:bg-white focus:border-brand-500 focus:ring-4 focus:ring-brand-100 outline-none transition"></textarea>
+      <div class="mt-4 flex items-center justify-between">
+        <span id="charCount" class="text-xs text-slate-400">0 characters</span>
+        <button id="extractBtn" type="button"
+          class="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold px-5 py-2.5 shadow-sm focus:outline-none focus-visible:ring-4 focus-visible:ring-brand-100 transition">
+          <svg class="spin hidden h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/></svg>
+          <span class="label">Extract &amp; Save</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Batch upload -->
+    <section class="bg-white rounded-2xl soft border border-slate-200/70 p-6 flex flex-col">
+      <h2 class="text-lg font-semibold">Batch upload</h2>
+      <p class="text-sm text-slate-500 mt-1">Upload a file with several applicants. Supports .txt, .pdf and .docx.</p>
+
+      <div id="dropzone" class="dropzone mt-4 flex-1 min-h-[220px] rounded-xl border-2 border-dashed border-slate-300 bg-slate-50/60 grid place-items-center text-center px-6 py-8 cursor-pointer transition" tabindex="0" role="button" aria-label="Choose a file to upload">
+        <div>
+          <div class="mx-auto h-12 w-12 rounded-full bg-white border border-slate-200 grid place-items-center text-slate-500">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0L8 8m4-4l4 4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+          </div>
+          <p class="mt-3 text-sm font-medium">Drop a file here, or <span class="text-brand-600 underline underline-offset-2">browse</span></p>
+          <p class="mt-1 text-xs text-slate-400">.txt, .pdf, .docx</p>
+          <div id="fileChip" class="hidden mt-4 inline-flex items-center gap-2 rounded-lg bg-white border border-slate-200 px-3 py-1.5 text-sm">
+            <svg class="h-4 w-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 3h7l5 5v13H7V3z"/></svg>
+            <span id="fileName" class="font-medium truncate max-w-[200px]"></span>
+            <span id="fileSize" class="text-slate-400 text-xs"></span>
+            <button id="clearFile" type="button" class="text-slate-400 hover:text-slate-700 ml-1" aria-label="Remove file">&times;</button>
+          </div>
+        </div>
+        <input id="fileInput" type="file" accept=".txt,.pdf,.docx" class="hidden">
+      </div>
+
+      <div class="mt-4 flex justify-end">
+        <button id="batchBtn" type="button" disabled
+          class="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold px-5 py-2.5 shadow-sm focus:outline-none focus-visible:ring-4 focus-visible:ring-slate-200 transition">
+          <svg class="spin hidden h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/></svg>
+          <span class="label">Process Batch File</span>
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <!-- Results -->
+  <section class="bg-white rounded-2xl soft border border-slate-200/70">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+      <div>
+        <h2 class="text-lg font-semibold">Extracted students</h2>
+        <p id="resultMeta" class="text-sm text-slate-500">Results appear here after you extract or upload.</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="toggleRaw" type="button" class="hidden text-xs font-medium text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg px-3 py-1.5">View JSON</button>
+        <button id="clearResults" type="button" class="hidden text-xs font-medium text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg px-3 py-1.5">Clear</button>
+      </div>
+    </div>
+    <div id="results" class="scroll-thin max-h-[560px] overflow-y-auto p-6">
+      <div id="empty" class="text-center py-10 text-slate-400 text-sm">No records yet. Paste some notes or upload a file to get started.</div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const notes = $('notes'), extractBtn = $('extractBtn'), batchBtn = $('batchBtn');
+  const dropzone = $('dropzone'), fileInput = $('fileInput');
+  const alerts = $('alerts'), results = $('results');
+  const ALLOWED = ['txt', 'pdf', 'docx'];
+  let selectedFile = null, lastPayload = null, showRaw = false;
+
+  /* ---------- helpers ---------- */
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const prettyKey = (k) => String(k).replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, (c) => c.toUpperCase());
+  const fmtSize = (b) => b < 1024 ? b + ' B' : b < 1048576 ? (b / 1024).toFixed(1) + ' KB' : (b / 1048576).toFixed(1) + ' MB';
+
+  function setLoading(btn, loading, text) {
+    btn.disabled = loading;
+    btn.querySelector('.spin').classList.toggle('hidden', !loading);
+    btn.querySelector('.label').textContent = text;
+  }
+
+  function showAlert(type, title, message) {
+    const ok = type === 'success';
+    const el = document.createElement('div');
+    el.className = 'banner flex items-start gap-3 rounded-xl border px-4 py-3 ' +
+      (ok ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-red-50 border-red-200 text-red-900');
+    el.setAttribute('role', ok ? 'status' : 'alert');
+    el.innerHTML =
+      '<svg class="h-5 w-5 mt-0.5 shrink-0 ' + (ok ? 'text-emerald-600' : 'text-red-600') + '" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">' +
+      (ok ? '<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>'
+          : '<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.3 4.3L2.6 18a2 2 0 001.7 3h15.4a2 2 0 001.7-3L13.7 4.3a2 2 0 00-3.4 0z"/>') +
+      '</svg><div class="flex-1 text-sm"><p class="font-semibold">' + esc(title) + '</p>' +
+      (message ? '<p class="mt-0.5 opacity-90">' + esc(message) + '</p>' : '') + '</div>' +
+      '<button type="button" class="text-lg leading-none opacity-50 hover:opacity-100" aria-label="Dismiss">&times;</button>';
+    el.querySelector('button').onclick = () => el.remove();
+    alerts.innerHTML = '';
+    alerts.appendChild(el);
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    if (ok) setTimeout(() => el.remove(), 8000);
+  }
+
+  async function request(url, options) {
+    const res = await fetch(url, options);
+    let body = null;
+    const text = await res.text();
+    try { body = text ? JSON.parse(text) : null; } catch { body = text; }
+    if (!res.ok) {
+      let msg = res.status + ' ' + res.statusText;
+      if (body && typeof body === 'object' && body.detail) {
+        msg = typeof body.detail === 'string' ? body.detail
+          : Array.isArray(body.detail) ? body.detail.map((d) => d.msg || JSON.stringify(d)).join('; ')
+          : JSON.stringify(body.detail);
+      } else if (body && body.error) { msg = body.error;
+      } else if (typeof body === 'string' && body) { msg = body.slice(0, 200); }
+      throw new Error(msg);
+    }
+    return body;
+  }
+
+  /* ---------- result rendering ---------- */
+  function toRecords(payload) {
+    if (Array.isArray(payload)) return payload;
+    if (payload && typeof payload === 'object') {
+      for (const k of ['students', 'results', 'records', 'data', 'extracted', 'extracted_data']) {
+        if (Array.isArray(payload[k])) return payload[k];
+        if (payload[k] && typeof payload[k] === 'object') return [payload[k]];
+      }
+      return [payload];
+    }
+    return [{ result: payload }];
+  }
+
+  function renderValue(v) {
+    if (v === null || v === undefined || v === '') return '<span class="text-slate-300">&mdash;</span>';
+    if (Array.isArray(v)) {
+      if (!v.length) return '<span class="text-slate-300">&mdash;</span>';
+      if (v.every((x) => typeof x !== 'object')) {
+        return '<div class="flex flex-wrap gap-1.5">' + v.map((x) => '<span class="rounded-md bg-slate-100 px-2 py-0.5 text-xs">' + esc(x) + '</span>').join('') + '</div>';
+      }
+      return '<div class="space-y-2">' + v.map((x) => '<div class="rounded-lg bg-slate-50 border border-slate-100 p-2.5">' + renderFields(x) + '</div>').join('') + '</div>';
+    }
+    if (typeof v === 'object') return '<div class="rounded-lg bg-slate-50 border border-slate-100 p-2.5">' + renderFields(v) + '</div>';
+    if (typeof v === 'boolean') return v ? 'Yes' : 'No';
+    return esc(v);
+  }
+
+  function renderFields(obj) {
+    if (obj === null || typeof obj !== 'object') return renderValue(obj);
+    return '<dl class="grid grid-cols-[130px_1fr] gap-x-4 gap-y-2 text-sm">' +
+      Object.entries(obj).map(([k, v]) =>
+        '<dt class="text-slate-500">' + esc(prettyKey(k)) + '</dt><dd class="font-medium text-slate-800 break-words min-w-0">' + renderValue(v) + '</dd>'
+      ).join('') + '</dl>';
+  }
+
+  function initials(rec) {
+    const name = rec && (rec.name || rec.full_name || rec.student_name || rec.fullName);
+    if (!name || typeof name !== 'string') return '?';
+    return name.trim().split(/\s+/).slice(0, 2).map((p) => p[0].toUpperCase()).join('');
+  }
+
+  function renderResults(payload, label) {
+    lastPayload = payload;
+    const records = toRecords(payload);
+    $('resultMeta').textContent = records.length + (records.length === 1 ? ' record' : ' records') + ' from ' + label;
+    $('toggleRaw').classList.remove('hidden');
+    $('clearResults').classList.remove('hidden');
+    paint(records);
+  }
+
+  function paint(records) {
+    if (showRaw) {
+      results.innerHTML = '<pre class="scroll-thin overflow-auto rounded-xl bg-slate-900 text-slate-100 text-xs p-4 leading-relaxed">' + esc(JSON.stringify(lastPayload, null, 2)) + '</pre>';
+      return;
+    }
+    results.innerHTML = '<div class="grid md:grid-cols-2 gap-4">' + records.map((rec) => {
+      const title = rec && typeof rec === 'object' ? (rec.name || rec.full_name || rec.student_name || rec.fullName || 'Student record') : 'Student record';
+      return '<article class="rounded-xl border border-slate-200 p-4">' +
+        '<div class="flex items-center gap-3 mb-3 pb-3 border-b border-slate-100">' +
+        '<div class="h-9 w-9 rounded-full bg-brand-50 text-brand-700 grid place-items-center text-sm font-semibold">' + esc(initials(rec)) + '</div>' +
+        '<h3 class="font-semibold truncate">' + esc(title) + '</h3></div>' + renderFields(rec) + '</article>';
+    }).join('') + '</div>';
+  }
+
+  $('toggleRaw').onclick = () => {
+    showRaw = !showRaw;
+    $('toggleRaw').textContent = showRaw ? 'View cards' : 'View JSON';
+    if (lastPayload !== null) paint(toRecords(lastPayload));
+  };
+  $('clearResults').onclick = () => {
+    lastPayload = null; showRaw = false;
+    $('toggleRaw').textContent = 'View JSON';
+    $('toggleRaw').classList.add('hidden'); $('clearResults').classList.add('hidden');
+    $('resultMeta').textContent = 'Results appear here after you extract or upload.';
+    results.innerHTML = '<div class="text-center py-10 text-slate-400 text-sm">No records yet. Paste some notes or upload a file to get started.</div>';
+  };
+
+  /* ---------- manual entry ---------- */
+  notes.addEventListener('input', () => { $('charCount').textContent = notes.value.length.toLocaleString() + ' characters'; });
+
+  extractBtn.addEventListener('click', async () => {
+    const text = notes.value.trim();
+    if (!text) { showAlert('error', 'Nothing to extract', 'Paste some admission notes into the text box first.'); notes.focus(); return; }
+    setLoading(extractBtn, true, 'Extracting…');
+    try {
+      const data = await request('/api/extract', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      });
+      renderResults(data, 'manual entry');
+      showAlert('success', 'Extracted and saved', 'The student record was created from your notes.');
+    } catch (err) {
+      showAlert('error', 'Extraction failed', err.message || 'Something went wrong. Check the server and try again.');
+    } finally {
+      setLoading(extractBtn, false, 'Extract & Save');
+    }
+  });
+
+  /* ---------- batch upload ---------- */
+  function setFile(file) {
+    if (!file) return;
+    const ext = file.name.split('.').pop().toLowerCase();
+    if (!ALLOWED.includes(ext)) {
+      showAlert('error', 'Unsupported file type', 'Upload a .txt, .pdf or .docx file.');
+      return;
+    }
+    selectedFile = file;
+    $('fileName').textContent = file.name;
+    $('fileSize').textContent = fmtSize(file.size);
+    $('fileChip').classList.remove('hidden');
+    batchBtn.disabled = false;
+  }
+  function clearFile() {
+    selectedFile = null; fileInput.value = '';
+    $('fileChip').classList.add('hidden');
+    batchBtn.disabled = true;
+  }
+
+  dropzone.addEventListener('click', (e) => { if (e.target.id !== 'clearFile') fileInput.click(); });
+  dropzone.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); } });
+  fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
+  $('clearFile').addEventListener('click', (e) => { e.stopPropagation(); clearFile(); });
+  ['dragenter', 'dragover'].forEach((ev) => dropzone.addEventListener(ev, (e) => { e.preventDefault(); dropzone.classList.add('is-over'); }));
+  ['dragleave', 'drop'].forEach((ev) => dropzone.addEventListener(ev, (e) => { e.preventDefault(); dropzone.classList.remove('is-over'); }));
+  dropzone.addEventListener('drop', (e) => setFile(e.dataTransfer.files[0]));
+
+  batchBtn.addEventListener('click', async () => {
+    if (!selectedFile) return;
+    setLoading(batchBtn, true, 'Processing…');
+    try {
+      const fd = new FormData();
+      fd.append('file', selectedFile);
+      const data = await request('/api/batch-extract', { method: 'POST', body: fd });
+      renderResults(data, selectedFile.name);
+      showAlert('success', 'Batch processed', selectedFile.name + ' was processed and saved.');
+      clearFile();
+    } catch (err) {
+      showAlert('error', 'Batch processing failed', err.message || 'Something went wrong. Check the file and try again.');
+      batchBtn.disabled = !selectedFile;
+    } finally {
+      setLoading(batchBtn, false, 'Process Batch File');
+      batchBtn.disabled = !selectedFile;
+    }
+  });
+})();
+</script>
+</body>
+</html>

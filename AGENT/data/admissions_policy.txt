@@ -1,0 +1,10 @@
+[ELIGIBILITY]
+Step 1: Identify the threshold for the desired_program. BS Computer Science and BS Software Engineering = 75%. BBA and MBA = 65%. MBBS and BS Electrical Engineering = 85%. All other programs = 70%.
+Step 2: Check the student's marks_percentage. If the marks_percentage is exactly the word 'Pending', status is Rejected.
+Step 3: Compare the numbers. If the student's marks_percentage is mathematically greater than or equal to the threshold, status is Eligible.
+Step 4: Ignore entry_test_status. It is expected to be 'Pending' at this stage and does NOT disqualify the student.
+
+[MERIT]
+academic_weight = 0.6
+entry_test_weight = 0.4
+minimum_final_merit = 70.0
