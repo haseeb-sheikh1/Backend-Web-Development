@@ -133,7 +133,7 @@ def process_single(user_text: str, filename: str = EXCEL_FILENAME) -> dict:
     return final_record
 
 
-def process_batch(raw_text: str, filename: str = EXCEL_FILENAME) -> list[dict]:
+def process_batch(raw_text: str, filename: str = EXCEL_FILENAME, temperature: float = 0.0) -> list[dict]:
     """
     End-to-end pipeline for a batch of students described in unstructured text.
 
@@ -146,6 +146,8 @@ def process_batch(raw_text: str, filename: str = EXCEL_FILENAME) -> list[dict]:
     Args:
         raw_text (str): Unstructured text containing one or more student records.
         filename (str): Target Excel file path. Defaults to config.EXCEL_FILENAME.
+        temperature (float): Temperature for the LLM (0.0 = deterministic, 1.0 = creative).
+                            Defaults to 0.0.
 
     Returns:
         list[dict]: Fully prepared admission records (normalized + metadata-enriched).
@@ -155,7 +157,7 @@ def process_batch(raw_text: str, filename: str = EXCEL_FILENAME) -> list[dict]:
         ValueError:           If no records were extracted after 2 attempts.
         Exception:            Propagated from extractor or excel_repository.
     """
-    raw_records   = extract_batch_data(raw_text)
+    raw_records   = extract_batch_data(raw_text, temperature=temperature)
     final_records = [_prepare(r) for r in raw_records]
     save_to_excel(final_records, filename=filename)
     return final_records

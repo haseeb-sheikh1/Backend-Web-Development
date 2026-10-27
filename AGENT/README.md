@@ -78,8 +78,10 @@ This updates `final_merit_score` and `application_status` in `data/admissions.xl
 ```bash
 pip install playwright
 playwright install chromium
-python src/cli.py --scrape-scores
+python run_cli.py --scrape-scores
 ```
+> Phase 3 only scrapes students whose `application_status` is `Eligible`.
+> Run `python run_cli.py --validate` (Phase 2) first.
 
 ### Web API Mode
 

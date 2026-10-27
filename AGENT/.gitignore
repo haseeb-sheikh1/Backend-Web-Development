@@ -1,0 +1,16 @@
+# Environment variables (CRITICAL: Never push passwords)
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Local Database / Output files (Keep student data private)
+data/admissions.xlsx
+data/notes.txt
+*.db
+*.sqlite3
+
+# Virtual environments (if you are using one)
+venv/
+env/

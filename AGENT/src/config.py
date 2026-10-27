@@ -62,4 +62,5 @@ EXCEL_COLUMNS: list[str] = [
     "eligibility_reason",
     "entry_test_score",
     "final_merit_score",
+    "email_sent",
 ]

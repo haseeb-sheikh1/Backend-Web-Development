@@ -56,13 +56,13 @@ OLLAMA_TIMEOUT: int = 120  # seconds
 
 # Generation options applied to every ollama.chat call:
 #   temperature=0.0  → fully deterministic, no creative padding
-#   num_predict=800  → token budget.  llama3.2 can ramble inside string
-#                      fields even with format=schema; 800 gives the JSON
+#   num_predict=300  → token budget.  llama3.2 can ramble inside string
+#                      fields even with format=schema; 300 gives the JSON
 #                      enough headroom to close properly.  If you see
 #                      JSONDecodeError on very large batches, raise further.
 _GENERATION_OPTIONS: dict = {
     "temperature": 0.0,
-    "num_predict": 800,
+    "num_predict": 300,
 }
 
 _client = ollama.Client(
@@ -317,7 +317,7 @@ def _stream_response(stream) -> str:
     Returns:
         str: The assembled content up to the early-stop point.
     """
-    MAX_STRING_CHARS = 120   # max chars allowed inside any single string field
+    MAX_STRING_CHARS = 400   # max chars allowed inside any single string field
 
     full_content: list[str] = []
     print("  [streaming] ", end="", flush=True)
@@ -373,7 +373,7 @@ def _stream_response(stream) -> str:
     return "".join(full_content)
 
 
-def _call_ollama(messages: list[dict], schema: dict, label: str = "") -> str:
+def _call_ollama(messages: list[dict], schema: dict, label: str = "", temperature: float | None = None) -> str:
     """
     Make a single streaming Ollama call with all safeguards applied.
 
@@ -381,6 +381,7 @@ def _call_ollama(messages: list[dict], schema: dict, label: str = "") -> str:
         messages (list[dict]): The chat messages list (system + user).
         schema   (dict):       The Pydantic model_json_schema() to enforce.
         label    (str):        Short description printed before the call (optional).
+        temperature (float | None): Override the default temperature. If None, uses _GENERATION_OPTIONS['temperature'].
 
     Returns:
         str: The full raw content string returned by the model.
@@ -388,16 +389,20 @@ def _call_ollama(messages: list[dict], schema: dict, label: str = "") -> str:
     Raises:
         RuntimeError: On timeout or any Ollama/httpx connectivity error.
     """
+    options = _GENERATION_OPTIONS.copy()
+    if temperature is not None:
+        options["temperature"] = temperature
+
     if label:
         print(f"  [~] {label} (model={MODEL_NAME}, timeout={OLLAMA_TIMEOUT}s, "
-              f"num_predict={_GENERATION_OPTIONS['num_predict']})...")
+              f"num_predict={options['num_predict']}, temperature={options['temperature']})...")
 
     try:
         stream = _client.chat(
             model=MODEL_NAME,
             messages=messages,
             format=schema,           # Enforce JSON output — model must stop after JSON
-            options=_GENERATION_OPTIONS,
+            options=options,
             stream=True,             # Stream tokens; hang is immediately visible
         )
         return _stream_response(stream)
@@ -473,7 +478,7 @@ def extract_data(user_text: str) -> dict:
     return _apply_regex_fallbacks(validated.model_dump(), user_text)
 
 
-def extract_batch_data(raw_text: str) -> list[dict]:
+def extract_batch_data(raw_text: str, temperature: float = 0.0) -> list[dict]:
     """
     Send *raw_text* (which may describe many students) to Ollama and extract
     ALL student admission records in a single LLM pass, retrying once if the
@@ -487,6 +492,8 @@ def extract_batch_data(raw_text: str) -> list[dict]:
 
     Args:
         raw_text (str): Unstructured text containing one or more student records.
+        temperature (float): Temperature for the LLM (0.0 = deterministic, 1.0 = creative).
+                            Defaults to 0.0.
 
     Returns:
         list[dict]: A list of dicts, each matching AdmissionRecord fields.
@@ -525,6 +532,7 @@ def extract_batch_data(raw_text: str) -> list[dict]:
             ],
             schema=StudentBatch.model_json_schema(),
             label=f"Extracting batch records (attempt {attempt + 1}/2)",
+            temperature=temperature,
         )
 
         batch_dict = _safe_parse_json(raw_content)

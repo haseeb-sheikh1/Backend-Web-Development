@@ -23,7 +23,24 @@ Entry-test score scraping:
 """
 
 import json
+import os
 import sys
+
+# When this file is run directly (`python src/cli.py ...`), Python puts
+# `src/` on sys.path instead of the project root, so `import src.*` fails.
+# Add the project root explicitly so both entry points work.
+if __name__ == "__main__" and not __package__:
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Windows consoles default to a legacy code page (e.g. cp1252) that cannot
+# encode some characters used in status output. Replace unencodable characters
+# instead of raising UnicodeEncodeError mid-pipeline.
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(errors="replace")
+        except Exception:
+            pass
 
 from src.services.admission_service import process_single, process_batch
 from src.services.validator_service import run_validation
@@ -173,7 +190,7 @@ def run_validation_cli(prompt_for_paths: bool = True) -> None:
                 program = res.get("desired_program", "?")
                 marks   = res.get("marks_percentage", "?")
 
-                symbol = "✅" if status == "Eligible" else "❌"
+                symbol = "[ELIGIBLE]" if status == "Eligible" else "[REJECTED]"
                 print(f"\n  {i}. {symbol}  {name}")
                 print(f"     Programme : {program}")
                 print(f"     Marks     : {marks}")
@@ -187,6 +204,28 @@ def run_validation_cli(prompt_for_paths: bool = True) -> None:
         print(f"\n  [ERROR] {exc}\n")
     except Exception as exc:
         print(f"\n  [ERROR] Unexpected error during validation: {exc}\n")
+
+
+# ---------------------------------------------------------------------------
+# Phase 3 / Phase 4 menu options
+# ---------------------------------------------------------------------------
+
+def run_score_scraper_cli() -> None:
+    """Invoke the entry-test score scraper (Phase 3) from the menu."""
+    from src.services.score_scraper_service import run_score_scraper
+
+    try:
+        run_score_scraper()
+    except Exception as exc:
+        print(f"\n  [ERROR] Score scraping failed: {exc}\n")
+
+
+def run_merit_cli() -> None:
+    """Invoke the merit calculator (Phase 4) from the menu."""
+    try:
+        run_merit_calculation()
+    except Exception as exc:
+        print(f"\n  [ERROR] Merit calculation failed: {exc}\n")
 
 
 # ---------------------------------------------------------------------------
@@ -205,7 +244,9 @@ def run_menu() -> None:
     options = {
         "1": ("Enter a student record (interactive)",   run_interactive),
         "2": ("Run Validator Agent (eligibility check)", run_validation_cli),
-        "3": ("Exit",                                   None),
+        "3": ("Scrape entry-test scores",                run_score_scraper_cli),
+        "4": ("Calculate merit",                         run_merit_cli),
+        "5": ("Exit",                                    None),
     }
 
     while True:
@@ -215,7 +256,7 @@ def run_menu() -> None:
         choice = input("\n  Select an option: ").strip()
 
         if choice not in options:
-            print("  [!] Invalid choice. Please enter 1, 2, or 3.")
+            print("  [!] Invalid choice. Please enter 1, 2, 3, 4, or 5.")
             continue
 
         label, fn = options[choice]

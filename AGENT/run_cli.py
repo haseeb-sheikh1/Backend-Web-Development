@@ -16,6 +16,10 @@ if __name__ == "__main__":
             run_validation_cli(prompt_for_paths=False)
         elif sys.argv[1] == "--calculate-merit":
             run_merit_calculation()
+        elif sys.argv[1] == "--scrape-scores":
+            from src.services.score_scraper_service import run_score_scraper
+
+            run_score_scraper()
         else:
             # Any non-flag argument is a batch input file path
             run_batch(sys.argv[1])

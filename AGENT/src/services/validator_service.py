@@ -13,9 +13,10 @@ needs to know about the individual steps.
 
 Public API
 ----------
-  run_validation(policy_file, master_file)
+  run_validation(policy_file, master_file, custom_policy)
       Full end-to-end run: read policy → fetch students → evaluate each →
       update their status and validation notes in the master workbook.
+      ``custom_policy`` optionally replaces the policy file contents.
 """
 
 import json
@@ -40,13 +41,15 @@ DEFAULT_POLICY_FILE  = "data/admissions_policy.txt"
 def run_validation(
     policy_file:  str = DEFAULT_POLICY_FILE,
     master_file:  str = EXCEL_FILENAME,
+    custom_policy: str | None = None,
 ) -> list[dict]:
     """
     Run the full Validator Agent pipeline.
 
     Steps
     -----
-    1. Read the admissions policy document (via document_reader).
+    1. Load the admissions policy: use ``custom_policy`` when provided,
+       otherwise read the policy document (via document_reader).
     2. Fetch all "Under Review" student records from the master Excel file
        (via excel_repository.get_under_review_records).
     3. For each student, call the LLM to evaluate eligibility
@@ -60,6 +63,9 @@ def run_validation(
                            Defaults to 'admissions_policy.txt'.
         master_file (str): Path to the master Excel admissions workbook.
                            Defaults to config.EXCEL_FILENAME.
+        custom_policy (str | None): Optional admin-supplied policy text.
+                           When given, it replaces the policy file for this
+                           run; the file is still required otherwise.
     Returns:
         list[dict]: One result dict per evaluated student, each containing:
                       - All original student fields
@@ -68,31 +74,38 @@ def run_validation(
 
     Raises:
         FileNotFoundError: If policy_file or master_file does not exist.
-        ValueError:        If policy_file is empty.
+        ValueError:        If the resolved policy is empty.
         Exception:         Propagated from extractor or excel_repository.
     """
     # ------------------------------------------------------------------
-    # Step 1 — Load admissions policy
+    # Step 1 — Load admissions policy (custom override or policy file)
     # ------------------------------------------------------------------
     print("\n" + "=" * 60)
     print("  [*] Validator Agent — Starting Eligibility Run")
     print("=" * 60)
 
-    print(f"\n  [1/4] Reading policy document: '{policy_file}'")
-
-    # Use only the [ELIGIBILITY] section so [MERIT] rules don't confuse the LLM
-    policy_text = get_section_text("ELIGIBILITY", policy_file)
-
-    # Fall back to reading the whole file if the section header isn't present
-    # (backwards-compatible with older policy files that have no section tags)
-    if not policy_text.strip():
-        policy_text = read_unstructured_file(policy_file)
-
-    if not policy_text.strip():
-        raise ValueError(
-            f"Policy file '{policy_file}' is empty. "
-            "Populate it with admission rules before running validation."
+    if custom_policy and custom_policy.strip():
+        policy_text = custom_policy.strip()
+        print(
+            f"\n  [1/4] Using custom policy override "
+            f"({len(policy_text)} characters)."
         )
+    else:
+        print(f"\n  [1/4] Reading policy document: '{policy_file}'")
+
+        # Use only the [ELIGIBILITY] section so [MERIT] rules don't confuse the LLM
+        policy_text = get_section_text("ELIGIBILITY", policy_file)
+
+        # Fall back to reading the whole file if the section header isn't present
+        # (backwards-compatible with older policy files that have no section tags)
+        if not policy_text.strip():
+            policy_text = read_unstructured_file(policy_file)
+
+        if not policy_text.strip():
+            raise ValueError(
+                f"Policy file '{policy_file}' is empty. "
+                "Populate it with admission rules before running validation."
+            )
     print(f"  [OK] Policy loaded ({len(policy_text)} characters).\n")
 
     # ------------------------------------------------------------------
@@ -122,7 +135,7 @@ def run_validation(
             new_status = decision["status"]   # "Eligible" | "Rejected"
             reasoning  = decision["reasoning"]
 
-            print(f"       → Decision: {new_status}")
+            print(f"       -> Decision: {new_status}")
             print(f"         Reason  : {reasoning}\n")
 
             student_updates.append({
@@ -144,6 +157,14 @@ def run_validation(
         except Exception as exc:
             name = student.get("name", "?")
             print(f"  [ERROR] Could not evaluate '{name}': {exc}\n")
+
+    # If every evaluation failed, surface a real error instead of silently
+    # reporting success with zero results.
+    if students and not results:
+        raise RuntimeError(
+            f"All {len(students)} student evaluation(s) failed. "
+            "Check that Ollama is running and the llama3.2 model is available."
+        )
 
     # ------------------------------------------------------------------
     # Step 4 — Update master workbook with statuses and validation notes
